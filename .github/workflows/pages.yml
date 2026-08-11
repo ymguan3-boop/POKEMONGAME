@@ -1,0 +1,68 @@
+name: Deploy POKEMONGAME to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Prepare static site
+        shell: bash
+        run: |
+          rm -rf _site
+          mkdir -p "_site"
+          cp -R "寶可夢3D-V3" "_site/寶可夢3D-V3"
+          cp -R "寶可夢3D-V4" "_site/寶可夢3D-V4"
+          cat > "_site/index.html" <<'EOF'
+          <!doctype html>
+          <html lang="zh-Hant">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <title>POKEMONGAME</title>
+            <style>body{font-family:system-ui,sans-serif;max-width:720px;margin:4rem auto;padding:0 1rem;line-height:1.8;background:#f4f7fb;color:#172033}a{display:block;padding:1rem;margin:.8rem 0;border-radius:12px;background:#fff;color:#1457a6;text-decoration:none;box-shadow:0 4px 16px #0001}</style>
+          </head>
+          <body>
+            <h1>POKEMONGAME</h1>
+            <p>選擇要遊玩的 3D 寶可夢版本：</p>
+            <a href="./寶可夢3D-V3/">寶可夢 3D-V3：道館挑戰與進化解放版</a>
+            <a href="./寶可夢3D-V4/">寶可夢 3D-V4：神奧夏日遠征版</a>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
