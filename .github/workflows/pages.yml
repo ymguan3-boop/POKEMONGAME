@@ -31,6 +31,7 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p "_site"
+          cp -R "寶可夢3D-V2" "_site/寶可夢3D-V2"
           cp -R "寶可夢3D-V3" "_site/寶可夢3D-V3"
           cp -R "寶可夢3D-V4" "_site/寶可夢3D-V4"
           cat > "_site/index.html" <<'EOF'
