@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>寶可夢 3D 遠征：進化與傳奇</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" onerror="this.onerror=null; this.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';"></script>
+    
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; user-select: none; -webkit-user-select: none; background-color: #000; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+        .touch-element { touch-action: none; }
+        .pokedex-glow { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+        .capture-card-glow { box-shadow: 0 0 30px rgba(250, 204, 21, 0.4); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <!-- 常駐置頂的圖鑑進度 HUD -->
+    <div id="persistent-hud" class="absolute top-2 md:top-4 left-1/2 -translate-x-1/2 z-20 bg-black/70 backdrop-blur-md text-white px-3 py-1 md:px-5 md:py-1.5 rounded-full border border-yellow-500/50 flex items-center gap-2 md:gap-3 shadow-lg pointer-events-none transition-all scale-90 md:scale-100 whitespace-nowrap">
+        <span class="text-[10px] md:text-xs font-bold text-gray-300">收集進度</span>
+        <span id="hud-capture-score" class="text-yellow-400 font-black text-xs md:text-sm tracking-widest">0 / 22</span>
+    </div>
+
+    <!-- 主選單切換按鈕 -->
+    <button id="btn-toggle-menu" class="absolute top-2 md:top-4 left-2 md:left-4 z-30 bg-black/80 hover:bg-black/90 text-white px-2 py-1.5 md:px-3 md:py-2 rounded-xl border border-slate-500 shadow-lg touch-element flex items-center gap-1 md:gap-2 transition-all active:scale-95">
+        <span class="text-base md:text-lg pointer-events-none">✕</span> <span class="text-[10px] md:text-xs font-bold hidden sm:inline pointer-events-none">關閉選單</span>
+    </button>
+
+    <!-- 主選單面板 -->
+    <div id="main-menu-panel" class="absolute top-16 left-4 z-20 flex flex-col gap-3 transition-all duration-300 origin-top-left scale-100 opacity-100">
+        <!-- 頂部資訊 UI -->
+        <div class="bg-black/70 backdrop-blur-md text-white p-3 rounded-xl border border-yellow-500/30 flex flex-col gap-1 w-48 shadow-lg pointer-events-auto">
+            <div class="flex items-center gap-2">
+                <span class="text-xs bg-yellow-500 text-black font-extrabold px-2 py-0.5 rounded">小智</span>
+                <span class="font-bold text-sm tracking-wide">寶可夢 3D 遠征</span>
+            </div>
+            <div id="sync-status" class="text-[10px] text-emerald-400 font-bold mt-0.5 opacity-0 transition-opacity">
+                ☁️ 存檔已同步
+            </div>
+        </div>
+
+        <!-- 背景音樂與音量控制 (改為雙音軌預載) -->
+        <div class="bg-black/70 backdrop-blur-md text-white px-3 py-2 rounded-xl border border-blue-500/30 flex items-center gap-2 pointer-events-auto touch-element shadow-lg">
+            <span class="text-xs">🎵</span>
+            <input type="range" id="bgm-volume" min="0" max="1" step="0.05" value="0.3" class="w-full accent-blue-400 cursor-pointer">
+            <audio id="bgm-normal" loop preload="auto">
+                <source src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663103188052/CbQjRjWYimzmybSF.mp3" type="audio/mpeg">
+            </audio>
+            <audio id="bgm-boss" loop preload="auto">
+                <source src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663103188052/QULWPerZOImEQKMh.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+        
+        <!-- 圖鑑按鈕 -->
+        <button id="btn-pokedex" class="bg-blue-600/80 hover:bg-blue-500 text-white font-bold px-3 py-2.5 rounded-xl text-xs border border-blue-400 shadow-lg active:scale-95 transition-all touch-element flex items-center justify-center gap-2 pointer-events-auto">
+            <span>📖</span> 寶可夢圖鑑
+        </button>
+
+        <!-- 遊戲重置按鈕 -->
+        <button id="btn-reset" class="bg-slate-700/80 hover:bg-slate-600 text-white font-bold px-3 py-2 rounded-xl text-xs border border-slate-500 shadow-lg active:scale-95 transition-all touch-element pointer-events-auto">
+            重置進度
+        </button>
+    </div>
+
+    <!-- 雷達切換與容器 -->
+    <div class="absolute top-2 md:top-4 right-2 md:right-4 z-30 flex flex-col items-end gap-2">
+        <button id="btn-toggle-radar" class="bg-green-600/80 text-white p-1.5 md:p-2.5 rounded-xl border border-green-400 shadow-lg touch-element flex items-center justify-center transition-all active:scale-95 w-8 h-8 md:w-10 md:h-10">
+            <span class="text-sm md:text-lg pointer-events-none">🧭</span>
+        </button>
+        <div id="radar-container" class="transition-all duration-300 origin-top-right scale-75 md:scale-100 opacity-100 mt-[-10px] md:mt-0">
+            <div class="bg-black/60 p-1 rounded-full border-2 border-slate-700 shadow-lg pointer-events-auto">
+                <canvas id="radar-canvas" width="110" height="110" class="rounded-full"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- 捕捉提示公告欄 -->
+    <div id="notification" class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-black/80 backdrop-blur-md border-2 border-yellow-400 text-yellow-400 px-6 py-3 rounded-full font-bold text-base md:text-lg shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none text-center max-w-[90vw]">
+        正在載入雲端存檔...
+    </div>
+
+    <!-- 專屬 3D 捕捉卡片 -->
+    <div id="capture-card" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-yellow-400 rounded-2xl w-72 md:w-80 overflow-hidden capture-card-glow transform scale-90 transition-transform duration-300 flex flex-col" id="capture-card-inner">
+            <div class="bg-gradient-to-r from-yellow-500 to-amber-600 p-2 text-center border-b-2 border-yellow-700 shrink-0">
+                <h3 class="text-white font-black text-lg tracking-widest text-shadow-md">成功捕捉！</h3>
+            </div>
+            
+            <div class="h-48 w-full bg-slate-950 flex items-center justify-center relative overflow-hidden shrink-0" style="background: radial-gradient(circle, #1e293b 0%, #020617 100%);">
+                <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSIvPgo8L3N2Zz4=')]"></div>
+                <div id="capture-3d-container" class="w-full h-full"></div>
+            </div>
+            
+            <div class="p-4 text-center flex-1 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-center gap-2 items-center mb-1">
+                        <span id="capture-type-badge" class="px-2 py-0.5 rounded text-[10px] font-bold text-white uppercase bg-gray-500">屬性</span>
+                        <h2 id="capture-name" class="text-xl font-black text-white">寶可夢名稱</h2>
+                    </div>
+                    <p id="capture-desc" class="text-xs text-gray-300 mt-2 leading-relaxed text-left">
+                        這裡顯示寶可夢的介紹...
+                    </p>
+                    <div id="capture-evo-hint" class="mt-3 text-[10px] text-yellow-400/80 font-bold bg-yellow-400/10 py-1 rounded">
+                        繼續捕捉以發現進化型態！
+                    </div>
+                </div>
+                <button id="btn-close-capture" class="mt-4 bg-yellow-500 hover:bg-yellow-400 text-black font-extrabold px-6 py-2.5 rounded-xl shadow-[0_4px_15px_rgba(234,179,8,0.5)] border-2 border-yellow-600 active:scale-95 transition-all w-full pointer-events-auto">
+                    收下並繼續
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 遊戲通關 / 超夢捕捉 Modal -->
+    <div id="victory-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 pointer-events-auto touch-element">
+        <div class="bg-slate-900 border-4 border-yellow-400 rounded-2xl p-6 md:p-8 text-center max-w-sm w-full shadow-[0_0_50px_rgba(250,204,21,0.5)] transform transition-transform scale-100">
+            <h2 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-600 mb-2 tracking-widest">🎉 遠征完成！</h2>
+            <div class="text-5xl mb-4">🏆</div>
+            <p class="text-gray-300 mb-6 font-bold leading-relaxed">
+                恭喜！您已成功降伏超夢，並收集了世界上所有的寶可夢！<br>
+                <span class="text-yellow-400">寶可夢圖鑑已達 100% 收集完畢！</span>
+            </p>
+            <button id="btn-victory-reset" class="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-extrabold py-3.5 rounded-xl shadow-lg active:scale-95 transition-all mb-3 border-2 border-yellow-600">
+                重置遊戲並重新開始
+            </button>
+            <button id="btn-victory-close" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition-all active:scale-95 border border-slate-500">
+                繼續在此世界遊歷
+            </button>
+        </div>
+    </div>
+
+    <!-- 寶可夢圖鑑面板 -->
+    <div id="pokedex-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-lg flex items-center justify-center p-2 md:p-4 touch-element">
+        <div class="bg-slate-900 border-2 border-red-500 w-full max-w-4xl rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[90vh]">
+            <div class="bg-red-600 p-4 text-white flex justify-between items-center border-b-4 border-black shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-blue-400 border-2 border-white rounded-full shadow-[0_0_8px_#38bdf8]"></div>
+                    <h2 class="font-black text-lg md:text-xl tracking-wider">寶可夢 3D 圖鑑</h2>
+                </div>
+                <button id="btn-close-pokedex" class="bg-black/40 hover:bg-black/60 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all">✕</button>
+            </div>
+            <div class="bg-slate-800 px-6 py-3 border-b border-slate-700 flex justify-between items-center text-sm text-gray-300 shrink-0">
+                <span>收集進度：<strong id="pokedex-progress" class="text-yellow-400">0 / 22</strong></span>
+                <div class="w-1/2 md:w-2/3 bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-700">
+                    <div id="pokedex-progress-bar" class="bg-gradient-to-r from-red-500 to-yellow-500 h-full w-0 transition-all duration-500"></div>
+                </div>
+            </div>
+            <div id="pokedex-list" class="p-4 md:p-6 overflow-y-auto grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 flex-1 content-start">
+            </div>
+        </div>
+    </div>
+
+    <!-- 行動端操控區 (改為十字鍵) -->
+    <div class="absolute bottom-6 left-2 sm:bottom-8 sm:left-8 z-10 w-32 h-32 md:w-40 md:h-40 bg-black/40 backdrop-blur-sm border-2 border-slate-600 rounded-full flex items-center justify-center touch-element select-none shadow-[0_0_15px_rgba(0,0,0,0.5)]" id="dpad-zone">
+        <div class="relative w-full h-full">
+            <!-- Up -->
+            <button id="dpad-up" class="absolute top-0.5 left-1/2 -translate-x-1/2 w-11 h-11 md:w-12 md:h-12 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-xl border border-white/50 flex items-center justify-center text-white text-xl font-bold touch-element">▲</button>
+            <!-- Down -->
+            <button id="dpad-down" class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-11 h-11 md:w-12 md:h-12 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-xl border border-white/50 flex items-center justify-center text-white text-xl font-bold touch-element">▼</button>
+            <!-- Left -->
+            <button id="dpad-left" class="absolute left-0.5 top-1/2 -translate-y-1/2 w-11 h-11 md:w-12 md:h-12 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-xl border border-white/50 flex items-center justify-center text-white text-xl font-bold touch-element">◀</button>
+            <!-- Right -->
+            <button id="dpad-right" class="absolute right-0.5 top-1/2 -translate-y-1/2 w-11 h-11 md:w-12 md:h-12 bg-white/20 hover:bg-white/40 active:bg-white/60 rounded-xl border border-white/50 flex items-center justify-center text-white text-xl font-bold touch-element">▶</button>
+            <!-- Center decorative -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 md:w-8 md:h-8 bg-slate-800 rounded-full border border-slate-500 shadow-inner pointer-events-none"></div>
+        </div>
+    </div>
+
+    <div id="power-bar-container" class="absolute bottom-8 right-[5.5rem] md:bottom-32 md:right-10 z-20 w-10 md:w-16 h-28 md:h-32 bg-black/60 border-2 border-slate-700 rounded-2xl p-1 md:p-1.5 flex flex-col justify-end items-center opacity-0 transition-opacity duration-200 pointer-events-none">
+        <span class="text-[8px] md:text-[9px] text-white font-bold mb-1">力道</span>
+        <div class="w-3 md:w-4 h-full bg-slate-950 rounded-lg overflow-hidden border border-slate-800 flex flex-col justify-end">
+            <div id="power-bar-fill" class="w-full bg-gradient-to-t from-emerald-500 via-yellow-400 to-rose-500 h-0 transition-all duration-75"></div>
+        </div>
+        <span id="power-text" class="text-[9px] md:text-[10px] text-yellow-400 font-extrabold mt-1">0%</span>
+    </div>
+
+    <button id="btn-throw" class="absolute bottom-6 right-4 md:bottom-8 md:right-8 z-10 w-16 h-16 md:w-20 md:h-20 bg-gradient-to-b from-red-500 via-red-600 to-white border-4 border-slate-800 rounded-full flex items-center justify-center shadow-2xl transition-all touch-element focus:outline-none">
+        <div class="w-full h-1.5 bg-slate-800 absolute pointer-events-none"></div>
+        <div class="w-5 h-5 md:w-6 md:h-6 bg-white border-4 border-slate-800 rounded-full z-20 flex items-center justify-center pointer-events-none">
+            <div class="w-2 h-2 md:w-2.5 md:h-2.5 bg-yellow-400 rounded-full animate-ping"></div>
+        </div>
+        <span class="absolute -bottom-5 md:-bottom-6 text-white text-[9px] md:text-xs font-black tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] whitespace-nowrap pointer-events-none">按住拋球</span>
+    </button>
+
+    <button id="btn-unlock" class="absolute bottom-[9.5rem] right-6 md:bottom-[6rem] md:right-32 z-10 w-10 h-10 md:w-12 md:h-12 bg-slate-800/80 border border-slate-400 rounded-full flex flex-col items-center justify-center shadow-lg active:scale-90 transition-all touch-element focus:outline-none scale-0 opacity-0 pointer-events-none origin-bottom">
+        <span class="text-sm md:text-base pointer-events-none">❌</span>
+        <span class="text-[7px] md:text-[8px] text-gray-300 font-bold mt-0.5 whitespace-nowrap pointer-events-none">取消</span>
+    </button>
+
+    <button id="btn-lock" class="absolute bottom-24 right-5 md:bottom-8 md:right-32 z-10 w-12 h-12 md:w-14 md:h-14 bg-black/70 border border-white/30 rounded-full flex flex-col items-center justify-center shadow-2xl active:scale-90 transition-all touch-element focus:outline-none">
+        <span id="lock-icon" class="text-base md:text-xl pointer-events-none">🎯</span>
+        <span id="lock-text" class="text-[8px] md:text-[9px] text-gray-300 font-bold mt-0.5 whitespace-nowrap pointer-events-none">鎖定最近</span>
+    </button>
+
+    <div class="hidden md:flex absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-black/40 backdrop-blur-sm text-gray-300 text-xs px-4 py-1.5 rounded-full pointer-events-none gap-4">
+        <span>🏃 <kbd class="bg-gray-800 px-1 rounded text-white font-bold">WASD</kbd> 移動</span>
+        <span>🔴 長按 <kbd class="bg-gray-800 px-1 rounded text-white font-bold">空白鍵</kbd> 丟球</span>
+        <span>🎯 <kbd class="bg-gray-800 px-1 rounded text-white font-bold">L</kbd> 鎖定/切換 | <kbd class="bg-gray-800 px-1 rounded text-white font-bold">U</kbd> 取消鎖定</span>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'pokemon-3d-expedition';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        let db, auth, currentUserId;
+
+        // --- 遊戲音效 ---
+        const Sound = {
+            ctx: null,
+            init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+            playThrow() {
+                this.init(); const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(150, this.ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.15);
+            },
+            playHit() {
+                this.init(); const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(600, this.ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.25);
+            },
+            playWobble() {
+                this.init(); const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.type = 'sine'; osc.frequency.setValueAtTime(220, this.ctx.currentTime); osc.frequency.setValueAtTime(440, this.ctx.currentTime + 0.05);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.12);
+            },
+            playEscape() {
+                this.init(); const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, this.ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(50, this.ctx.currentTime + 0.5);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.5);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.5);
+            },
+            playSuccess() {
+                this.init(); const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.type = 'square'; osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
+                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime + idx * 0.08); gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * 0.08 + 0.2);
+                    osc.start(this.ctx.currentTime + idx * 0.08); osc.stop(this.ctx.currentTime + idx * 0.08 + 0.2);
+                });
+            }
+        };
+
+        const EVOLUTION_TARGETS = {
+            pikachu: 'raichu', bulbasaur: 'ivysaur', squirtle: 'wartortle', charmander: 'charmeleon',
+            pidgey: 'pidgeotto', oddish: 'gloom', geodude: 'graveler'
+        };
+
+        const EVOLUTION_THRESHOLD = 2; 
+
+        // 傳說寶可夢逃脫機率
+        const ESCAPE_RATES = {
+            zapdos: 0.30,   // 30% 閃電鳥
+            moltres: 0.50,  // 50% 火焰鳥
+            articuno: 0.70, // 70% 急凍鳥
+            mewtwo: 0.80    // 80% 超夢
+        };
+
+        const POKEDEX_DATA = {
+            pikachu: { name: "皮卡丘", type: "電", color: "bg-yellow-500", border: "border-yellow-400", desc: "臉頰兩側有紅色的電力袋。遇到危險時會釋放高壓電。" },
+            bulbasaur: { name: "妙蛙種子", type: "草/毒", color: "bg-emerald-500", border: "border-emerald-400", desc: "背上背著一顆神奇的植物種子，會隨身體一同長大。" },
+            squirtle: { name: "傑尼龜", type: "水", color: "bg-blue-400", border: "border-blue-400", desc: "圓潤的甲殼不僅能保護身體，還能減少水中的阻力。" },
+            charmander: { name: "小火龍", type: "火", color: "bg-orange-500", border: "border-orange-500", desc: "出生起尾巴上就燃燒著火焰，火焰熄滅時生命就會結束。" },
+            raichu: { name: "雷丘", type: "電", color: "bg-amber-600", border: "border-amber-500", desc: "皮卡丘的進化型態。電擊的威力達到了十萬伏特。" },
+            ivysaur: { name: "妙蛙草", type: "草/毒", color: "bg-teal-600", border: "border-teal-500", desc: "背上的花苞吸收養分後變大了。散發香氣就是開花的預兆。" },
+            wartortle: { name: "卡咪龜", type: "水", color: "bg-indigo-500", border: "border-indigo-400", desc: "長著毛茸茸的耳朵和尾巴，被視為長壽的象徵。" },
+            charmeleon: { name: "火恐龍", type: "火", color: "bg-red-600", border: "border-red-500", desc: "擁有強韌的身體與銳利的爪子，尾巴的火焰溫度極高。" },
+            eevee: { name: "伊布", type: "一般", color: "bg-amber-700", border: "border-amber-600", desc: "基因極其不穩定，擁有適應各種環境的無窮進化可能性。" },
+            jigpuff: { name: "胖丁", type: "一般/妖精", color: "bg-pink-400", border: "border-pink-400", desc: "擁有圓滾滾的大眼睛，會唱出美妙動聽、催人入眠的歌謠。" },
+            gengar: { name: "耿鬼", type: "幽靈/毒", color: "bg-purple-600", border: "border-purple-600", desc: "潛伏在陰影中的惡作劇大師。會奪走周圍的熱量。" },
+            mew: { name: "夢幻", type: "超能力", color: "bg-rose-300", border: "border-rose-300", desc: "極其稀有的幻之寶可夢，據說擁有所有寶可夢的基因。" },
+            pidgey: { name: "波波", type: "飛行/一般", color: "bg-stone-500", border: "border-stone-400", desc: "性格溫和，不喜歡戰鬥。平時會藏在草叢中捕捉蟲子。" },
+            pidgeotto: { name: "比比鳥", type: "飛行/一般", color: "bg-amber-800", border: "border-amber-700", desc: "會以優美的姿態在空中盤旋，尋找獵物的蹤跡。" },
+            oddish: { name: "走路草", type: "草/毒", color: "bg-indigo-600", border: "border-indigo-500", desc: "白天會把身體埋在土裡吸收養分，夜晚才開始四處走動。" },
+            gloom: { name: "臭臭花", type: "草/毒", color: "bg-violet-800", border: "border-violet-700", desc: "頭上的花瓣會散發出令人作嘔的強烈惡臭，自己卻很喜歡。" },
+            geodude: { name: "小拳石", type: "岩石/地面", color: "bg-stone-400", border: "border-stone-300", desc: "在山路上經常被誤認成普通的石頭而被人踩到。" },
+            graveler: { name: "隆隆石", type: "岩石/地面", color: "bg-stone-600", border: "border-stone-500", desc: "最喜歡從陡峭的山坡上滾下來，壓碎沿路的所有障礙物。" },
+            zapdos: { name: "閃電鳥", type: "電/飛行", color: "bg-yellow-400", border: "border-yellow-300", desc: "傳說中的鳥寶可夢。拍動閃亮翅膀時會產生劇烈的雷電。" },
+            moltres: { name: "火焰鳥", type: "火/飛行", color: "bg-red-500", border: "border-red-400", desc: "傳說中的鳥寶可夢。據說牠現身時，連夜空都會被照得通紅。" },
+            articuno: { name: "急凍鳥", type: "冰/飛行", color: "bg-cyan-400", border: "border-cyan-300", desc: "傳說中的鳥寶可夢。拍動翅膀就能冷卻空氣，讓天空降下雪花。" },
+            mewtwo: { name: "超夢", type: "超能力", color: "bg-purple-500", border: "border-purple-400", desc: "出於研究目的，不斷重組基因而誕生的凶暴寶可夢。" }
+        };
+
+        const gameState = {
+            pokemons: [], activeBalls: [], particles: [], respawnQueue: [],
+            pokedexUnlocks: {}, captureCounts: {},
+            legendarySpawned: { zapdos: false, moltres: false, articuno: false, mewtwo: false },
+            cameraDistance: 6.5, autoLock: false, lockedTarget: null, isCharging: false,
+            chargePower: 0, chargeDirection: 1, isShowingCapture: false,
+            bgmStarted: false, currentBGM: 'normal',
+            camAngle: 0, captureInProgress: false // 新增: 獨立相機視角與捕捉進行中狀態
+        };
+        Object.keys(POKEDEX_DATA).forEach(k => { gameState.pokedexUnlocks[k] = false; gameState.captureCounts[k] = 0; });
+
+        const BASE_SPAWN_TYPES = ['pikachu', 'bulbasaur', 'squirtle', 'charmander', 'eevee', 'jigpuff', 'gengar', 'mew', 'pidgey', 'oddish', 'geodude'];
+
+        let scene, camera, renderer, container;
+        let player, bodyGroup, armR;
+        let lockOnRing;
+        let captureScene, captureCam, captureRenderer, captureModel;
+        const thumbnailCache = {};
+
+        const initFirebaseData = async () => {
+            if (!firebaseConfig) { showNotification("未設定雲端連線，啟用單機模式。"); return; }
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                currentUserId = auth.currentUser.uid;
+                
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'saveData', 'gameProgress');
+                const snap = await getDoc(docRef);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.captureCounts) gameState.captureCounts = data.captureCounts;
+                    if (data.pokedexUnlocks) gameState.pokedexUnlocks = data.pokedexUnlocks;
+                    if (data.legendarySpawned) gameState.legendarySpawned = data.legendarySpawned;
+                    showNotification("已成功載入雲端進度！");
+                } else {
+                    showNotification("冒險開始！(已連線至雲端)");
+                }
+                updatePokedexUI();
+            } catch (e) {
+                console.error("Firebase Auth/DB Error:", e);
+                showNotification("雲端連線失敗，啟用單機模式。");
+            }
+        };
+
+        const saveGameData = async () => {
+            if (!db || !currentUserId) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'saveData', 'gameProgress');
+                await setDoc(docRef, {
+                    captureCounts: gameState.captureCounts,
+                    pokedexUnlocks: gameState.pokedexUnlocks,
+                    legendarySpawned: gameState.legendarySpawned
+                });
+                const syncEl = document.getElementById('sync-status');
+                if(syncEl) {
+                    syncEl.classList.remove('opacity-0');
+                    setTimeout(() => syncEl.classList.add('opacity-0'), 2000);
+                }
+            } catch (e) { console.error("Save Error:", e); }
+        };
+
+        const resolveCollision = (pos, radius) => {
+            const bound = 135; 
+            if (pos.x < -bound) pos.x = -bound; if (pos.x > bound) pos.x = bound;
+            if (pos.z < -bound) pos.z = -bound; if (pos.z > bound) pos.z = bound;
+
+            if (!gameState.obstacles) return;
+            for (let obs of gameState.obstacles) {
+                const dx = pos.x - obs.x; const dz = pos.z - obs.z;
+                const distSq = dx * dx + dz * dz;
+                const minRadius = radius + obs.radius;
+                if (distSq < minRadius * minRadius && distSq > 0) {
+                    const dist = Math.sqrt(distSq);
+                    const overlap = minRadius - dist;
+                    pos.x += (dx / dist) * overlap; pos.z += (dz / dist) * overlap;
+                }
+            }
+        };
+
+        const initGame = () => {
+            container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87ceeb); 
+            scene.fog = new THREE.FogExp2(0x87ceeb, 0.012);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
+            container.appendChild(renderer.domElement);
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
+            dirLight.position.set(30, 50, 30); dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024; dirLight.shadow.mapSize.height = 1024;
+            dirLight.shadow.camera.near = 0.5; dirLight.shadow.camera.far = 150;
+            const d = 50; dirLight.shadow.camera.left = -d; dirLight.shadow.camera.right = d;
+            dirLight.shadow.camera.top = d; dirLight.shadow.camera.bottom = -d;
+            scene.add(dirLight);
+
+            const floorGeo = new THREE.PlaneGeometry(300, 300);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x558a2f, roughness: 0.9 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true;
+            scene.add(floor);
+
+            buildEnvironment();
+
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0xff1744, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
+            lockOnRing = new THREE.Mesh(new THREE.RingGeometry(0.6, 0.72, 16), ringMat);
+            lockOnRing.rotation.x = -Math.PI / 2; lockOnRing.visible = false;
+            scene.add(lockOnRing);
+
+            buildPlayer();
+            initCapture3DEnv();
+            generateAllThumbnails(); 
+        };
+
+        const buildEnvironment = () => {
+            gameState.obstacles = [];
+            for (let i = 0; i < 80; i++) {
+                const angle = Math.random() * Math.PI * 2; const radius = 20 + Math.random() * 80;
+                const tx = Math.cos(angle) * radius; const tz = Math.sin(angle) * radius;
+                spawnTree(tx, tz); gameState.obstacles.push({ x: tx, z: tz, radius: 0.8 });
+            }
+            for(let i=0; i<6; i++) {
+                const r = 4 + Math.random()*8;
+                const px = (Math.random()-0.5)*160; const pz = (Math.random()-0.5)*160;
+                const pond = new THREE.Mesh(new THREE.CircleGeometry(r, 32), new THREE.MeshStandardMaterial({color: 0x29b6f6, roughness: 0.1, metalness: 0.4}));
+                pond.rotation.x = -Math.PI / 2; pond.position.set(px, 0.015, pz); pond.receiveShadow = true; scene.add(pond);
+                const pondEdge = new THREE.Mesh(new THREE.RingGeometry(r-0.2, r, 32), new THREE.MeshBasicMaterial({color: 0x1c84b5, opacity: 0.5, transparent: true}));
+                pondEdge.rotation.x = -Math.PI / 2; pondEdge.position.set(px, 0.016, pz); scene.add(pondEdge);
+            }
+            for(let i=0; i<8; i++) {
+                const r = 5 + Math.random()*12;
+                const dx = (Math.random()-0.5)*180; const dz = (Math.random()-0.5)*180;
+                const dirt = new THREE.Mesh(new THREE.CircleGeometry(r, 32), new THREE.MeshStandardMaterial({color: 0x6d4c41, roughness: 1.0}));
+                dirt.rotation.x = -Math.PI / 2; dirt.position.set(dx, 0.01, dz); dirt.receiveShadow = true; scene.add(dirt);
+                const dirtEdge = new THREE.Mesh(new THREE.RingGeometry(r-0.3, r, 32), new THREE.MeshBasicMaterial({color: 0x4e342e, opacity: 0.6, transparent: true}));
+                dirtEdge.rotation.x = -Math.PI / 2; dirtEdge.position.set(dx, 0.011, dz); scene.add(dirtEdge);
+            }
+            for(let i=0; i<20; i++) {
+                const r = 3 + Math.random()*3;
+                const hill = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12, 0, Math.PI*2, 0, Math.PI/2), new THREE.MeshStandardMaterial({color: 0x4caf50, roughness: 0.8, flatShading: true}));
+                hill.scale.y = 0.8; const hx = (Math.random()-0.5)*140; const hz = (Math.random()-0.5)*140;
+                hill.position.set(hx, 0, hz); hill.receiveShadow = true; scene.add(hill);
+                gameState.obstacles.push({ x: hx, z: hz, radius: r * 0.85 });
+            }
+            for(let i=0; i<25; i++) {
+                const angle = Math.random() * Math.PI * 2; const dist = 110 + Math.random() * 40; const h = 30 + Math.random() * 50;
+                const mtColor = [0x455a64, 0x37474f, 0x263238][Math.floor(Math.random()*3)];
+                const mountain = new THREE.Mesh(new THREE.ConeGeometry(15 + Math.random()*20, h, 8), new THREE.MeshStandardMaterial({color: mtColor, roughness: 0.9, flatShading: true}));
+                mountain.position.set(Math.cos(angle)*dist, h/2 - 2, Math.sin(angle)*dist); scene.add(mountain);
+            }
+        };
+
+        const spawnTree = (x, z) => {
+            const tree = new THREE.Group();
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 3, 8), new THREE.MeshStandardMaterial({ color: 0x5d4037 }));
+            trunk.position.y = 1.5; trunk.castShadow = true; tree.add(trunk);
+            const leavesMat = new THREE.MeshStandardMaterial({ color: [0x2e7d32, 0x1b5e20, 0x4caf50][Math.floor(Math.random()*3)], flatShading: true });
+            for(let i=0; i<3; i++) {
+                const cone = new THREE.Mesh(new THREE.ConeGeometry(1.8 - i*0.4, 1.8, 8), leavesMat);
+                cone.position.y = 2.8 + i*1.1; cone.castShadow = true; tree.add(cone);
+            }
+            tree.position.set(x, 0, z); scene.add(tree);
+        };
+
+        const initCapture3DEnv = () => {
+            const container = document.getElementById('capture-3d-container');
+            captureRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            captureRenderer.setSize(250, 200); container.appendChild(captureRenderer.domElement);
+            captureScene = new THREE.Scene();
+            captureCam = new THREE.PerspectiveCamera(45, 250/200, 0.1, 100);
+            captureCam.position.set(0, 1.0, 5.0); captureCam.lookAt(0, 0.4, 0);
+            captureScene.add(new THREE.AmbientLight(0xffffff, 0.9));
+            const light = new THREE.DirectionalLight(0xffffff, 1.2); light.position.set(5, 5, 5); captureScene.add(light);
+        };
+
+        const buildPlayer = () => {
+            player = new THREE.Group(); scene.add(player);
+            const matSkin = new THREE.MeshStandardMaterial({ color: 0xffd1a9 });
+            const matJeans = new THREE.MeshStandardMaterial({ color: 0x3b82f6 });
+            const matJacket = new THREE.MeshStandardMaterial({ color: 0x1d4ed8 });
+            const matWhite = new THREE.MeshStandardMaterial({ color: 0xffffff });
+            const matRed = new THREE.MeshStandardMaterial({ color: 0xef4444 });
+            const matHair = new THREE.MeshStandardMaterial({ color: 0x111827 });
+            const matShoes = new THREE.MeshStandardMaterial({ color: 0xf3f4f6 });
+            const matGloves = new THREE.MeshStandardMaterial({ color: 0x22c55e });
+            const matPack = new THREE.MeshStandardMaterial({ color: 0x4ade80 });
+
+            const legGeo = new THREE.CylinderGeometry(0.12, 0.1, 0.8);
+            const legL = new THREE.Mesh(legGeo, matJeans); legL.position.set(-0.15, 0.4, 0); player.add(legL);
+            const legR = new THREE.Mesh(legGeo, matJeans); legR.position.set(0.15, 0.4, 0); player.add(legR);
+            const shoeGeo = new THREE.BoxGeometry(0.16, 0.12, 0.25);
+            const shoeL = new THREE.Mesh(shoeGeo, matShoes); shoeL.position.set(0, -0.4, 0.05); legL.add(shoeL);
+            const shoeR = new THREE.Mesh(shoeGeo, matShoes); shoeR.position.set(0, -0.4, 0.05); legR.add(shoeR);
+
+            bodyGroup = new THREE.Group(); bodyGroup.position.set(0, 1.2, 0);
+            bodyGroup.add(new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.7, 0.35), matJacket));
+            bodyGroup.add(new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.72, 0.38), matWhite));
+            player.add(bodyGroup);
+
+            const headGroup = new THREE.Group(); headGroup.position.set(0, 1.8, 0);
+            headGroup.add(new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), matSkin));
+            const hatGroup = new THREE.Group();
+            const hatDome = new THREE.Mesh(new THREE.SphereGeometry(0.265, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2), matRed); hatDome.position.y = 0.05; hatGroup.add(hatDome);
+            const hatFront = new THREE.Mesh(new THREE.SphereGeometry(0.27, 16, 16, 0, Math.PI, 0, Math.PI / 2), matWhite); hatFront.position.y = 0.05; hatGroup.add(hatFront);
+            const brim = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.04, 0.3), matRed); brim.position.set(0, 0.02, 0.22); brim.rotation.x = -0.15; hatGroup.add(brim);
+            headGroup.add(hatGroup);
+            const spike = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.4, 4), matHair); spike.position.set(0, 0.05, -0.22); spike.rotation.x = -1.2; headGroup.add(spike);
+            player.add(headGroup);
+
+            const armL = new THREE.Group(); armL.position.set(-0.32, 1.45, 0);
+            const sleeveL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.25), matWhite); sleeveL.position.y = -0.1; armL.add(sleeveL);
+            const lowerArmL = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.4), matSkin); lowerArmL.position.y = -0.4; armL.add(lowerArmL);
+            armL.rotation.z = 0.2; player.add(armL);
+
+            armR = new THREE.Group(); armR.position.set(0.32, 1.45, 0);
+            const sleeveR = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.25), matWhite); sleeveR.position.y = -0.1; armR.add(sleeveR);
+            const lowerArmR = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.4), matSkin); lowerArmR.position.y = -0.4; armR.add(lowerArmR);
+            const handR = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), matGloves); handR.position.y = -0.6; armR.add(handR);
+            armR.rotation.x = -Math.PI / 4; armR.rotation.z = -0.2; player.add(armR);
+
+            const backpack = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.45, 0.2), matPack); backpack.position.set(0, 1.25, -0.25); player.add(backpack);
+        };
+
+        class Pokemon {
+            constructor(type, x, z) {
+                this.type = type; this.spawnX = x; this.spawnZ = z;
+                this.mesh = new THREE.Group(); this.mesh.position.set(x, 0, z);
+                this.isCaptured = false; 
+                this.bounceTime = Math.random() * 100;
+                this.isLegendary = ['zapdos', 'moltres', 'articuno', 'mewtwo'].includes(type);
+                this.originalY = (type === 'mew' || type === 'pidgey' || type === 'pidgeotto' || type === 'zapdos' || type === 'moltres' || type === 'articuno') ? 0.8 : (type === 'mewtwo' ? 0.3 : 0);
+                
+                this.targetPos = new THREE.Vector3(x, 0, z);
+                this.idleTime = Math.random() * 5; 
+                this.seed = Math.random() * 100; 
+                this.customData = null; // 用於儲存特效動畫
+                
+                this.buildModel();
+            }
+
+            buildModel() {
+                const type = this.type;
+                const addPart = (geo, mat, x, y, z, rx=0, rz=0) => {
+                    const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.set(rx, 0, rz);
+                    m.castShadow = true; this.mesh.add(m); return m;
+                };
+
+                if (type === 'pikachu' || type === 'raichu') {
+                    const isRai = type === 'raichu';
+                    const mainMat = new THREE.MeshStandardMaterial({ color: isRai ? 0xff9800 : 0xffeb3b });
+                    const blackMat = new THREE.MeshStandardMaterial({ color: 0x212121 });
+                    const scale = isRai ? 1.2 : 1;
+                    addPart(new THREE.CylinderGeometry(0.35, 0.45, 0.8, 12), mainMat, 0, 0.4, 0);
+                    addPart(new THREE.SphereGeometry(0.38, 12, 12), mainMat, 0, 0.95, 0);
+                    const earGeo = new THREE.ConeGeometry(0.08, 0.4, 8);
+                    const earMat = isRai ? new THREE.MeshStandardMaterial({ color: 0x5d4037 }) : mainMat;
+                    addPart(earGeo, earMat, -0.22, 1.35, 0, 0, Math.PI/6); addPart(earGeo, earMat, 0.22, 1.35, 0, 0, -Math.PI/6);
+                    if (isRai) {
+                        addPart(new THREE.CylinderGeometry(0.02, 0.02, 0.8), blackMat, 0, 0.5, -0.6, Math.PI/3, 0);
+                        addPart(new THREE.BoxGeometry(0.2, 0.3, 0.05), mainMat, 0, 0.8, -0.9);
+                    } else addPart(new THREE.BoxGeometry(0.12, 0.5, 0.05), mainMat, 0, 0.6, -0.4, 0, Math.PI/6);
+                    this.mesh.scale.set(scale, scale, scale);
+                } else if (type === 'bulbasaur' || type === 'ivysaur') {
+                    const isIvy = type === 'ivysaur';
+                    const bodyMat = new THREE.MeshStandardMaterial({ color: isIvy ? 0x29b6f6 : 0x4db6ac });
+                    const bulbMat = new THREE.MeshStandardMaterial({ color: isIvy ? 0xf48fb1 : 0x81c784 });
+                    const scale = isIvy ? 1.2 : 1.0;
+                    const body = addPart(new THREE.SphereGeometry(0.48, 12, 12), bodyMat, 0, 0.35, 0); body.scale.set(1.1, 0.8, 1.2);
+                    addPart(new THREE.SphereGeometry(0.38, 12, 12), bodyMat, 0, 0.5, 0.35); 
+                    const core = addPart(new THREE.SphereGeometry(0.35, 10, 10), bulbMat, 0, 0.7, -0.15); core.scale.set(1, 1.2, 1);
+                    if (isIvy) {
+                        const leafMat = new THREE.MeshStandardMaterial({ color: 0x4caf50 });
+                        for(let i=0; i<4; i++) {
+                            const leaf = addPart(new THREE.ConeGeometry(0.3, 0.1, 4), leafMat, 0, 0.5, -0.15);
+                            leaf.position.x = Math.sin(i*Math.PI/2)*0.3; leaf.position.z = -0.15 + Math.cos(i*Math.PI/2)*0.3;
+                            leaf.rotation.set(Math.cos(i*Math.PI/2)*0.5, 0, -Math.sin(i*Math.PI/2)*0.5);
+                        }
+                    }
+                    this.mesh.scale.set(scale, scale, scale);
+                } else if (type === 'squirtle' || type === 'wartortle') {
+                    const isWar = type === 'wartortle';
+                    const blueMat = new THREE.MeshStandardMaterial({ color: isWar ? 0x3f51b5 : 0x4fc3f7 });
+                    const shellMat = new THREE.MeshStandardMaterial({ color: 0x8d6e63 });
+                    const fluffMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0 });
+                    const scale = isWar ? 1.2 : 1;
+                    const shell = addPart(new THREE.SphereGeometry(0.42, 12, 12), shellMat, 0, 0.45, -0.1); shell.scale.set(1, 0.7, 1.2); shell.rotation.x = Math.PI/2;
+                    addPart(new THREE.SphereGeometry(0.34, 12, 12), blueMat, 0, 0.95, 0);
+                    if (isWar) {
+                        addPart(new THREE.SphereGeometry(0.15, 8, 8), fluffMat, -0.3, 1.05, -0.1).scale.set(1, 1, 0.3);
+                        addPart(new THREE.SphereGeometry(0.15, 8, 8), fluffMat, 0.3, 1.05, -0.1).scale.set(1, 1, 0.3);
+                        addPart(new THREE.SphereGeometry(0.2, 8, 8), fluffMat, 0, 0.3, -0.6).scale.set(1, 1, 1.5);
+                    } else addPart(new THREE.CylinderGeometry(0.08, 0.12, 0.3), blueMat, 0, 0.25, -0.45, -Math.PI/4, 0);
+                    this.mesh.scale.set(scale, scale, scale);
+                } else if (type === 'charmander' || type === 'charmeleon') {
+                    const isChar = type === 'charmeleon';
+                    const mainMat = new THREE.MeshStandardMaterial({ color: isChar ? 0xd32f2f : 0xff9800 });
+                    const flameMat = new THREE.MeshBasicMaterial({ color: 0xff3d00 });
+                    const scale = isChar ? 1.2 : 1;
+                    addPart(new THREE.CylinderGeometry(0.25, 0.42, 0.75, 12), mainMat, 0, 0.4, 0);
+                    addPart(new THREE.SphereGeometry(0.32, 12, 12), mainMat, 0, 0.92, 0).scale.set(1, 1, 1.15);
+                    if (isChar) addPart(new THREE.ConeGeometry(0.08, 0.25, 4), mainMat, 0, 1.2, -0.1, -Math.PI/6, 0);
+                    addPart(new THREE.CylinderGeometry(0.06, 0.12, 0.5), mainMat, 0, 0.3, -0.4, -Math.PI/3, 0);
+                    addPart(new THREE.ConeGeometry(isChar?0.2:0.14, isChar?0.5:0.35, 8), flameMat, 0, 0.4, -0.6);
+                    this.mesh.scale.set(scale, scale, scale);
+                } else if (type === 'eevee') {
+                    const brownMat = new THREE.MeshStandardMaterial({ color: 0x8d6e63 }); const creamMat = new THREE.MeshStandardMaterial({ color: 0xfff9c4 });
+                    addPart(new THREE.CylinderGeometry(0.28, 0.35, 0.7, 10), brownMat, 0, 0.35, 0); addPart(new THREE.TorusGeometry(0.25, 0.12, 8, 12), creamMat, 0, 0.65, 0.05, Math.PI/2, 0);
+                    addPart(new THREE.SphereGeometry(0.3, 12, 12), brownMat, 0, 0.88, 0.1); addPart(new THREE.ConeGeometry(0.08, 0.38, 4), brownMat, -0.15, 1.15, 0.1, 0, Math.PI/5);
+                    addPart(new THREE.ConeGeometry(0.08, 0.38, 4), brownMat, 0.15, 1.15, 0.1, 0, -Math.PI/5); addPart(new THREE.SphereGeometry(0.18, 8, 8), brownMat, 0, 0.35, -0.3).scale.set(1, 1, 1.5);
+                } else if (type === 'jigpuff') {
+                    const pinkMat = new THREE.MeshStandardMaterial({ color: 0xff8a80 }); addPart(new THREE.SphereGeometry(0.45, 16, 16), pinkMat, 0, 0.45, 0);
+                    addPart(new THREE.ConeGeometry(0.12, 0.22, 4), pinkMat, -0.3, 0.8, 0, 0, Math.PI/6); addPart(new THREE.ConeGeometry(0.12, 0.22, 4), pinkMat, 0.3, 0.8, 0, 0, -Math.PI/6);
+                } else if (type === 'gengar') {
+                    const purpleMat = new THREE.MeshStandardMaterial({ color: 0x4a148c }); addPart(new THREE.SphereGeometry(0.52, 14, 14), purpleMat, 0, 0.5, 0).scale.set(1.1,1,1);
+                    addPart(new THREE.ConeGeometry(0.14, 0.3, 4), purpleMat, -0.32, 0.95, 0, 0, Math.PI/5); addPart(new THREE.ConeGeometry(0.14, 0.3, 4), purpleMat, 0.32, 0.95, 0, 0, -Math.PI/5);
+                } else if (type === 'mew') {
+                    const lightPink = new THREE.MeshStandardMaterial({ color: 0xf8bbd0 }); addPart(new THREE.CylinderGeometry(0.15, 0.25, 0.6, 10), lightPink, 0, 0.35, 0);
+                    addPart(new THREE.SphereGeometry(0.24, 12, 12), lightPink, 0, 0.75, 0.05);
+                } else if (type === 'pidgey' || type === 'pidgeotto') {
+                    const isEvo = type === 'pidgeotto';
+                    const matBrown = new THREE.MeshStandardMaterial({ color: 0x8d6e63 }); const matBeige = new THREE.MeshStandardMaterial({ color: 0xd7ccc8 });
+                    const matYellow = new THREE.MeshStandardMaterial({ color: 0xffb300 }); const matRed = new THREE.MeshStandardMaterial({ color: 0xef5350 });
+                    const scale = isEvo ? 1.4 : 1;
+                    addPart(new THREE.SphereGeometry(0.3, 12, 12), matBrown, 0, 0.4, 0); addPart(new THREE.SphereGeometry(0.2, 10, 10), matBeige, 0, 0.35, 0.15);
+                    addPart(new THREE.ConeGeometry(0.08, 0.2, 4), matYellow, 0, 0.45, 0.35, -Math.PI/2, 0); addPart(new THREE.BoxGeometry(0.6, 0.05, 0.3), matBrown, 0, 0.4, -0.1);
+                    if (isEvo) addPart(new THREE.ConeGeometry(0.08, 0.4, 4), matRed, 0, 0.7, -0.1, -Math.PI/4, 0);
+                    this.mesh.scale.set(scale, scale, scale);
+                } else if (type === 'oddish' || type === 'gloom') {
+                    const isEvo = type === 'gloom';
+                    const matBlue = new THREE.MeshStandardMaterial({ color: isEvo ? 0x283593 : 0x3f51b5 }); const matGreen = new THREE.MeshStandardMaterial({ color: 0x4caf50 }); const matOrange = new THREE.MeshStandardMaterial({ color: 0xff7043 });
+                    const scale = isEvo ? 1.3 : 1;
+                    addPart(new THREE.SphereGeometry(0.35, 12, 12), matBlue, 0, 0.35, 0); 
+                    if (isEvo) { addPart(new THREE.TorusGeometry(0.25, 0.1, 8, 12), matOrange, 0, 0.75, 0, Math.PI/2, 0); addPart(new THREE.SphereGeometry(0.1, 8, 8), matOrange, 0, 0.75, 0); } 
+                    else { addPart(new THREE.ConeGeometry(0.1, 0.6, 4), matGreen, 0, 0.8, 0); addPart(new THREE.ConeGeometry(0.1, 0.5, 4), matGreen, 0.15, 0.7, 0.1, 0.5, 0.5); addPart(new THREE.ConeGeometry(0.1, 0.5, 4), matGreen, -0.15, 0.7, -0.1, -0.5, -0.5); }
+                    this.mesh.scale.set(scale, scale, scale);
+                } else if (type === 'geodude' || type === 'graveler') {
+                    const isEvo = type === 'graveler'; const matGray = new THREE.MeshStandardMaterial({ color: isEvo ? 0x757575 : 0x9e9e9e });
+                    const scale = isEvo ? 1.5 : 1;
+                    addPart(new THREE.DodecahedronGeometry(0.35), matGray, 0, 0.4, 0);
+                    addPart(new THREE.CylinderGeometry(0.06, 0.06, 0.4), matGray, -0.4, 0.4, 0, 0, 0, Math.PI/2); addPart(new THREE.CylinderGeometry(0.06, 0.06, 0.4), matGray, 0.4, 0.4, 0, 0, 0, Math.PI/2);
+                    if (isEvo) { addPart(new THREE.CylinderGeometry(0.05, 0.05, 0.3), matGray, -0.3, 0.6, 0.2, Math.PI/4, 0, Math.PI/4); addPart(new THREE.CylinderGeometry(0.05, 0.05, 0.3), matGray, 0.3, 0.6, 0.2, Math.PI/4, 0, -Math.PI/4); }
+                    this.mesh.scale.set(scale, scale, scale);
+                } else if (type === 'zapdos') {
+                    const matYellow = new THREE.MeshStandardMaterial({ color: 0xffeb3b }); 
+                    const matOrange = new THREE.MeshStandardMaterial({ color: 0xff9800 }); 
+                    addPart(new THREE.ConeGeometry(0.3, 0.8, 8), matYellow, 0, 0.4, 0); 
+                    addPart(new THREE.SphereGeometry(0.2, 8, 8), matYellow, 0, 0.9, 0);
+                    addPart(new THREE.ConeGeometry(0.05, 0.4, 4), matOrange, 0, 0.9, 0.3, -Math.PI/2, 0);
+                    for(let i=0; i<5; i++) {
+                        addPart(new THREE.ConeGeometry(0.04, 0.3, 4), matYellow, 0, 1.0, -0.1).rotation.x = -Math.PI/4 + (i*0.2);
+                        addPart(new THREE.ConeGeometry(0.04, 0.3, 4), matYellow, (i-2)*0.1, 1.0, 0).rotation.z = (i-2)*0.2;
+                    }
+                    const wingL = new THREE.Group();
+                    addPart(new THREE.BoxGeometry(0.8, 0.05, 0.2), matYellow, -0.5, 0.6, 0, 0, 0, Math.PI/6).parent.add(wingL);
+                    addPart(new THREE.ConeGeometry(0.1, 0.6, 4), matYellow, -1.0, 0.4, 0, 0, 0, Math.PI/4).parent.add(wingL);
+                    this.mesh.add(wingL);
+                    const wingR = new THREE.Group();
+                    addPart(new THREE.BoxGeometry(0.8, 0.05, 0.2), matYellow, 0.5, 0.6, 0, 0, 0, -Math.PI/6).parent.add(wingR);
+                    addPart(new THREE.ConeGeometry(0.1, 0.6, 4), matYellow, 1.0, 0.4, 0, 0, 0, -Math.PI/4).parent.add(wingR);
+                    this.mesh.add(wingR);
+                    addPart(new THREE.ConeGeometry(0.1, 0.5, 4), matYellow, 0, 0.2, -0.4, Math.PI/3, 0);
+                    this.mesh.scale.set(2.5, 2.5, 2.5);
+                    this.customData = { wingL, wingR }; 
+                } else if (type === 'moltres') {
+                    const matYellow = new THREE.MeshStandardMaterial({ color: 0xffcc80 }); 
+                    const matRed = new THREE.MeshStandardMaterial({ color: 0xff3d00 }); 
+                    const matOrange = new THREE.MeshStandardMaterial({ color: 0xff9800 }); 
+                    addPart(new THREE.SphereGeometry(0.25, 12, 12), matYellow, 0, 0.4, 0).scale.set(1, 1.5, 1);
+                    addPart(new THREE.SphereGeometry(0.15, 8, 8), matYellow, 0, 0.8, 0.1);
+                    addPart(new THREE.ConeGeometry(0.04, 0.25, 4), matOrange, 0, 0.8, 0.3, -Math.PI/2, 0);
+                    addPart(new THREE.ConeGeometry(0.1, 0.4, 8), matRed, 0, 1.0, 0, -Math.PI/4, 0);
+                    addPart(new THREE.ConeGeometry(0.08, 0.3, 8), matOrange, 0, 0.95, -0.1, -Math.PI/3, 0);
+                    const wingL = new THREE.Group();
+                    addPart(new THREE.BoxGeometry(0.7, 0.05, 0.2), matRed, -0.4, 0.6, 0, 0, 0, Math.PI/8).parent.add(wingL);
+                    addPart(new THREE.ConeGeometry(0.15, 0.5, 6), matOrange, -0.8, 0.6, 0, 0, 0, Math.PI/2).parent.add(wingL);
+                    this.mesh.add(wingL);
+                    const wingR = new THREE.Group();
+                    addPart(new THREE.BoxGeometry(0.7, 0.05, 0.2), matRed, 0.4, 0.6, 0, 0, 0, -Math.PI/8).parent.add(wingR);
+                    addPart(new THREE.ConeGeometry(0.15, 0.5, 6), matOrange, 0.8, 0.6, 0, 0, 0, -Math.PI/2).parent.add(wingR);
+                    this.mesh.add(wingR);
+                    addPart(new THREE.ConeGeometry(0.15, 0.6, 8), matRed, 0, 0.2, -0.4, Math.PI/2, 0);
+                    this.mesh.scale.set(2.5, 2.5, 2.5);
+                    this.customData = { wingL, wingR };
+                } else if (type === 'articuno') {
+                    const matBlue = new THREE.MeshStandardMaterial({ color: 0x81d4fa }); 
+                    const matDarkBlue = new THREE.MeshStandardMaterial({ color: 0x0277bd }); 
+                    const matGray = new THREE.MeshStandardMaterial({ color: 0x90a4ae }); 
+                    addPart(new THREE.SphereGeometry(0.25, 12, 12), matBlue, 0, 0.4, 0).scale.set(1, 1.4, 1);
+                    addPart(new THREE.SphereGeometry(0.15, 8, 8), matBlue, 0, 0.45, 0.2).scale.set(1, 1, 1.5);
+                    addPart(new THREE.SphereGeometry(0.15, 8, 8), matBlue, 0, 0.85, 0.1);
+                    addPart(new THREE.ConeGeometry(0.04, 0.2, 4), matGray, 0, 0.85, 0.25, -Math.PI/2, 0);
+                    addPart(new THREE.ConeGeometry(0.04, 0.3, 4), matDarkBlue, 0, 1.05, 0, -Math.PI/6, 0);
+                    addPart(new THREE.ConeGeometry(0.03, 0.25, 4), matDarkBlue, -0.05, 1.0, -0.05, -Math.PI/4, Math.PI/6);
+                    addPart(new THREE.ConeGeometry(0.03, 0.25, 4), matDarkBlue, 0.05, 1.0, -0.05, -Math.PI/4, -Math.PI/6);
+                    const wingL = new THREE.Group();
+                    addPart(new THREE.BoxGeometry(0.8, 0.04, 0.3), matBlue, -0.45, 0.6, 0, 0, 0, 0).parent.add(wingL);
+                    this.mesh.add(wingL);
+                    const wingR = new THREE.Group();
+                    addPart(new THREE.BoxGeometry(0.8, 0.04, 0.3), matBlue, 0.45, 0.6, 0, 0, 0, 0).parent.add(wingR);
+                    this.mesh.add(wingR);
+                    addPart(new THREE.BoxGeometry(0.05, 0.8, 0.02), matBlue, -0.05, 0.0, -0.4, Math.PI/3, 0);
+                    addPart(new THREE.BoxGeometry(0.05, 0.8, 0.02), matBlue, 0.05, 0.0, -0.4, Math.PI/3, 0);
+                    this.mesh.scale.set(2.5, 2.5, 2.5);
+                    this.customData = { wingL, wingR };
+                } else if (type === 'mewtwo') {
+                    const matWhite = new THREE.MeshStandardMaterial({ color: 0xf5f5f5, roughness: 0.5 });
+                    const matPurple = new THREE.MeshStandardMaterial({ color: 0x7e57c2, roughness: 0.5 });
+                    addPart(new THREE.CylinderGeometry(0.15, 0.22, 0.4, 12), matWhite, 0, 0.6, 0);
+                    addPart(new THREE.SphereGeometry(0.18, 12, 12), matPurple, 0, 0.55, 0.05).scale.set(1, 1.2, 0.8); 
+                    addPart(new THREE.SphereGeometry(0.16, 12, 12), matWhite, 0, 0.9, 0.05).scale.set(1, 1.2, 1.1);
+                    addPart(new THREE.ConeGeometry(0.04, 0.2, 8), matWhite, -0.08, 1.1, -0.02, -0.2, 0.2);
+                    addPart(new THREE.ConeGeometry(0.04, 0.2, 8), matWhite, 0.08, 1.1, -0.02, -0.2, -0.2);
+                    addPart(new THREE.CylinderGeometry(0.03, 0.03, 0.2), matPurple, 0, 0.85, -0.15, Math.PI/4, 0);
+                    const armL = new THREE.Group();
+                    addPart(new THREE.CylinderGeometry(0.04, 0.03, 0.3), matWhite, -0.2, 0.75, 0, 0, 0, Math.PI/4).parent.add(armL);
+                    addPart(new THREE.SphereGeometry(0.05, 8, 8), matWhite, -0.3, 0.65, 0).parent.add(armL); 
+                    this.mesh.add(armL);
+                    const armR = new THREE.Group();
+                    addPart(new THREE.CylinderGeometry(0.04, 0.03, 0.3), matWhite, 0.2, 0.75, 0, 0, 0, -Math.PI/4).parent.add(armR);
+                    addPart(new THREE.SphereGeometry(0.05, 8, 8), matWhite, 0.3, 0.65, 0).parent.add(armR);
+                    this.mesh.add(armR);
+                    addPart(new THREE.SphereGeometry(0.15, 12, 12), matWhite, -0.15, 0.35, 0).scale.set(1, 1.5, 1);
+                    addPart(new THREE.SphereGeometry(0.15, 12, 12), matWhite, 0.15, 0.35, 0).scale.set(1, 1.5, 1);
+                    addPart(new THREE.BoxGeometry(0.12, 0.05, 0.2), matWhite, -0.15, 0.15, 0.05); 
+                    addPart(new THREE.BoxGeometry(0.12, 0.05, 0.2), matWhite, 0.15, 0.15, 0.05);
+                    addPart(new THREE.SphereGeometry(0.16, 12, 12), matPurple, 0, 0.45, -0.15);
+                    addPart(new THREE.CylinderGeometry(0.12, 0.04, 0.7, 10), matPurple, 0, 0.4, -0.45, Math.PI/2 + 0.2, 0);
+                    this.mesh.scale.set(2.5, 2.5, 2.5);
+                    this.customData = { armL, armR };
+                }
+            }
+
+            update(time, delta) {
+                if (this.isCaptured) return;
+                
+                if (this.idleTime > 0) {
+                    this.idleTime -= delta;
+                    this.mesh.rotation.y += Math.sin(time * 3 + this.seed) * 0.02; 
+                } else {
+                    const dir = new THREE.Vector3().subVectors(this.targetPos, this.mesh.position);
+                    dir.y = 0;
+                    const dist = dir.length();
+                    
+                    if (dist < 0.5) {
+                        this.targetPos.set(this.spawnX + (Math.random() - 0.5) * 20, 0, this.spawnZ + (Math.random() - 0.5) * 20);
+                        this.idleTime = 1 + Math.random() * 4;
+                    } else {
+                        dir.normalize();
+                        let speed = 1.2;
+                        if (this.isLegendary) speed = 4.5;
+                        else if (this.type === 'pidgey' || this.type === 'pidgeotto' || this.type === 'mew') speed = 2.5;
+
+                        this.mesh.position.addScaledVector(dir, speed * delta);
+                        
+                        const oldX = this.mesh.position.x; const oldZ = this.mesh.position.z;
+                        resolveCollision(this.mesh.position, 0.35);
+
+                        if (Math.abs(oldX - this.mesh.position.x) > 0.05 || Math.abs(oldZ - this.mesh.position.z) > 0.05) {
+                            if (Math.random() < 0.1) {
+                                this.targetPos.set(this.spawnX + (Math.random() - 0.5) * 20, 0, this.spawnZ + (Math.random() - 0.5) * 20);
+                                this.idleTime = 0.5;
+                            }
+                        }
+
+                        const targetAngle = Math.atan2(dir.x, dir.z);
+                        const diff = Math.atan2(Math.sin(targetAngle - this.mesh.rotation.y), Math.cos(targetAngle - this.mesh.rotation.y));
+                        this.mesh.rotation.y += diff * 5 * delta;
+                    }
+                }
+
+                this.bounceTime += delta * 15;
+                if (['mew', 'pidgey', 'pidgeotto', 'zapdos', 'moltres', 'articuno'].includes(this.type)) {
+                    this.mesh.position.y = this.originalY + Math.sin(this.bounceTime * 0.2) * 0.2; 
+                } else if (this.type === 'mewtwo') {
+                    this.mesh.position.y = this.originalY + Math.sin(this.bounceTime * 0.15) * 0.15; 
+                } else {
+                    this.mesh.position.y = this.originalY + Math.abs(Math.sin(this.bounceTime * 0.4)) * 0.3; 
+                }
+
+                // 更新神獸特有的動畫
+                if (this.customData) {
+                    if (this.customData.wingL && this.customData.wingR) {
+                        this.customData.wingL.rotation.z = Math.sin(time * 5 + this.seed) * 0.3;
+                        this.customData.wingR.rotation.z = -Math.sin(time * 5 + this.seed) * 0.3;
+                    }
+                    if (this.customData.armL && this.customData.armR) {
+                        this.customData.armL.rotation.x = Math.sin(time * 2 + this.seed) * 0.1;
+                        this.customData.armR.rotation.x = Math.sin(time * 2 + this.seed) * 0.1;
+                    }
+                }
+            }
+        }
+
+        const generateAllThumbnails = () => {
+            const thumbRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            thumbRenderer.setSize(256, 256);
+            const thumbScene = new THREE.Scene();
+            const thumbCam = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+            thumbCam.position.set(0, 0.8, 3.2); thumbCam.lookAt(0, 0.4, 0);
+            thumbScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            const light = new THREE.DirectionalLight(0xffffff, 1.2); light.position.set(5, 5, 5); thumbScene.add(light);
+
+            Object.keys(POKEDEX_DATA).forEach(type => {
+                const tempPoke = new Pokemon(type, 0, 0);
+                // 神獸在圖鑑縮圖中強迫縮小以顯示全身
+                if (['zapdos', 'moltres', 'articuno', 'mewtwo'].includes(type)) {
+                    tempPoke.mesh.scale.set(1.0, 1.0, 1.0);
+                }
+                tempPoke.mesh.rotation.y = -Math.PI / 8; 
+                thumbScene.add(tempPoke.mesh); thumbRenderer.render(thumbScene, thumbCam);
+                thumbnailCache[type] = thumbRenderer.domElement.toDataURL('image/png');
+                thumbScene.remove(tempPoke.mesh);
+            });
+        };
+
+        const spawnLegendary = (type) => {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 15 + Math.random() * 15;
+            const p = new Pokemon(type, player.position.x + Math.cos(angle) * dist, player.position.z + Math.sin(angle) * dist);
+            resolveCollision(p.mesh.position, 0.35);
+            p.spawnX = p.mesh.position.x; p.spawnZ = p.mesh.position.z;
+            scene.add(p.mesh); gameState.pokemons.push(p);
+        };
+
+        const checkLegendarySpawns = (unlockedCount, totalObj) => {
+            const progress = unlockedCount / totalObj;
+            if (progress >= 0.30 && !gameState.legendarySpawned.zapdos) {
+                gameState.legendarySpawned.zapdos = true; spawnLegendary('zapdos'); showNotification("⚡ 傳說中的閃電鳥降臨了！");
+            }
+            if (progress >= 0.50 && !gameState.legendarySpawned.moltres) {
+                gameState.legendarySpawned.moltres = true; spawnLegendary('moltres'); showNotification("🔥 傳說中的火焰鳥降臨了！");
+            }
+            if (progress >= 0.80 && !gameState.legendarySpawned.articuno) {
+                gameState.legendarySpawned.articuno = true; spawnLegendary('articuno'); showNotification("❄️ 傳說中的急凍鳥降臨了！");
+            }
+            if (unlockedCount >= totalObj - 1 && !gameState.legendarySpawned.mewtwo) {
+                gameState.legendarySpawned.mewtwo = true; spawnLegendary('mewtwo'); showNotification("🌌 最強的超夢覺醒了！");
+            }
+            saveGameData();
+        };
+
+        const initSpawns = () => {
+            gameState.pokemons.forEach(p => scene.remove(p.mesh));
+            gameState.pokemons = [];
+            
+            const selected = BASE_SPAWN_TYPES.sort(() => 0.5 - Math.random()).slice(0, 6);
+            selected.forEach((type, i) => {
+                const angle = (i / 6) * Math.PI * 2; const dist = 10 + Math.random() * 15;
+                const p = new Pokemon(type, Math.cos(angle) * dist, Math.sin(angle) * dist);
+                resolveCollision(p.mesh.position, 0.35); 
+                p.spawnX = p.mesh.position.x; p.spawnZ = p.mesh.position.z;
+                scene.add(p.mesh); gameState.pokemons.push(p);
+            });
+
+            Object.keys(gameState.legendarySpawned).forEach(leg => {
+                if (gameState.legendarySpawned[leg] && !gameState.pokedexUnlocks[leg]) {
+                    spawnLegendary(leg);
+                }
+            });
+        };
+
+        const updatePokedexUI = () => {
+            const listDiv = document.getElementById('pokedex-list');
+            if (!listDiv) return;
+            listDiv.innerHTML = "";
+            let unlockedCount = 0;
+
+            Object.keys(POKEDEX_DATA).forEach(key => {
+                const info = POKEDEX_DATA[key];
+                const isUnlocked = gameState.pokedexUnlocks[key];
+                if (isUnlocked) unlockedCount++;
+
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border-2 flex flex-col items-center text-center transition-all relative overflow-hidden h-full min-h-[15rem] ${
+                    isUnlocked ? `bg-slate-800 ${info.border} text-white shadow-lg` : "bg-slate-900 border-slate-700 text-gray-500 opacity-80"
+                }`;
+
+                const imgStyle = isUnlocked ? "drop-shadow-xl animate-pulse-slow" : "brightness-0 opacity-40 drop-shadow-none";
+                const imgHTML = thumbnailCache[key] 
+                    ? `<img src="${thumbnailCache[key]}" class="w-24 h-24 object-contain ${imgStyle}" />`
+                    : `<div class="w-24 h-24 flex items-center justify-center text-4xl font-black text-slate-700">?</div>`;
+
+                card.innerHTML = `
+                    <div class="absolute top-2 left-2 text-[10px] px-2 py-0.5 rounded font-bold bg-black/60 ${isUnlocked ? 'text-yellow-400' : 'text-gray-500'}">
+                        捕捉數: ${gameState.captureCounts[key]}
+                    </div>
+                    ${imgHTML}
+                    <div class="font-black text-base tracking-wide mt-2">${isUnlocked ? info.name : "未知寶可夢"}</div>
+                    <div class="text-[10px] uppercase font-bold px-2 py-0.5 rounded mt-1 ${isUnlocked ? info.color : 'bg-slate-800'} text-white">
+                        ${isUnlocked ? info.type : "???"}
+                    </div>
+                    <p class="text-xs mt-3 text-left w-full flex-1 leading-relaxed ${isUnlocked ? 'text-gray-300' : 'text-slate-600 font-bold tracking-widest text-center flex items-center justify-center'}">
+                        ${isUnlocked ? info.desc : "？？？？？？<br>？？？？"}
+                    </p>
+                `;
+                listDiv.appendChild(card);
+            });
+
+            const totalObj = Object.keys(POKEDEX_DATA).length;
+            const statusText = `${unlockedCount} / ${totalObj}`;
+            document.getElementById('pokedex-progress').innerText = statusText;
+            document.getElementById('hud-capture-score').innerText = statusText;
+            document.getElementById('pokedex-progress-bar').style.width = `${(unlockedCount / totalObj) * 100}%`;
+            
+            checkLegendarySpawns(unlockedCount, totalObj);
+        };
+
+        const showCaptureCard = (type) => {
+            const info = POKEDEX_DATA[type];
+            document.getElementById('capture-name').innerText = info.name;
+            document.getElementById('capture-desc').innerText = info.desc;
+            
+            const badge = document.getElementById('capture-type-badge');
+            badge.innerText = info.type;
+            badge.className = `px-2 py-0.5 rounded text-[10px] font-bold text-white uppercase ${info.color}`;
+
+            const hintDiv = document.getElementById('capture-evo-hint');
+            const targetEvo = EVOLUTION_TARGETS[type];
+            if (['zapdos', 'moltres', 'articuno', 'mewtwo'].includes(type)) {
+                hintDiv.innerText = `✨ 降伏了傳說中的存在！`;
+                hintDiv.className = "mt-3 text-[10px] text-purple-400 font-bold bg-purple-900/40 py-1 rounded animate-pulse";
+            } else if (targetEvo) {
+                const count = gameState.captureCounts[type];
+                const remain = EVOLUTION_THRESHOLD - count;
+                if (remain > 0) {
+                    hintDiv.innerText = `再捕捉 ${remain} 隻即可發現進化型態！`;
+                    hintDiv.className = "mt-3 text-[10px] text-yellow-400/80 font-bold bg-yellow-400/10 py-1 rounded";
+                } else if (remain === 0) {
+                    hintDiv.innerText = `✨ 進化型態已解鎖，即將現身！`;
+                    hintDiv.className = "mt-3 text-[10px] text-emerald-400 font-bold bg-emerald-400/20 py-1 rounded animate-pulse";
+                } else {
+                    hintDiv.innerText = `已完全掌握此生態。`;
+                    hintDiv.className = "mt-3 text-[10px] text-gray-400 font-bold bg-gray-800/50 py-1 rounded";
+                }
+            } else {
+                hintDiv.innerText = `繼續你的遠征旅程吧！`;
+                hintDiv.className = "mt-3 text-[10px] text-gray-400 bg-transparent py-1";
+            }
+
+            if (captureModel) captureScene.remove(captureModel.mesh);
+            captureModel = new Pokemon(type, 0, 0);
+            
+            // 讓神獸在捕捉卡片中也不要超出框框
+            if (['zapdos', 'moltres', 'articuno', 'mewtwo'].includes(type)) {
+                captureModel.mesh.scale.set(1.2, 1.2, 1.2); 
+            }
+            
+            captureScene.add(captureModel.mesh);
+
+            document.getElementById('capture-card').classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('capture-card').classList.add('pointer-events-auto');
+            document.getElementById('capture-card-inner').classList.remove('scale-90');
+            document.getElementById('capture-card-inner').classList.add('scale-100');
+            
+            gameState.isShowingCapture = true;
+        };
+
+        const showNotification = (text) => {
+            const el = document.getElementById('notification');
+            el.innerText = text; el.classList.remove('opacity-0'); el.classList.add('opacity-100');
+            setTimeout(() => { el.classList.remove('opacity-100'); el.classList.add('opacity-0'); }, 3000);
+        };
+
+        const keys = { w: false, a: false, s: false, d: false };
+        const dpad = { up: false, down: false, left: false, right: false }; // 十字鍵狀態
+        let spacePressed = false; 
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === ' ' && !spacePressed) { spacePressed = true; startCharging(); }
+            if (e.key === 'l' || e.key === 'L') handleLockBtnClick();
+            if (e.key === 'u' || e.key === 'U') cancelLock();
+            if (e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = true;
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === ' ') { spacePressed = false; releaseAndThrow(); }
+            if (e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = false;
+        });
+
+        const startCharging = () => {
+            if (gameState.isCharging) return;
+            gameState.isCharging = true; gameState.chargePower = 0.05; gameState.chargeDirection = 1;
+            document.getElementById('power-bar-container').classList.remove('opacity-0');
+            document.getElementById('power-bar-container').classList.add('opacity-100');
+        };
+
+        const updateCharging = (delta) => {
+            if (!gameState.isCharging) return;
+            gameState.chargePower += 1.5 * delta * gameState.chargeDirection;
+            if (gameState.chargePower >= 1.0) { gameState.chargePower = 1.0; gameState.chargeDirection = -1; }
+            else if (gameState.chargePower <= 0.05) { gameState.chargePower = 0.05; gameState.chargeDirection = 1; }
+
+            const percent = Math.floor(gameState.chargePower * 100);
+            const fill = document.getElementById('power-bar-fill');
+            fill.style.height = `${percent}%`;
+            document.getElementById('power-text').innerText = `${percent}%`;
+
+            if (percent > 80) fill.className = "w-full bg-gradient-to-t from-red-500 via-rose-500 to-red-600 h-0 shadow-[0_0_8px_#f43f5e]";
+            else if (percent > 40) fill.className = "w-full bg-gradient-to-t from-emerald-500 via-yellow-400 to-amber-500 h-0";
+            else fill.className = "w-full bg-gradient-to-t from-emerald-400 via-emerald-500 to-green-500 h-0";
+        };
+
+        const releaseAndThrow = () => {
+            if (!gameState.isCharging) return;
+            gameState.isCharging = false;
+            document.getElementById('power-bar-container').classList.add('opacity-0');
+            
+            const angle = player.rotation.y;
+            const powerRatio = 0.5 + gameState.chargePower * 1.1;
+            const ballGroup = new THREE.Group();
+            ballGroup.position.set(player.position.x + Math.sin(angle)*0.6, player.position.y + 1.6, player.position.z + Math.cos(angle)*0.6);
+            
+            const r = 0.25;
+            ballGroup.add(new THREE.Mesh(new THREE.SphereGeometry(r, 16, 16, 0, Math.PI*2, 0, Math.PI/2), new THREE.MeshStandardMaterial({color:0xf44336})));
+            ballGroup.add(new THREE.Mesh(new THREE.SphereGeometry(r, 16, 16, 0, Math.PI*2, Math.PI/2, Math.PI/2), new THREE.MeshStandardMaterial({color:0xffffff})));
+            const belt = new THREE.Mesh(new THREE.CylinderGeometry(r+0.01, r+0.01, 0.03, 16), new THREE.MeshStandardMaterial({color:0x212121}));
+            belt.rotation.x = Math.PI/2; ballGroup.add(belt); scene.add(ballGroup);
+
+            const vel = new THREE.Vector3(Math.sin(angle), 0.2, Math.cos(angle)).normalize().multiplyScalar(13.5 * powerRatio);
+            vel.y += 5.5 * (0.5 + powerRatio * 0.5);
+
+            gameState.activeBalls.push({ mesh: ballGroup, velocity: vel, gravity: -12.0, life: 6.0, targetPokemon: null, wobblePhase: 0, wobbleTimer: 0, wobblesCount: 0 });
+            Sound.playThrow(); armR.rotation.x = -Math.PI / 1.5; setTimeout(() => armR.rotation.x = -Math.PI / 4, 300);
+        };
+
+        const updateLockUI = () => {
+            const btnLock = document.getElementById('btn-lock');
+            const btnUnlock = document.getElementById('btn-unlock');
+            if (gameState.autoLock) {
+                btnLock.className = "absolute bottom-24 right-5 md:bottom-8 md:right-32 z-10 w-12 h-12 md:w-14 md:h-14 bg-red-950/70 border border-red-500 rounded-full flex flex-col items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.5)] touch-element focus:outline-none";
+                document.getElementById('lock-text').className = "text-[8px] md:text-[9px] text-red-400 font-bold mt-0.5 whitespace-nowrap pointer-events-none";
+                document.getElementById('lock-text').innerText = "切換目標";
+                document.getElementById('lock-icon').innerText = "🔄";
+                if(btnUnlock) {
+                    btnUnlock.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
+                    btnUnlock.classList.add('scale-100', 'opacity-100', 'pointer-events-auto');
+                }
+            } else {
+                btnLock.className = "absolute bottom-24 right-5 md:bottom-8 md:right-32 z-10 w-12 h-12 md:w-14 md:h-14 bg-black/70 border border-white/30 rounded-full flex flex-col items-center justify-center shadow-2xl active:scale-90 transition-all touch-element focus:outline-none";
+                document.getElementById('lock-text').className = "text-[8px] md:text-[9px] text-gray-300 font-bold mt-0.5 whitespace-nowrap pointer-events-none";
+                document.getElementById('lock-text').innerText = "鎖定最近";
+                document.getElementById('lock-icon').innerText = "🎯";
+                if(btnUnlock) {
+                    btnUnlock.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+                    btnUnlock.classList.remove('scale-100', 'opacity-100', 'pointer-events-auto');
+                }
+            }
+        };
+
+        const cancelLock = () => {
+            gameState.autoLock = false;
+            gameState.lockedTarget = null;
+            updateLockUI();
+        };
+
+        const handleLockBtnClick = () => {
+            const validPokemons = gameState.pokemons.filter(p => !p.isCaptured);
+            if (validPokemons.length === 0) return;
+
+            if (!gameState.autoLock || !gameState.lockedTarget) {
+                // 鎖定最近的
+                let target = null, minDist = Infinity;
+                validPokemons.forEach(p => {
+                    const d = player.position.distanceTo(p.mesh.position);
+                    if (d < minDist) { minDist = d; target = p; }
+                });
+                gameState.lockedTarget = target;
+                gameState.autoLock = true;
+            } else {
+                // 切換目標 (依據與玩家的距離排序後取下一個)
+                validPokemons.sort((a, b) => player.position.distanceTo(a.mesh.position) - player.position.distanceTo(b.mesh.position));
+                const currentIndex = validPokemons.indexOf(gameState.lockedTarget);
+                if (currentIndex !== -1) {
+                    const nextIndex = (currentIndex + 1) % validPokemons.length;
+                    gameState.lockedTarget = validPokemons[nextIndex];
+                } else {
+                    gameState.lockedTarget = validPokemons[0];
+                }
+            }
+            updateLockUI();
+        };
+
+        const drawRadar = () => {
+            const radarCanvas = document.getElementById('radar-canvas'); 
+            if (!radarCanvas) return;
+            const radarCtx = radarCanvas.getContext('2d');
+            radarCtx.clearRect(0, 0, 110, 110);
+            radarCtx.beginPath(); radarCtx.arc(55, 55, 50, 0, Math.PI*2); radarCtx.fillStyle='rgba(12,45,23,0.6)'; radarCtx.fill();
+            radarCtx.strokeStyle='rgba(74,222,128,0.4)'; radarCtx.stroke();
+            
+            // 雷達跟隨獨立相機視角旋轉
+            radarCtx.save(); radarCtx.translate(55, 55); radarCtx.rotate(-gameState.camAngle);
+            radarCtx.beginPath(); radarCtx.moveTo(0,-7); radarCtx.lineTo(-5,5); radarCtx.lineTo(0,2); radarCtx.lineTo(5,5); radarCtx.fillStyle='#3b82f6'; radarCtx.fill();
+            radarCtx.restore();
+            
+            gameState.pokemons.forEach(p => {
+                if (p.isCaptured) return;
+                const dx = p.mesh.position.x - player.position.x; const dz = p.mesh.position.z - player.position.z;
+                const dist = Math.sqrt(dx*dx + dz*dz);
+                if (dist < 50) {
+                    const angle = Math.atan2(dx, dz) - gameState.camAngle;
+                    const rx = 55 + Math.sin(angle) * (dist/50)*45; const ry = 55 - Math.cos(angle) * (dist/50)*45;
+                    radarCtx.beginPath(); radarCtx.arc(rx, ry, 3.8, 0, Math.PI*2); 
+                    radarCtx.fillStyle = p.isLegendary ? '#ef4444' : '#facc15'; 
+                    radarCtx.fill();
+                }
+            });
+        };
+
+        const clock = new THREE.Clock();
+        const animate = () => {
+            requestAnimationFrame(animate);
+            if (!scene) return;
+            const delta = clock.getDelta(); const time = clock.getElapsedTime();
+
+            // --- 神獸 BGM 動態切換 (已優化，無縫且無延遲) ---
+            if (gameState.bgmStarted) {
+                const hasLegendary = gameState.pokemons.some(p => p.isLegendary && !p.isCaptured);
+                const bgmNormal = document.getElementById('bgm-normal');
+                const bgmBoss = document.getElementById('bgm-boss');
+                
+                if (hasLegendary && gameState.currentBGM !== 'boss') {
+                    gameState.currentBGM = 'boss';
+                    if (bgmNormal) bgmNormal.pause();
+                    if (bgmBoss) {
+                        bgmBoss.currentTime = 0; // Boss BGM 每次重新播放增加氣勢
+                        bgmBoss.play().catch(e => console.log("BGM切換中需互動"));
+                    }
+                } else if (!hasLegendary && gameState.currentBGM !== 'normal') {
+                    gameState.currentBGM = 'normal';
+                    if (bgmBoss) bgmBoss.pause();
+                    if (bgmNormal) bgmNormal.play().catch(e => console.log("BGM切換中需互動"));
+                }
+            }
+
+            for (let i = gameState.respawnQueue.length - 1; i >= 0; i--) {
+                const respawn = gameState.respawnQueue[i];
+                if (time >= respawn.time) {
+                    const newPoke = new Pokemon(respawn.type, respawn.x, respawn.z);
+                    resolveCollision(newPoke.mesh.position, 0.35); 
+                    newPoke.spawnX = newPoke.mesh.position.x; newPoke.spawnZ = newPoke.mesh.position.z;
+                    scene.add(newPoke.mesh); gameState.pokemons.push(newPoke);
+                    gameState.respawnQueue.splice(i, 1);
+                    const geo = new THREE.SphereGeometry(0.1, 8, 8); const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                    for(let k=0; k<15; k++){
+                        const m = new THREE.Mesh(geo, mat); m.position.set(respawn.x, 1, respawn.z); scene.add(m);
+                        gameState.particles.push({ mesh: m, velocity: new THREE.Vector3((Math.random()-0.5)*4, Math.random()*5, (Math.random()-0.5)*4), life: 0.5 });
+                    }
+                }
+            }
+
+            if (gameState.isShowingCapture && captureModel) {
+                captureModel.mesh.rotation.y += 1.5 * delta; captureRenderer.render(captureScene, captureCam);
+            }
+
+            updateCharging(delta); drawRadar();
+
+            let mx = 0, mz = 0;
+            if (keys.w || dpad.up) mz += 1; 
+            if (keys.s || dpad.down) mz -= 1; 
+            if (keys.a || dpad.left) mx += 1; 
+            if (keys.d || dpad.right) mx -= 1;
+            
+            let isMovingManual = false;
+
+            // 第三人稱視覺相對移動 (與相機視角解綁)
+            if ((mx !== 0 || mz !== 0) && !gameState.isShowingCapture) {
+                isMovingManual = true;
+                
+                // 以獨立的相機視角 (camAngle) 作為基準計算移動方向
+                const moveAngle = gameState.camAngle + Math.atan2(mx, mz);
+                const moveDir = new THREE.Vector3(Math.sin(moveAngle), 0, Math.cos(moveAngle)).normalize();
+
+                player.position.addScaledVector(moveDir, 6.0 * delta);
+                resolveCollision(player.position, 0.4); 
+                
+                // 角色平滑轉向移動方向 (不再影響相機，解決了按下旋轉亂轉的問題)
+                if (!gameState.autoLock) {
+                    const diff = Math.atan2(Math.sin(moveAngle - player.rotation.y), Math.cos(moveAngle - player.rotation.y));
+                    player.rotation.y += diff * 15 * delta; // 快速向後轉
+                }
+            }
+
+            // 自動鎖定與自動逼近邏輯 (加入 captureInProgress 判斷，捕捉時不切換目標)
+            if (gameState.autoLock && !gameState.isShowingCapture && !gameState.captureInProgress) {
+                // 若當前鎖定目標已捕捉，自動切換至下一個最近的，若無則取消
+                if (gameState.lockedTarget && gameState.lockedTarget.isCaptured) {
+                    const validPokemons = gameState.pokemons.filter(p => !p.isCaptured);
+                    if (validPokemons.length > 0) {
+                        let target = null, minDist = Infinity;
+                        validPokemons.forEach(p => {
+                            const d = player.position.distanceTo(p.mesh.position);
+                            if (d < minDist) { minDist = d; target = p; }
+                        });
+                        gameState.lockedTarget = target;
+                    } else {
+                        cancelLock();
+                    }
+                }
+
+                if (gameState.lockedTarget && !gameState.lockedTarget.isCaptured) {
+                    const target = gameState.lockedTarget;
+                    lockOnRing.position.copy(target.mesh.position); lockOnRing.position.y = 0.08;
+                    lockOnRing.rotation.z += 2*delta; lockOnRing.visible = true;
+                    
+                    const dx = target.mesh.position.x - player.position.x; const dz = target.mesh.position.z - player.position.z;
+                    const targetYaw = Math.atan2(dx, dz);
+
+                    // 如果沒有在手動移動，角色平滑轉向目標
+                    if (!isMovingManual) {
+                        const diffPlayer = Math.atan2(Math.sin(targetYaw - player.rotation.y), Math.cos(targetYaw - player.rotation.y));
+                        player.rotation.y += diffPlayer * 10 * delta; 
+                    }
+
+                    // 鎖定時，讓獨立相機視角緩慢跟隨目標，保持在背後
+                    const diffCam = Math.atan2(Math.sin(targetYaw - gameState.camAngle), Math.cos(targetYaw - gameState.camAngle));
+                    gameState.camAngle += diffCam * 2.0 * delta;
+
+                    const dist = player.position.distanceTo(target.mesh.position);
+                    // 自動逼近目標到適當距離
+                    if (dist > 12.0 && !isMovingManual) {
+                        const approachDir = new THREE.Vector3(dx, 0, dz).normalize();
+                        player.position.addScaledVector(approachDir, 4.0 * delta); 
+                        resolveCollision(player.position, 0.4);
+                    }
+                } else lockOnRing.visible = false;
+            } else {
+                lockOnRing.visible = false;
+            }
+
+            gameState.pokemons.forEach(p => p.update(time, delta));
+
+            for (let i = gameState.activeBalls.length - 1; i >= 0; i--) {
+                const ball = gameState.activeBalls[i]; 
+                
+                // 如果球處於捕捉成功的閒置展示狀態 (wobblePhase === 4)，不計算壽命和移動
+                if (ball.wobblePhase === 4) continue;
+                
+                ball.life -= delta;
+                if (ball.life <= 0) { scene.remove(ball.mesh); gameState.activeBalls.splice(i, 1); continue; }
+
+                if (ball.wobblePhase === 0) {
+                    ball.velocity.y += ball.gravity * delta; ball.mesh.position.addScaledVector(ball.velocity, delta);
+                    ball.mesh.rotation.x += 5*delta; ball.mesh.rotation.y += 2*delta;
+                    if (ball.mesh.position.y < 0.25) { ball.mesh.position.y = 0.25; ball.velocity.y = -ball.velocity.y*0.4; ball.velocity.x *= 0.7; ball.velocity.z *= 0.7; }
+                    for (let j = gameState.pokemons.length - 1; j >= 0; j--) {
+                        const pk = gameState.pokemons[j];
+                        if (!pk.isCaptured && ball.mesh.position.distanceTo(pk.mesh.position.clone().add(new THREE.Vector3(0,0.5,0))) < 0.85) {
+                            ball.wobblePhase = 1; ball.targetPokemon = pk; pk.isCaptured = true;
+                            gameState.captureInProgress = true; // 擊中瞬間暫停鎖定切換
+                            Sound.playHit(); scene.remove(pk.mesh); ball.velocity.set(0, 2.0, 0); break;
+                        }
+                    }
+                } else if (ball.wobblePhase === 1) {
+                    ball.velocity.y += ball.gravity * delta; ball.mesh.position.addScaledVector(ball.velocity, delta);
+                    ball.mesh.rotation.x *= 0.95; ball.mesh.rotation.y *= 0.95; ball.mesh.rotation.z *= 0.95;
+                    if (ball.mesh.position.y <= 0.25) { ball.mesh.position.y = 0.25; ball.velocity.set(0,0,0); ball.wobblePhase = 2; }
+                } else if (ball.wobblePhase === 2) {
+                    ball.wobbleTimer += delta;
+                    if (ball.wobbleTimer >= 0.3) {
+                        ball.wobbleTimer = 0; ball.wobblesCount++; Sound.playWobble();
+                        const shake = () => { let s=0; const f=()=>{ if(s<12){ ball.mesh.rotation.z=Math.sin(s)*0.4; s++; setTimeout(f,16);} else ball.mesh.rotation.z=0; }; f(); }; shake();
+                        if (ball.wobblesCount >= 3) ball.wobblePhase = 3;
+                    }
+                } else if (ball.wobblePhase === 3) {
+                    const pk = ball.targetPokemon;
+                    if (pk) {
+                        const type = pk.type;
+                        
+                        // 判定是否觸發逃脫 (針對傳說寶可夢)
+                        let escaped = false;
+                        if (ESCAPE_RATES[type] && Math.random() < ESCAPE_RATES[type]) {
+                            escaped = true;
+                        }
+
+                        if (escaped) {
+                            // 逃脫處理
+                            pk.isCaptured = false;
+                            gameState.captureInProgress = false; // 恢復鎖定切換
+                            
+                            // 瞬移到隨機新位置
+                            const angle = Math.random() * Math.PI * 2;
+                            const dist = 12 + Math.random() * 20; // 距離玩家 12~32 單位
+                            pk.mesh.position.set(player.position.x + Math.cos(angle)*dist, pk.originalY, player.position.z + Math.sin(angle)*dist);
+                            resolveCollision(pk.mesh.position, 0.35);
+                            pk.spawnX = pk.mesh.position.x; pk.spawnZ = pk.mesh.position.z;
+                            pk.targetPos.set(pk.spawnX, 0, pk.spawnZ);
+                            
+                            scene.add(pk.mesh); // 重新放回場景
+                            showNotification(`啊！${POKEDEX_DATA[type].name} 掙脫並逃跑了！`);
+                            Sound.playEscape();
+
+                            // 產生白煙爆裂逃脫特效
+                            const geo = new THREE.BoxGeometry(0.15, 0.15, 0.15); 
+                            const mat = new THREE.MeshBasicMaterial({color: 0xeeeeee});
+                            for(let k = 0; k < 30; k++){
+                                const m = new THREE.Mesh(geo, mat); m.position.copy(ball.mesh.position); scene.add(m);
+                                const a1 = Math.random() * Math.PI * 2, a2 = Math.random() * Math.PI, sp = 3 + Math.random() * 5;
+                                gameState.particles.push({mesh: m, velocity: new THREE.Vector3(Math.sin(a2)*Math.cos(a1)*sp, Math.cos(a2)*sp, Math.sin(a2)*Math.sin(a1)*sp), life: 1.2});
+                            }
+                            scene.remove(ball.mesh); gameState.activeBalls.splice(i, 1);
+
+                        } else {
+                            // 原本的成功捕捉邏輯
+                            gameState.pokedexUnlocks[type] = true; gameState.captureCounts[type]++;
+                            
+                            showCaptureCard(type); updatePokedexUI(); Sound.playSuccess();
+                            saveGameData(); 
+                            
+                            if (!pk.isLegendary) {
+                                let nextSpawnType = type;
+                                if (EVOLUTION_TARGETS[type] && gameState.captureCounts[type] >= EVOLUTION_THRESHOLD && !gameState.pokedexUnlocks[EVOLUTION_TARGETS[type]]) {
+                                    nextSpawnType = EVOLUTION_TARGETS[type]; 
+                                } else {
+                                    nextSpawnType = BASE_SPAWN_TYPES[Math.floor(Math.random() * BASE_SPAWN_TYPES.length)]; 
+                                }
+                                gameState.respawnQueue.push({ type: nextSpawnType, x: pk.spawnX, z: pk.spawnZ, time: clock.getElapsedTime() + 5.0 });
+                            }
+
+                            if (type === 'mewtwo') {
+                                setTimeout(() => {
+                                    document.getElementById('victory-modal').classList.remove('hidden');
+                                }, 2000);
+                            }
+
+                            // 讓寶貝球停留在原地 (進入 phase 4)，並發射 3 顆黃色小星星特效
+                            ball.wobblePhase = 4;
+                            const starGeo = new THREE.OctahedronGeometry(0.12); 
+                            const starMat = new THREE.MeshBasicMaterial({color: 0xffeb3b});
+                            for(let k = 0; k < 3; k++){
+                                const star = new THREE.Mesh(starGeo, starMat);
+                                star.position.copy(ball.mesh.position);
+                                star.position.y += 0.3; // 從球上方冒出
+                                scene.add(star);
+                                
+                                const starAngle = (k - 1) * 0.6; // 分散角度 (-0.6, 0, 0.6)
+                                gameState.particles.push({
+                                    mesh: star,
+                                    velocity: new THREE.Vector3(Math.sin(starAngle)*1.5, 3.5 + Math.random(), Math.cos(starAngle)*1.5),
+                                    life: 1.5,
+                                    isStar: true // 標記為星星以應用特殊漂浮物理
+                                });
+                            }
+                            
+                            // 產生捕捉成功的金粉特效
+                            const dustGeo = new THREE.BoxGeometry(0.08,0.08,0.08); 
+                            for(let k=0;k<20;k++){
+                                const m = new THREE.Mesh(dustGeo, starMat); m.position.copy(ball.mesh.position); scene.add(m);
+                                const a1=Math.random()*Math.PI*2, a2=Math.random()*Math.PI, sp=1.5+Math.random()*4;
+                                gameState.particles.push({mesh:m, velocity:new THREE.Vector3(Math.sin(a2)*Math.cos(a1)*sp, Math.cos(a2)*sp+1.5, Math.sin(a2)*Math.sin(a1)*sp), life:0.8});
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (let i = gameState.particles.length - 1; i >= 0; i--) {
+                const p = gameState.particles[i]; p.life -= delta;
+                if (p.life <= 0) { scene.remove(p.mesh); gameState.particles.splice(i, 1); continue; }
+                p.mesh.position.addScaledVector(p.velocity, delta); 
+                
+                // 星星特效特殊物理: 較輕的重力與旋轉
+                if (p.isStar) {
+                    p.velocity.y -= 4.0 * delta; 
+                    p.mesh.rotation.y += 6 * delta;
+                    p.mesh.rotation.x += 3 * delta;
+                } else {
+                    p.velocity.y -= 9.8 * delta; 
+                    p.mesh.scale.multiplyScalar(0.96);
+                }
+            }
+
+            // 相機追蹤改為綁定獨立的 camAngle
+            const targetCamPos = new THREE.Vector3(
+                player.position.x - Math.sin(gameState.camAngle) * gameState.cameraDistance,
+                player.position.y + 4.0,
+                player.position.z - Math.cos(gameState.camAngle) * gameState.cameraDistance
+            );
+            camera.position.lerp(targetCamPos, 0.12); camera.lookAt(player.position.clone().add(new THREE.Vector3(0,1.2,0)));
+
+            renderer.render(scene, camera);
+        };
+
+        const initUI = () => {
+            // 新增: 觸控/滑鼠拖曳旋轉相機視角
+            let isDraggingCam = false;
+            let prevTouchX = 0;
+            const canvasContainer = document.getElementById('canvas-container');
+            
+            canvasContainer.addEventListener('touchstart', (e) => {
+                if (e.target.id === 'canvas-container' || e.target.tagName === 'CANVAS') {
+                    isDraggingCam = true; prevTouchX = e.touches[0].clientX;
+                }
+            }, {passive: true});
+            canvasContainer.addEventListener('touchmove', (e) => {
+                if (isDraggingCam) {
+                    const deltaX = e.touches[0].clientX - prevTouchX;
+                    gameState.camAngle -= deltaX * 0.006; 
+                    prevTouchX = e.touches[0].clientX;
+                }
+            }, {passive: true});
+            canvasContainer.addEventListener('touchend', () => isDraggingCam = false);
+            
+            canvasContainer.addEventListener('mousedown', (e) => {
+                if (e.target.id === 'canvas-container' || e.target.tagName === 'CANVAS') {
+                    isDraggingCam = true; prevTouchX = e.clientX;
+                }
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (isDraggingCam) {
+                    const deltaX = e.clientX - prevTouchX;
+                    gameState.camAngle -= deltaX * 0.006;
+                    prevTouchX = e.clientX;
+                }
+            });
+            window.addEventListener('mouseup', () => isDraggingCam = false);
+
+            const bgmNormal = document.getElementById('bgm-normal');
+            const bgmBoss = document.getElementById('bgm-boss');
+            const bgmVolume = document.getElementById('bgm-volume');
+            
+            if (bgmNormal) bgmNormal.volume = bgmVolume.value; 
+            if (bgmBoss) bgmBoss.volume = bgmVolume.value;
+
+            bgmVolume.addEventListener('input', (e) => {
+                if (bgmNormal) bgmNormal.volume = e.target.value;
+                if (bgmBoss) bgmBoss.volume = e.target.value;
+                if (gameState.bgmStarted && e.target.value > 0) {
+                    if (gameState.currentBGM === 'normal' && bgmNormal && bgmNormal.paused) bgmNormal.play().catch(()=>{});
+                    if (gameState.currentBGM === 'boss' && bgmBoss && bgmBoss.paused) bgmBoss.play().catch(()=>{});
+                }
+            });
+
+            const startBGM = () => {
+                if (!gameState.bgmStarted && bgmVolume.value > 0) {
+                    if (bgmNormal) {
+                        bgmNormal.play().then(() => { gameState.bgmStarted = true; }).catch(e => console.log("等待互動以播放音樂"));
+                    }
+                }
+            };
+            window.addEventListener('click', startBGM, { once: true });
+            window.addEventListener('touchstart', startBGM, { once: true });
+
+            const bindTouch = (id, start, end) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('touchstart', (e)=>{e.preventDefault();start();}, {passive:false});
+                el.addEventListener('mousedown', start);
+                if(end) { el.addEventListener('touchend', (e)=>{e.preventDefault();end();}, {passive:false}); window.addEventListener('mouseup', end); }
+            };
+
+            bindTouch('btn-throw', startCharging, releaseAndThrow);
+            
+            const btnLock = document.getElementById('btn-lock');
+            if(btnLock) btnLock.addEventListener('click', handleLockBtnClick);
+
+            const btnUnlock = document.getElementById('btn-unlock');
+            if(btnUnlock) btnUnlock.addEventListener('click', cancelLock);
+            
+            const btnPokedex = document.getElementById('btn-pokedex');
+            if(btnPokedex) btnPokedex.addEventListener('click', () => {
+                updatePokedexUI(); document.getElementById('pokedex-modal').classList.remove('hidden');
+            });
+            
+            const btnClosePokedex = document.getElementById('btn-close-pokedex');
+            if(btnClosePokedex) btnClosePokedex.addEventListener('click', () => {
+                document.getElementById('pokedex-modal').classList.add('hidden');
+            });
+
+            const btnCloseCapture = document.getElementById('btn-close-capture');
+            if(btnCloseCapture) btnCloseCapture.addEventListener('click', () => {
+                document.getElementById('capture-card').classList.add('opacity-0', 'pointer-events-none');
+                document.getElementById('capture-card').classList.remove('pointer-events-auto');
+                document.getElementById('capture-card-inner').classList.add('scale-90');
+                document.getElementById('capture-card-inner').classList.remove('scale-100');
+                
+                gameState.isShowingCapture = false;
+                gameState.captureInProgress = false; // 收下後，恢復自動鎖定的切換邏輯
+                
+                // 清除留在地上的寶貝球 (Phase 4)
+                for (let i = gameState.activeBalls.length - 1; i >= 0; i--) {
+                    if (gameState.activeBalls[i].wobblePhase === 4) {
+                        scene.remove(gameState.activeBalls[i].mesh);
+                        gameState.activeBalls.splice(i, 1);
+                    }
+                }
+            });
+
+            const resetProgress = async () => {
+                Object.keys(POKEDEX_DATA).forEach(k => { gameState.pokedexUnlocks[k] = false; gameState.captureCounts[k] = 0; });
+                gameState.legendarySpawned = { zapdos: false, moltres: false, articuno: false, mewtwo: false };
+                gameState.respawnQueue = [];
+                player.position.set(0,0,0); player.rotation.y=0;
+                initSpawns(); updatePokedexUI();
+                await saveGameData(); 
+                showNotification("進度已重置並儲存！準備好重新開始了嗎？");
+            };
+
+            const btnReset = document.getElementById('btn-reset');
+            if(btnReset) btnReset.addEventListener('click', resetProgress);
+
+            const btnVictoryReset = document.getElementById('btn-victory-reset');
+            if(btnVictoryReset) btnVictoryReset.addEventListener('click', () => {
+                document.getElementById('victory-modal').classList.add('hidden');
+                resetProgress();
+            });
+
+            const btnVictoryClose = document.getElementById('btn-victory-close');
+            if(btnVictoryClose) btnVictoryClose.addEventListener('click', () => {
+                document.getElementById('victory-modal').classList.add('hidden');
+            });
+
+            const btnToggleMenu = document.getElementById('btn-toggle-menu');
+            const mainMenuPanel = document.getElementById('main-menu-panel');
+            let isMenuOpen = true;
+            if(btnToggleMenu) btnToggleMenu.addEventListener('click', () => {
+                isMenuOpen = !isMenuOpen;
+                if (isMenuOpen) {
+                    mainMenuPanel.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
+                    mainMenuPanel.classList.add('scale-100', 'opacity-100');
+                    btnToggleMenu.innerHTML = '<span class="text-lg">✕</span> <span class="text-xs font-bold md:inline">關閉選單</span>';
+                } else {
+                    mainMenuPanel.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+                    mainMenuPanel.classList.remove('scale-100', 'opacity-100');
+                    btnToggleMenu.innerHTML = '<span class="text-lg">☰</span> <span class="text-xs font-bold md:inline">選單</span>';
+                }
+            });
+
+            const btnToggleRadar = document.getElementById('btn-toggle-radar');
+            const radarContainer = document.getElementById('radar-container');
+            let isRadarOpen = true;
+            if(btnToggleRadar) btnToggleRadar.addEventListener('click', () => {
+                isRadarOpen = !isRadarOpen;
+                if (isRadarOpen) {
+                    radarContainer.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
+                    radarContainer.classList.add('scale-100', 'opacity-100');
+                    btnToggleRadar.classList.add('bg-green-600/80', 'border-green-400');
+                    btnToggleRadar.classList.remove('bg-black/80', 'border-slate-500');
+                } else {
+                    radarContainer.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+                    radarContainer.classList.remove('scale-100', 'opacity-100');
+                    btnToggleRadar.classList.remove('bg-green-600/80', 'border-green-400');
+                    btnToggleRadar.classList.add('bg-black/80', 'border-slate-500');
+                }
+            });
+
+            // 十字鍵事件綁定
+            const bindDpad = (id, dir) => {
+                const btn = document.getElementById(id);
+                if(!btn) return;
+                const press = (e) => { e.preventDefault(); dpad[dir] = true; };
+                const release = (e) => { e.preventDefault(); dpad[dir] = false; };
+                btn.addEventListener('touchstart', press, {passive:false});
+                btn.addEventListener('touchend', release, {passive:false});
+                btn.addEventListener('mousedown', press);
+                btn.addEventListener('mouseup', release);
+                btn.addEventListener('mouseleave', release);
+            };
+            bindDpad('dpad-up', 'up');
+            bindDpad('dpad-down', 'down');
+            bindDpad('dpad-left', 'left');
+            bindDpad('dpad-right', 'right');
+        };
+
+        window.addEventListener('resize', () => {
+            if(!camera) return;
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.onload = async () => {
+            initGame();         
+            initUI();
+            await initFirebaseData(); 
+            initSpawns(); 
+            updatePokedexUI();
+            animate();
+        };
+    </script>
+</body>
+</html>
