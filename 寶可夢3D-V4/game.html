@@ -395,7 +395,7 @@
             if (!gltfLoader || !GLB_TYPES.has(type)) return Promise.reject(new Error(`GLB unavailable: ${type}`));
             if (!glbAssetCache.has(type)) {
                 const request = new Promise((resolve, reject) => {
-                    gltfLoader.load(`${GAME_ASSET_BASE}${type}.glb?v=20260808-glb22`, resolve, undefined, reject);
+                    gltfLoader.load(`models/${type}.glb?v=20260808-glb22`, resolve, undefined, reject);
                 });
                 request.catch(() => glbAssetCache.delete(type));
                 glbAssetCache.set(type, request);
