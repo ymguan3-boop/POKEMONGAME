@@ -11,13 +11,17 @@
   buildUI(){const style=document.createElement('style');style.textContent='#v5-talk{position:fixed;bottom:170px;left:50%;transform:translateX(-50%);padding:10px 18px;border:2px solid #fff3cb;border-radius:22px;background:#234d58;color:white;z-index:60;cursor:pointer}#v5-dialogue{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);width:min(520px,90vw);padding:22px;border:3px solid #e5c485;border-radius:18px;background:#fff9eb;color:#23434e;z-index:80;box-shadow:0 8px 28px #0004}#v5-dialogue button{margin-top:14px;background:#24576b;color:white;border-radius:8px;padding:8px 18px}';document.head.append(style);
    style.textContent+='.v5-npc-name{position:fixed;transform:translate(-50%,-100%);pointer-events:none;z-index:18;white-space:nowrap;max-width:110px;padding:2px 5px;border:1px solid #a6edf4;border-radius:6px;background:#174656db;color:#fff;font:600 10px/1.3 sans-serif;text-shadow:0 1px 2px #000}.v5-npc-name[hidden]{display:none}#v5-dialogue p{white-space:pre-line}';
    this.button=document.createElement('button');this.button.id='v5-talk';this.button.hidden=true;this.button.addEventListener('click',()=>this.interact());document.body.append(this.button);
-   this.panel=document.createElement('section');this.panel.id='v5-dialogue';this.panel.hidden=true;this.panel.setAttribute('role','dialog');this.panel.setAttribute('aria-label','NPC 對話');this.panel.innerHTML='<strong></strong><p style="margin-top:10px;line-height:1.7"></p><button class="v5-card-menu" hidden>查看卡牌與挑戰</button><button class="v5-close-talk">繼續冒險</button>';this.panel.querySelector('.v5-close-talk').onclick=()=>this.close();this.panel.querySelector('.v5-card-menu').onclick=()=>{this.close();window.V5Cards?.open(true);};document.body.append(this.panel);
+   this.panel=document.createElement('section');this.panel.id='v5-dialogue';this.panel.hidden=true;this.panel.setAttribute('role','dialog');this.panel.setAttribute('aria-label','NPC 對話');this.panel.innerHTML='<strong></strong><p style="margin-top:10px;line-height:1.7"></p><button class="v5-card-menu" hidden>選擇隊伍／3D 挑戰</button><button class="v5-close-talk">繼續冒險</button>';this.panel.querySelector('.v5-close-talk').onclick=()=>this.close();this.panel.querySelector('.v5-card-menu').onclick=()=>{this.close();window.V5Battle?.openTeam(true);};document.body.append(this.panel);
    window.addEventListener('keydown',e=>{if(e.code==='KeyE'&&!e.repeat){e.preventDefault();if(this.dialogue)this.close();else this.interact();}if(e.code==='Escape'&&this.dialogue)this.close();});
   }
   close(){this.dialogue=null;this.panel.hidden=true;this.ctx.state.interactionOpen=false;}
   interact(target=this.nearest){const npc=target,{state,save,visual}=this.ctx;if(!npc||state.currentMode!=='world'||state.captureInProgress||state.isShowingCapture||state.interactionOpen)return false;
    this.contacts.add(npc.id);
-   if(npc.cardTrainer){state.interactionOpen=true;this.dialogue=npc;const check=window.V5Cards?.status?.(true);this.panel.querySelector('strong').textContent=npc.name;this.panel.querySelector('p').textContent='想用你親自收集的卡牌來場對戰嗎？先整理 20 張合法牌組，再由你決定是否挑戰。'+(check?.ok?'\n目前牌組符合挑戰條件。':'\n'+(check?.errors?.[0]||'請先查看牌組條件。'));this.panel.querySelector('.v5-card-menu').hidden=false;this.panel.hidden=false;return true;}
+   if(npc.cardTrainer||npc.battleTrainer){state.interactionOpen=true;this.dialogue=npc;
+    const count=window.V5BattleData?.caught?.(state)?.length||0;
+    this.panel.querySelector('strong').textContent=npc.name;
+    this.panel.querySelector('p').textContent='準備用三隻已捕捉的寶可夢進行 3D 回合制挑戰嗎？\n目前可編隊種類：'+count+'。\n獲得首次勝利即可解鎖超夢及胖丁。';
+    this.panel.querySelector('.v5-card-menu').hidden=false;this.panel.hidden=false;return true;}
    state.interactionOpen=true;this.dialogue=npc;
    this.panel.querySelector('.v5-card-menu').hidden=true;
    if(npc.leader){const leader=this.actors.find(n=>n.id===npc.leader);this.panel.querySelector('strong').textContent=npc.name+' · NPC 夥伴';this.panel.querySelector('p').textContent=npc.name+'開心地向你打招呼！牠正在陪伴'+(leader?.name||'鎮上的朋友')+'，是鎮上的夥伴，不能捕捉。';this.panel.hidden=false;visual()?.action('Nod');this.panel.querySelector('button').focus();return true;}
@@ -34,7 +38,7 @@
    for(const n of this.companions){const leader=this.actors.find(x=>x.id===n.leader);n.root.visible=active&&!!leader;if(!leader)continue;const target=leader.root.position.clone().add(new THREE.Vector3(n.offset[0],0,n.offset[1])),moving=n.root.position.distanceTo(target)>.12;n.root.position.lerp(target,1-Math.exp(-dt*2));n.root.rotation.y=leader.root.rotation.y;if(active){n.animation.play(moving?'Walk':'Idle');n.animation.update(dt);}}
    // Contacts re-arm only after leaving: closing a panel cannot reopen it each frame.
    let contact=null,contactDistance=Infinity;for(const n of [...this.actors,...this.companions]){this.updateLabel(n,active&&n.root.visible);const d=Math.hypot(n.root.position.x-player.position.x,n.root.position.z-player.position.z);if(d>2.7)this.contacts.delete(n.id);if(active&&n.root.visible&&d<1.65&&!this.contacts.has(n.id)&&d<contactDistance){contact=n;contactDistance=d;}}
-   this.nearest=closest;this.button.hidden=!(closest?.cardTrainer&&dist<3.8&&!state.interactionOpen);if(!this.button.hidden)this.button.textContent='🃏 與卡牌訓練家交談';
+   this.nearest=closest;this.button.hidden=!(closest?.cardTrainer&&dist<3.8&&!state.interactionOpen);if(!this.button.hidden)this.button.textContent='⚔️ 與對戰訓練家交談';
    if(contact&&!contact.cardTrainer&&!this.dialogue&&!state.interactionOpen&&!state.captureInProgress&&!state.isShowingCapture&&!state.isCharging){for(const n of [...this.actors,...this.companions])if(Math.hypot(n.root.position.x-player.position.x,n.root.position.z-player.position.z)<2.7)this.contacts.add(n.id);this.interact(contact);}
   }
  }

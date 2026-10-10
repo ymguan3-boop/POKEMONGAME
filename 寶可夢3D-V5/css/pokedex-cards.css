@@ -19,3 +19,9 @@
 .v5-dex-card.is-unseen .v5-dex-title span{color:#60727a}
 .v5-dex-card.is-unseen .v5-dex-detail,.v5-dex-card.is-unseen .v5-dex-desc{color:#61727a}
 .v5-dex-card.is-unseen .v5-dex-footer{color:#465e6b}
+
+/* Never reveal the species silhouette before an actual capture. No image is loaded. */
+.v5-dex-card.is-unseen .v5-dex-art.v5-unknown-art{background:#10171e!important;color:#7c909e;display:flex;align-items:center;justify-content:center;isolation:isolate}
+.v5-dex-card.is-unseen .v5-dex-art.v5-unknown-art::after{content:none!important}
+.v5-dex-card.is-unseen .v5-unknown-lock{font-size:clamp(29px,8vw,46px);filter:grayscale(1);opacity:.6;line-height:1}
+.v5-dex-card.is-unseen .v5-dex-art.v5-unknown-art img{display:none!important}
