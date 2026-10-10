@@ -2371,12 +2371,30 @@
             bindTouch('btn-pokedex', () => { document.getElementById('pokedex-modal').classList.remove('hidden'); document.getElementById('main-menu-panel').classList.remove('active'); updatePokedexUI(); }); bindTouch('btn-close-pokedex', () => document.getElementById('pokedex-modal').classList.add('hidden'));
             bindTouch('btn-instructions', () => { document.getElementById('instructions-modal').classList.remove('hidden'); document.getElementById('main-menu-panel').classList.remove('active'); }); bindTouch('btn-close-instructions', () => document.getElementById('instructions-modal').classList.add('hidden'));
             
-            bindTouch('btn-reset', async () => { 
-                showNotification("進度已重置並儲存！準備好重新開始了嗎？");
-                localStorage.removeItem('pokemon3d_v5_preview');
-                
-                if (window.resetCloudSave) await window.resetCloudSave(); // ★觸發存檔：重置遊戲
-                setTimeout(() => { location.reload(); }, 1500);
+            let v5ResetPending = false;
+            bindTouch('btn-reset', async () => {
+                if (v5ResetPending) return;
+                // Two separate affirmative confirmations after the initial reset click.
+                if (!window.confirm('第一次確認（1/2）：確定要刪除 V5 的捕捉、道館及對戰進度嗎？此操作無法復原。')) return;
+                if (!window.confirm('最後確認（2/2）：真的要永久重置所有 V5 遊戲進度嗎？按「取消」即可保留存檔。')) return;
+                v5ResetPending = true;
+                const resetButton = document.getElementById('btn-reset');
+                if (resetButton) resetButton.disabled = true;
+                try {
+                    if (typeof window.resetCloudSave === 'function') {
+                        const resetResult = await window.resetCloudSave();
+                        if (resetResult === false) throw new Error('雲端拒絕重置');
+                    }
+                    // Keep a fresh V5 marker so the legacy V4 fallback does not revive erased progress.
+                    localStorage.setItem('pokemon3d_v5_preview', JSON.stringify({schemaVersion:5,worldFlags:{},captureCounts:{},pokedexUnlocks:{},battle3d:{version:1,party:[],leader:null,stats:{wins:0,losses:0,draws:0,forfeits:0},rewards:{specialDuoUnlocked:false}}}));
+                    showNotification('已完成兩次確認，V5 進度已重置。');
+                    location.reload();
+                } catch (error) {
+                    console.error('[v5-reset] failed:', error);
+                    window.alert('無法確認雲端重置成功，已保留本機進度。請檢查網路後重試。');
+                    v5ResetPending = false;
+                    if (resetButton) resetButton.disabled = false;
+                }
             });
 
             document.getElementById('btn-close-capture').addEventListener('click', () => {
