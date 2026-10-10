@@ -20,7 +20,7 @@
    if(npc.cardTrainer||npc.battleTrainer){state.interactionOpen=true;this.dialogue=npc;
     const count=window.V5BattleData?.caught?.(state)?.length||0;
     this.panel.querySelector('strong').textContent=npc.name;
-    this.panel.querySelector('p').textContent='準備用三隻已捕捉的寶可夢進行 3D 回合制挑戰嗎？\\n目前可編隊種類：'+count+'。\\n獲得首次勝利即可解鎖超夢及胖丁。';
+    this.panel.querySelector('p').textContent='準備用三隻已捕捉的寶可夢進行 3D 回合制挑戰嗎？\n目前可編隊種類：'+count+'。\n獲得首次勝利即可解鎖超夢及胖丁。';
     this.panel.querySelector('.v5-card-menu').hidden=false;this.panel.hidden=false;return true;}
    state.interactionOpen=true;this.dialogue=npc;
    this.panel.querySelector('.v5-card-menu').hidden=true;
