@@ -37,11 +37,19 @@
     card.setAttribute('aria-label',`尚未捕捉的圖鑑項目 #${String(c.cardNumber).padStart(3,'0')}`);
    }
    const art=document.createElement('div');art.className='v5-dex-art';
-   const img=document.createElement('img');img.loading='lazy';img.decoding='async';
-   img.alt=discovered?`${c.name}的${c.art?'Q 版卡牌插畫':'新 3D 模型預覽圖'}`:'尚未捕捉的寶可夢暗影';
-   img.src=c.art||`cards/model-thumbs/${c.id}.webp`;
-   img.onerror=()=>{img.onerror=null;img.style.display='none';art.append(Object.assign(document.createElement('span'),{textContent:discovered?'模型縮圖製作中':'？'}));};
-   art.append(img);card.append(art);
+   if(discovered){
+    const img=document.createElement('img');img.loading='lazy';img.decoding='async';
+    img.alt=`${c.name}的${c.art?'Q 版卡牌插畫':'新 3D 模型預覽圖'}`;
+    img.src=c.art||`cards/model-thumbs/${c.id}.webp`;
+    img.onerror=()=>{img.onerror=null;img.style.display='none';art.append(Object.assign(document.createElement('span'),{textContent:'模型縮圖製作中'}));};
+    art.append(img);
+   }else{
+    // 不載入未捕捉物種的圖片，避免從輪廓、亮度或網路請求辨識真身。
+    art.classList.add('v5-unknown-art');
+    const lock=document.createElement('span');lock.className='v5-unknown-lock';
+    lock.textContent='🔒';lock.setAttribute('aria-hidden','true');art.append(lock);
+   }
+   card.append(art);
    const title=document.createElement('div');title.className='v5-dex-title';
    title.innerHTML='<strong></strong><span></span>';
    title.querySelector('strong').textContent=discovered?c.name:'？？？';
