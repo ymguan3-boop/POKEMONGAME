@@ -29,8 +29,9 @@
   return {root,add,ell,ball,box,cone,tube,link,leaf,patch,eye,mouth,flame,material};
  }
  const register=(id,fn)=>{if(registry.has(id))throw Error('duplicate model '+id);registry.set(id,fn);};
- function build(id){
+ function build(id,raw=false){
   const fn=registry.get(id);if(!fn)throw Error('Missing detailed model '+id);const b=builder(id);fn(b,window.PalletRoster?.dex[id]);
+  if(raw)return b.root;
   // The models are rigid sculptures with runtime motion on their root. Bake static parts
   // by material so detailed toes, feathers and eyes do not each cost a draw call.
   b.root.updateMatrixWorld(true);const batches=new Map(),parts=[];

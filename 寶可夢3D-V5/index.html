@@ -14,7 +14,7 @@
 <script src="js/models-v2/special.js"></script>
 <script src="js/models-v2/measurements.js"></script>
 <script src="js/models-v2/sizing.js"></script>
-    <script src="js/town.js"></script>
+    <script src="js/articulated-models.js"></script><script src="js/gym-presentation.js"></script><script src="js/town.js"></script>
     <script src="js/game-runtime-state.js"></script>
     
     <style>
@@ -39,7 +39,7 @@
     </style><link rel="stylesheet" href="mobile.css"><link rel="icon" href="icon.svg"></head>
 <body data-game-version="20261009-pallet-v2-detailed">
 
-    <div id="canvas-container"></div>
+    <div id="v5-loading" role="status" style="position:fixed;inset:0;z-index:200;background:#dfeeda;display:grid;place-content:center;text-align:center;color:#234b50;padding:25px"><h1 style="font-size:25px;font-weight:bold">真新鎮旅程</h1><p id="v5-loading-text">正在準備新主角與場景…</p><small>開發預覽：28 種舊版寶可夢仍待重製，暫不在場景顯示；既有圖鑑與存檔保留。</small></div><div id="canvas-container"></div>
 
     <div id="unified-hud" class="absolute top-2 md:top-4 left-1/2 -translate-x-1/2 z-20 flex flex-wrap justify-center items-center gap-1.5 md:gap-3 pointer-events-none transition-all w-[92vw] md:w-auto">
         <div class="bg-blue-900/80 backdrop-blur-md px-2.5 py-1 md:px-3 md:py-1.5 rounded-full border border-blue-400/50 flex items-center gap-1.5 shadow-lg shrink-0">
@@ -298,22 +298,11 @@
         const glbAssetCache = new Map();
         const { cloneRuntimeGLBScene, applyTransientEmissive, restoreTransientEmissive, isLockTargetAvailable, getLockPriority, getCaptureHitRadius, getCaptureBodyCenter, segmentIntersectsSphere, resolveAssistedThrowVelocity, resolveLockApproachState, getLockApproachSpeed, resolveAutoLockState, SPECIAL_POKEMON_TYPES, isSpecialPokemonType, resolveSpecialCaptureMap, shouldSpawnSpecialPokemon, resolveCaptureOutcome, getModeLockTargets, resolveWorldFeedTarget, BALL_CATCH_RATES, resolveCatchRate } = window.PokemonGameRuntime;
         const V5_SAMPLE_IDS = new Set(['piplup','bulbasaur','moltres','articuno','zapdos','kyogre',...V5NewSpeciesIds]);
+        const V5_AVAILABLE_TYPES=new Set([...PalletModelsV2.ids(),...V5NewSpeciesIds]);
         const getGLBAsset = (type) => {
+            if(!V5_AVAILABLE_TYPES.has(type))return Promise.reject(new Error('V5_MODEL_PENDING: '+type));
             if(V5_SAMPLE_IDS.has(type)){if(!glbAssetCache.has(type))glbAssetCache.set(type,gltfLoader.loadAsync('models/'+type+'.glb').then(a=>({...a,authored:true,v5:true})));return glbAssetCache.get(type);}
-            if (!GLB_TYPES.has(type)) return Promise.reject(new Error(`GLB unavailable: ${type}`));
-            if (!glbAssetCache.has(type)) {
-                if (!PACKAGED_GLB_TYPES.has(type)) {
-                    const model=PalletScale.normalize(PalletModels.build(type),type);model.rotation.x=-Math.PI/2;
-                    const wrapper=new THREE.Group();wrapper.add(model);
-                    glbAssetCache.set(type,Promise.resolve({scene:wrapper,animations:[],authored:true}));
-                    return glbAssetCache.get(type);
-                }
-                const request = new Promise((resolve, reject) => {
-                    gltfLoader.load(`models/${type}.glb?v=20260808-glb22`, resolve, undefined, reject);
-                });
-                request.catch(() => glbAssetCache.delete(type));
-                glbAssetCache.set(type, request);
-            }
+            if(!glbAssetCache.has(type))glbAssetCache.set(type,Promise.resolve().then(()=>V5ArticulatedModels.build(type)));
             return glbAssetCache.get(type);
         };
         const applyGLBAssetToPokemon = (pokemon, asset) => {
@@ -333,7 +322,7 @@
             pokemon.mesh.clear(); pokemon.mesh.add(replacement); pokemon.loadedGLB = replacement;
             if(!pokemon.isGymBoss && gameState.currentMode==='world')resolveCollision(pokemon.mesh.position,pokemon.collisionRadius);
             if(asset.v5){pokemon.animation=new V5AnimationController(replacement,asset.animations);pokemon.animation.play('Idle');pokemon.v5=true;}else if (asset.animations?.length) { pokemon.mixer = new THREE.AnimationMixer(replacement); pokemon.mixer.clipAction(asset.animations[0]).play(); }
-            pokemon.glbApplied = true; pokemon.modelSource = 'glb';
+            pokemon.glbApplied = true; pokemon.modelSource = asset.scene.userData.source||'v5-glb';pokemon.mesh.visible=true;pokemon.isTargetable=true;
             if (pokemon.isGymBoss) {
                 const bossHpContainer = document.getElementById('boss-hp-container');
                 if (bossHpContainer) bossHpContainer.dataset.bossModel = 'glb';
@@ -342,12 +331,12 @@
         };
         const loadGLBModel = (pokemon, retries = 2) => {
             if (!gltfLoader || !GLB_TYPES.has(pokemon.type)) return Promise.resolve(false);
-            pokemon.modelSource = 'loading';
+            pokemon.modelSource = 'loading';pokemon.mesh.visible=false;pokemon.isTargetable=false;
             const attemptLoad = (remaining) => getGLBAsset(pokemon.type)
                 .then(asset => applyGLBAssetToPokemon(pokemon, asset))
                 .catch((error) => {
                     if (remaining > 0) return new Promise(resolve => setTimeout(resolve, 120)).then(() => attemptLoad(remaining - 1));
-                    pokemon.modelSource = 'fallback-error';
+                    pokemon.modelSource = 'new-model-unavailable';pokemon.mesh.clear();pokemon.mesh.visible=false;pokemon.isTargetable=false;
                     if (pokemon.isGymBoss) {
                         const bossHpContainer = document.getElementById('boss-hp-container');
                         if (bossHpContainer) bossHpContainer.dataset.bossModel = 'fallback-error';
@@ -417,7 +406,7 @@
                 gym_4: { cleared: false, hp: 240, maxHp: 240, bossType: 'blissey', name: '幸福蛋', centerX: 0, centerZ: -500, bound: 30 }
             },
             gymObstacles: [], activeBoss: null, gymReturnPos: new THREE.Vector3(), gymTransitioning: false,
-            equip: { pikachuHat: false, pikachuSuit: false, mewCompanion: false, wigglytuffSuit: false, blisseySuit: false, activeSuit: 'none' },
+            equip: { pikachuHat: false, pikachuSuit: false, mewCompanion: false, wigglytuffSuit: false, blisseySuit: false, activeSuit: 'trainer' },
             pikachuTimer: 120 
         };
 
@@ -557,7 +546,7 @@
                 this.baseScale = MODEL_SCALE[type] || 1.0;
                 this.baseCatchRate = 0.5; // 新增預設捕捉率
                 this.mesh.scale.setScalar(this.baseScale);
-                if (!gltfLoader || !GLB_TYPES.has(type)) this.buildModel();
+                // Old fallback models are never rendered in V5.
                 loadGLBModel(this);
             }
 
@@ -825,6 +814,7 @@
                 }
 
                 if(v5Ecology?.tick(this,delta))return;
+                if(this.animation){this.animation.play(this.idleTime>0?'Idle':'Walk');this.animation.update(gameState.isTimeStopped?0:delta);}
                 if (this.idleTime > 0) {
                     this.idleTime -= delta; this.mesh.rotation.y += Math.sin(time * 3 + this.seed) * 0.02; 
                 } else {
@@ -868,7 +858,6 @@
                 this.originalY = 0;
                 this.baseScale = GYM_BOSS_SCALE[type] || 1.9;
                 this.modelSource = 'fallback';
-                this.buildModel();
                 this.mesh.scale.setScalar(this.baseScale);
                 scene.add(this.mesh);
                 this.modelLoadPromise = preloadedAsset
@@ -916,12 +905,9 @@
             }
 
             spawnObstacle() {
-                const obsMesh = new THREE.Group(); let radius = 3.5;
-                if (this.type === 'pikachu') { const m = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 8, 16, 1, true), new THREE.MeshBasicMaterial({color: 0xfacc15, wireframe: true, transparent: true, opacity: 0.7})); m.position.y = 4; obsMesh.add(m); } 
-                else if (this.type === 'mew') { const m = new THREE.Mesh(new THREE.ConeGeometry(radius, 12, 8), new THREE.MeshBasicMaterial({color: 0xef4444, transparent: true, opacity: 0.8})); m.position.y = 6; obsMesh.add(m); } 
-                else if (this.type === 'wigglytuff') { const m = new THREE.Mesh(new THREE.TorusGeometry(radius * .72, .30, 8, 24), new THREE.MeshBasicMaterial({color: 0xf9a8d4, transparent: true, opacity: 0.85})); m.position.y = 1.2; m.rotation.x = Math.PI / 2; obsMesh.add(m); radius = 3.0; }
-                else if (this.type === 'blissey') { const m = new THREE.Mesh(new THREE.SphereGeometry(radius * .72, 16, 12), new THREE.MeshBasicMaterial({color: 0xffe4e6, wireframe: true, transparent: true, opacity: 0.75})); m.position.y = 2.5; obsMesh.add(m); radius = 3.0; }
-                
+                const radius=['wigglytuff','blissey'].includes(this.type)?3:3.5;
+                const obsMesh=V5GymPresentation.attack(this.type,radius);
+                this.attackRemaining=.85;this.animation?.play('Attack',{once:true});
                 const dir = new THREE.Vector3().subVectors(player.position, this.mesh.position); const dist = dir.length(); dir.normalize();
                 const spawnDist = dist * (0.3 + Math.random() * 0.4);
                 obsMesh.position.copy(this.mesh.position).add(dir.multiplyScalar(spawnDist)); obsMesh.position.x += (Math.random() - 0.5) * 5; obsMesh.position.z += (Math.random() - 0.5) * 5;
@@ -930,7 +916,7 @@
             }
 
             update(time, delta) {
-                if (this.mixer) this.mixer.update(delta);
+                if(this.animation){this.attackRemaining=Math.max(0,(this.attackRemaining||0)-delta);if(!this.attackRemaining)this.animation.play('Walk');this.animation.update(this.freezeTimer>0?0:delta);}else if (this.mixer) this.mixer.update(delta);
                 if (this.isDead) return;
                 
                 if (this.freezeTimer > 0) {
@@ -1104,7 +1090,7 @@
             let unlockedBase = 0; BASE_SPAWN_TYPES.forEach(t => { if(gameState.pokedexUnlocks[t]) unlockedBase++; });
             let pool = unlockedBase >= EVOLUTION_THRESHOLD ? getAllNonLegendaryTypes() : [...BASE_SPAWN_TYPES];
             
-            pool=pool.filter(id=>V5Progress.eligible(gameState,id));
+            pool=pool.filter(id=>V5_AVAILABLE_TYPES.has(id)&&V5Progress.eligible(gameState,id));
             if(gameState.worldFlags?.raichuSpawnUnlocked&&!pool.includes('raichu'))pool.push('raichu');
             const weights=pool.map(id=>V5SpawnWeights[id]||1);let pick=Math.random()*weights.reduce((a,b)=>a+b,0);
             for(let i=0;i<pool.length;i++){pick-=weights[i];if(pick<0)return pool[i];}return pool[pool.length-1];
@@ -1141,7 +1127,7 @@
                 showNotification(msg);
                 return p;
             };
-            LEGENDARY_TYPES.forEach((type,index)=>{
+            LEGENDARY_TYPES.forEach((type,index)=>{if(!V5_AVAILABLE_TYPES.has(type))return;
                 if((type==='arceus'?unlockedCount>=totalObj-1:progress >= [0.25,0.50,0.75][index%3]) && !gameState.legendarySpawned[type]) {
                     gameState.legendarySpawned[type]=true;
                     spawnL(type,`✨ ${getPokedexInfo(type).name}在真新鎮附近甦醒了！`);
@@ -1159,7 +1145,7 @@
                 const p = new Pokemon(getNextSpawnType(), Math.cos(angle) * dist, Math.sin(angle) * dist);const habitat=v5Ecology.place(p.type);if(habitat){p.mesh.position.set(habitat.x,0,habitat.z);p.spawnX=habitat.x;p.spawnZ=habitat.z;}
                 resolveCollision(p.mesh.position, 0.35); p.spawnX = p.mesh.position.x; p.spawnZ = p.mesh.position.z; scene.add(p.mesh); gameState.pokemons.push(p);
             }
-            LEGENDARY_TYPES.forEach(leg => {
+            LEGENDARY_TYPES.forEach(leg => {if(!V5_AVAILABLE_TYPES.has(leg))return;
                 const alreadyActive = gameState.pokemons.some(pokemon => pokemon.type === leg && isLockTargetAvailable(pokemon));
                 if (shouldSpawnSpecialPokemon({ type: leg, triggered: gameState.legendarySpawned[leg], alreadyActive, ...gameState })) {
                     const p = new Pokemon(leg, player.position.x + 10, player.position.z + 10);
@@ -1276,7 +1262,7 @@
             gameState.captureStartedAt = 0;
             document.getElementById('gym-modal').classList.add('hidden');
             gameState.gymReturnPos.copy(player.position);
-            gameState.currentMode = gymKey;
+            gameState.currentMode = gymKey;v5Camera.initial=true;
             
             // 從首領前方入場，避免大型模型與玩家、鏡頭互相穿透。
             player.position.set(gym.centerX, 0, gym.centerZ - 12);
@@ -1309,6 +1295,7 @@
         };
 
         const exitGym = (cleared) => {
+            v5Camera.initial=true;
             document.getElementById('boss-hp-container').classList.add('hidden');
             let bossTypeToSpawn = null;
             if (gameState.activeBoss) {
@@ -2087,7 +2074,7 @@
                 }
                 if (gameState.currentMode.startsWith('gym') && gameState.activeBoss) {
                     gameState.activeBoss.update(time, delta);
-                    for (let i = gameState.gymObstacles.length - 1; i >= 0; i--) { const obs = gameState.gymObstacles[i]; obs.life -= delta; if (obs.life <= 0) { scene.remove(obs.mesh); gameState.gymObstacles.splice(i, 1); } else { if (obs.life < 1.0) { obs.mesh.children.forEach(c => { if(c.material && c.material.transparent) c.material.opacity = obs.life * 0.8; }); } } }
+                    for (let i = gameState.gymObstacles.length - 1; i >= 0; i--) { const obs = gameState.gymObstacles[i]; obs.life -= delta;obs.mesh.userData.animate?.(time); if (obs.life <= 0) { scene.remove(obs.mesh); gameState.gymObstacles.splice(i, 1); } else { if (obs.life < 1.0) { obs.mesh.children.forEach(c => { if(c.material && c.material.transparent) c.material.opacity = obs.life * 0.8; }); } } }
                 }
             }
 
@@ -2097,7 +2084,7 @@
                     gameState.respawnQueue.splice(k, 1);
                 } else if (gameState.currentMode === 'world' && time >= req.time) {
                     let nextType = req.type || getNextSpawnType();
-                    const habitat=v5Ecology.place(nextType);const newPk = new Pokemon(nextType, habitat?.x??req.x, habitat?.z??req.z); resolveCollision(newPk.mesh.position, 0.35); scene.add(newPk.mesh); gameState.pokemons.push(newPk);
+                    const habitat=v5Ecology.place(nextType);if(!V5_AVAILABLE_TYPES.has(nextType))nextType=getNextSpawnType();const newPk = new Pokemon(nextType, habitat?.x??req.x, habitat?.z??req.z); resolveCollision(newPk.mesh.position, 0.35); scene.add(newPk.mesh); gameState.pokemons.push(newPk);
                     if (newPk.isSpecialTarget) prioritizeLockTarget(newPk);
                     gameState.respawnQueue.splice(k, 1);
                 }
@@ -2202,6 +2189,7 @@
 
             const nearbyFlightHeight=gameState.pokemons.reduce((h,p)=>!p.isCaptured&&p.flightState&&Math.hypot(p.mesh.position.x-player.position.x,p.mesh.position.z-player.position.z)<14?Math.max(h,p.mesh.position.y):h,0);
             v5Camera.update(player,gameState.camAngle,delta,{boss:gameState.activeBoss,obstacles:gameState.obstacles,airborneHeight:nearbyFlightHeight});
+            V5GymPresentation.hp(gameState.activeBoss,camera);
             const radarCanvas = document.getElementById('radar-canvas'); 
             radarDrawTimer += delta;
             if (radarCanvas && radarDrawTimer >= 0.1) {
@@ -2220,6 +2208,7 @@
                     const dx = b.mesh.position.x - player.position.x; const dz = b.mesh.position.z - player.position.z; const dist = Math.sqrt(dx*dx + dz*dz);
                     if (dist < 50) { const angle = Math.atan2(dx, dz) - gameState.camAngle; const rx = 55 + Math.sin(angle) * (dist/50)*45; const ry = 55 - Math.cos(angle) * (dist/50)*45; radarCtx.beginPath(); radarCtx.arc(rx, ry, 2.5, 0, Math.PI*2); radarCtx.fillStyle = '#ec4899'; radarCtx.fill(); }
                 });
+                V5GymPresentation.radar(radarCtx,player,gameState.camAngle,v5Npcs);
                 } else {
                     const radarCtx = radarCanvas.getContext('2d'); radarCtx.clearRect(0, 0, 110, 110); radarCtx.beginPath(); radarCtx.arc(55, 55, 50, 0, Math.PI*2); radarCtx.fillStyle='rgba(30,10,10,0.6)'; radarCtx.fill(); radarCtx.fillStyle='#fff'; radarCtx.font="12px sans-serif"; radarCtx.textAlign="center"; radarCtx.fillText("戰鬥中", 55, 55);
                 }
@@ -2242,7 +2231,7 @@
 
             const buildPlayerAndModels = () => {
                 player = new THREE.Group(); scene.add(player);
-                playerModel = new THREE.Group(); player.add(playerModel);
+                playerModel = new THREE.Group(); playerModel.visible=false;player.add(playerModel);
                 suitModelGroup = new THREE.Group(); suitModelGroup.visible = false; player.add(suitModelGroup);
                 const matSkin = new THREE.MeshStandardMaterial({ color: 0xffd1a9 }); const matPants = new THREE.MeshStandardMaterial({ color: 0x1e3a8a }); const matCoat = new THREE.MeshStandardMaterial({ color: 0x0284c7 }); const matScarf = new THREE.MeshStandardMaterial({ color: 0xe11d48 }); const matWhite = new THREE.MeshStandardMaterial({ color: 0xffffff }); const matHat = new THREE.MeshStandardMaterial({ color: 0xf97316 }); const matShoes = new THREE.MeshStandardMaterial({ color: 0x475569 }); const matGloves = new THREE.MeshStandardMaterial({ color: 0x334155 }); 
                 legL = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.8), matPants); legL.position.set(-0.15, 0.4, 0); legL.castShadow = true; playerModel.add(legL); legR = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.8), matPants); legR.position.set(0.15, 0.4, 0); legR.castShadow = true; playerModel.add(legR);
@@ -2261,13 +2250,13 @@
                 const littleMew=PalletModels.build('mew');littleMew.updateMatrixWorld(true);const mewBounds=new THREE.Box3().setFromObject(littleMew);const mewScale=.55/mewBounds.getSize(new THREE.Vector3()).y;littleMew.scale.setScalar(mewScale);littleMew.position.y=-mewBounds.min.y*mewScale;mewCompanionGroup.add(littleMew);
                 mewCompanionGroup.visible=false;player.add(mewCompanionGroup);
                 if (gltfLoader) {
-                    gltfLoader.loadAsync('models/player-wardrobe.glb').then((asset) => {
+                    window.v5PlayerReady=gltfLoader.loadAsync('models/player-wardrobe.glb').then((asset) => {
                         const glbTrainer=cloneRuntimeGLBScene(asset.scene);
                         player.remove(playerModel);playerModel=glbTrainer;player.add(glbTrainer);
                         v5PlayerVisual=new V5PlayerVisual(glbTrainer,asset.animations,player);v5PlayerVisual.ballFactory=type=>v5Items?.ball(type);
                         window.__trainerGLBApplied=true;window.__v5Player=v5PlayerVisual;
                         applyActiveSuit();
-                    }).catch((error) => console.warn('Trainer GLB 載入失敗，使用程序化角色', error));
+                    }).catch(error=>{document.getElementById('v5-loading-text').textContent='新主角模型載入失敗，請重新整理重試。';throw error;});
                 }
             };
 
@@ -2503,7 +2492,9 @@
             // 預先載入場景環境，避免等待時畫面全黑
             initGame();
 
-            const startSpawnsAndAnimation = () => {
+            const startSpawnsAndAnimation = async () => {
+                try{await window.v5PlayerReady;}catch{return;}
+                document.getElementById("v5-loading").remove();
                 if(hatPikachuMesh) hatPikachuMesh.visible = gameState.equip.pikachuHat; 
                 if(mewCompanionGroup) mewCompanionGroup.visible = gameState.equip.mewCompanion; 
                 if(playerBackpack) playerBackpack.visible = !gameState.equip.mewCompanion; 

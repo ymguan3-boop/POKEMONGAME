@@ -19,7 +19,7 @@
       "pass": true
     },
     {
-      "name": "single GLB failure leaves game running",
+      "name": "single GLB failure leaves game running without old model fallback",
       "pass": true
     }
   ],
@@ -27,9 +27,9 @@
   "performance": {
     "mode": "world",
     "position": [
-      -1.0087432645208914,
       0,
-      29.51998189255873
+      0,
+      28.679037949735616
     ],
     "roster": [
       "bulbasaur",
@@ -182,11 +182,11 @@
     "active": [
       "moltres"
     ],
-    "suit": "none",
+    "suit": "trainer",
     "companion": false,
     "trainerVisible": true,
-    "fps": 37,
-    "drawCalls": 155,
-    "triangles": 165994
+    "fps": 39,
+    "drawCalls": 208,
+    "triangles": 201798
   }
 }

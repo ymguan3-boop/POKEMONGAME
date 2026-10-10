@@ -7,5 +7,6 @@
 - [逐種模型清單](pokemon-model-manifest.json)
 - [直立手機操作與驗收](docs/MOBILE_ACCEPTANCE.md)
 - [逐種模型驗收進度](docs/MODEL_QA_REPORT.md)
+- [新模型限定、雷達與道館修正及尚未完成範圍](docs/NEW_MODEL_POLICY.md)
 
 保留V4及本機上一版；禁止未通過樣板驗證就批次替换或宣稱完成。發布與首頁更新在總驗收後執行。

@@ -1,4 +1,24 @@
 /* V4 control positions, with a clear central play area on portrait phones. */
+#radar-controls { position:fixed;top:calc(env(safe-area-inset-top) + 4px)!important;right:calc(env(safe-area-inset-right) + 4px)!important;gap:2px; }
+#radar-container { transform:none!important;margin:0!important;gap:3px; }
+#radar-canvas { width:104px;height:104px; }
+#btn-toggle-radar { position:absolute;right:0;top:0;z-index:2;width:28px!important;height:28px!important;min-height:0;padding:0;font-size:12px; }
+#btn-auto-nav { font-size:10px;padding:7px 4px;min-height:32px; }
+#unified-hud { max-width:calc(100vw - 125px);left:8px;transform:none;justify-content:flex-start; }
+#boss-hp-container { position:fixed!important;width:116px!important;max-width:30vw;transform:translate(-50%,-100%);transition:none; }
+#boss-hp-container>div:first-child { margin-bottom:2px;padding:0;gap:3px; }
+#boss-name { font-size:10px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+#boss-hp-text { font-size:9px!important;white-space:nowrap; }
+#boss-hp-container>div:last-child { height:6px;border-width:1px;box-shadow:none; }
+#gym-modal { padding:12px; }
+#gym-modal>div { width:min(850px,100%);max-height:calc(100dvh - 24px);display:flex;flex-direction:column; }
+#gym-modal>div>div:first-child { padding:12px; }
+#gym-modal>div>div:nth-child(2) { min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:max-content;padding:12px;gap:10px; }
+#gym-modal h2 { font-size:18px; }
+#gym-modal h3 { font-size:16px; }
+#gym-modal>div>div:nth-child(2)>div { padding:12px 8px;min-height:215px;height:auto; }
+#gym-modal button[id^="btn-enter"] { width:48px;height:48px;min-height:48px; }
+@media(max-width:440px){#gym-modal>div>div:nth-child(2){grid-template-columns:1fr;}#unified-hud{flex-wrap:wrap!important;}#boss-hp-container{max-width:116px;} }
 @media (max-width: 600px) and (orientation: portrait) {
   #unified-hud { top:calc(env(safe-area-inset-top) + 6px);width:98vw;gap:3px;flex-wrap:nowrap; }
   #unified-hud>div { padding:4px 6px;gap:3px; }
@@ -18,7 +38,7 @@
   #btn-lock span:last-child,#btn-switch-ball span:last-child,#btn-use-berry span:nth-child(2) { font-size:10px; }
   #v5-talk { bottom:calc(env(safe-area-inset-bottom) + 154px)!important;left:12px!important;transform:none!important;max-width:180px;padding:10px!important;font-size:12px;min-height:44px; }
   #v5-dialogue { bottom:calc(env(safe-area-inset-bottom) + 20px)!important;max-height:55dvh;overflow-y:auto; }
-  #boss-hp-container { top:calc(env(safe-area-inset-top) + 94px);width:64vw; }
+  #boss-hp-container { width:116px; }
   #berry-buff-indicator { max-width:110px;white-space:normal; }
   #capture-card-inner { max-height:90dvh;overflow-y:auto; }
 }

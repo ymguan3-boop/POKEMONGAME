@@ -1,0 +1,115 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "new trainer ready before playable screen",
+      "pass": true
+    },
+    {
+      "name": "legacy GLB disabled / preserved IDs not naturally spawned",
+      "pass": true
+    },
+    {
+      "name": "ten additional first-stage models articulate legs",
+      "walks": [
+        {
+          "id": "charmander",
+          "moved": 2,
+          "source": "new-authored-articulation"
+        },
+        {
+          "id": "squirtle",
+          "moved": 2,
+          "source": "new-authored-articulation"
+        },
+        {
+          "id": "chikorita",
+          "moved": 4,
+          "source": "new-authored-articulation"
+        },
+        {
+          "id": "cyndaquil",
+          "moved": 4,
+          "source": "new-authored-articulation"
+        },
+        {
+          "id": "totodile",
+          "moved": 2,
+          "source": "new-authored-articulation"
+        },
+        {
+          "id": "treecko",
+          "moved": 2,
+          "source": "new-authored-articulation"
+        },
+        {
+          "id": "torchic",
+          "moved": 2,
+          "source": "new-authored-articulation"
+        },
+        {
+          "id": "mudkip",
+          "moved": 4,
+          "source": "new-authored-articulation"
+        },
+        {
+          "id": "turtwig",
+          "moved": 4,
+          "source": "new-authored-articulation"
+        },
+        {
+          "id": "chimchar",
+          "moved": 2,
+          "source": "new-authored-articulation"
+        }
+      ]
+    },
+    {
+      "name": "new arena / attack clip / compact anchored HP",
+      "type": "pikachu",
+      "clip": "Attack",
+      "pitch": 0.18345447355359634,
+      "arena": true,
+      "effect": "pikachu",
+      "hp": 100
+    },
+    {
+      "name": "new arena / attack clip / compact anchored HP",
+      "type": "mew",
+      "clip": "Attack",
+      "pitch": 0.18345447355359634,
+      "arena": true,
+      "effect": "mew",
+      "hp": 200
+    },
+    {
+      "name": "new arena / attack clip / compact anchored HP",
+      "type": "wigglytuff",
+      "clip": "Attack",
+      "pitch": 0.18345447355359634,
+      "arena": true,
+      "effect": "wigglytuff",
+      "hp": 160
+    },
+    {
+      "name": "new arena / attack clip / compact anchored HP",
+      "type": "blissey",
+      "clip": "Attack",
+      "pitch": 0.18345447355359634,
+      "arena": true,
+      "effect": "blissey",
+      "hp": 240
+    },
+    {
+      "name": "upper-right compact building / NPC labels",
+      "labels": [
+        "中心",
+        "警局",
+        "喬伊",
+        "君莎"
+      ]
+    }
+  ],
+  "errors": [],
+  "pendingLegacyRemodels": 28
+}

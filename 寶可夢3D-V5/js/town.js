@@ -79,7 +79,7 @@ window.buildPalletTown = (scene, state, renderer) => {
  const tufts=new T.InstancedMesh(new T.ConeGeometry(.16,.65,3),mat(0x78aa59),180);let n=0;
  for(let i=0;i<500&&n<180;i++){const x=((i*37)%113)-56,z=((i*23)%95)-47;if(Math.abs(x)<8||Math.abs(z-15)<5||state.obstacles.some(o=>Math.hypot(x-o.x,z-o.z)<o.radius+3))continue;dummy.position.set(x,.29,z);dummy.scale.set(1,1,1);dummy.updateMatrix();tufts.setMatrixAt(n++,dummy.matrix);}tufts.count=n;town.add(tufts);
  // Keep original four arenas and boundaries, with a psychic palette for Mew.
- [[500,0,25,0x35414b,0xeacb52],[0,500,30,0x564569,0xd4a1db],[-500,0,27,0x594859,0xf3b0d2],[0,-500,30,0x60514e,0xffdfd7]].forEach(([x,z,r,c,w])=>{disc(scene,c,x,z,r,.02);mesh(scene,new T.CylinderGeometry(r+.5,r+.5,10,48,1,true),w,x,5,z).material=new T.MeshStandardMaterial({color:w,side:T.DoubleSide,transparent:true,opacity:.24});const ring=mesh(scene,new T.RingGeometry(r-1,r-.7,64),0xf5ddbc,x,.04,z,-Math.PI/2);});
+ V5GymPresentation.build(scene);
  // Bake static mesh transforms and merge by material (sign textures and instancing stay separate).
  town.updateMatrixWorld(true);const batches=new Map(),sources=[];
  town.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||Array.isArray(o.material)||o.material.map)return;const g=(o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone()).applyMatrix4(o.matrixWorld);let owner=o;while(owner.parent&&owner.parent!==town)owner=owner.parent;const building=owner.isGroup&&owner.name?owner.name:'';const key=o.material.uuid+'|'+building;if(!batches.has(key))batches.set(key,{material:building?o.material.clone():o.material,geometries:[],building});batches.get(key).geometries.push(g);sources.push(o);});

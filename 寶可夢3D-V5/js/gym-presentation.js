@@ -1,0 +1,24 @@
+/* Four distinct arenas and attacks. Gameplay still owns damage, timing and radii. */
+(()=>{const T=THREE,palettes={pikachu:[0x15374b,0xffd344],mew:[0x222348,0xbba0ff],wigglytuff:[0x45284e,0xff9bc8],blissey:[0x315955,0xffd9b0]};
+function mesh(g,geometry,color,x,y,z,emissive=false){const m=new T.Mesh(geometry,emissive?new T.MeshBasicMaterial({color,transparent:true,opacity:.8,side:T.DoubleSide}):new T.MeshStandardMaterial({color,roughness:.65}));m.position.set(x,y,z);g.add(m);return m;}
+function ring(g,r,color,y=.05,width=.08){const m=mesh(g,new T.RingGeometry(r-width,r,64),color,0,y,0,true);m.rotation.x=-Math.PI/2;return m;}
+function build(scene){for(const [type,x,z,r]of [['pikachu',500,0,25],['mew',0,500,30],['wigglytuff',-500,0,27],['blissey',0,-500,30]]){const [base,accent]=palettes[type],g=new T.Group();g.name='v5-arena-'+type;g.position.set(x,0,z);scene.add(g);mesh(g,new T.CylinderGeometry(r,r,.4,64),base,0,-.20,0);ring(g,r-1,accent,.04,.15);ring(g,6,accent,.06,.09);ring(g,2.5,0xffffff,.07,.06);
+for(let i=0;i<16;i++){const a=i*Math.PI/8,px=Math.sin(a)*(r-.6),pz=Math.cos(a)*(r-.6);mesh(g,new T.CylinderGeometry(.23,.32,1.4,8),base,px,.7,pz);mesh(g,new T.SphereGeometry(.24,10,8),accent,px,1.45,pz,true);const line=mesh(g,new T.BoxGeometry(.07,.03,r-7),accent,Math.sin(a)*(r+7)/2,.04,Math.cos(a)*(r+7)/2,true);line.rotation.y=a;}
+if(type==='mew')for(const r of [10,16,22])ring(g,r,accent,.035,.04);
+if(type==='pikachu')for(const side of [-1,1]){const pts=[[-2,4],[1,0],[-1,0],[2,-4]].map(([x,z])=>new T.Vector3(x+side*12,.06,z));const line=new T.Line(new T.BufferGeometry().setFromPoints(pts),new T.LineBasicMaterial({color:accent}));g.add(line);}
+if(type==='wigglytuff')for(let i=0;i<10;i++){const a=i*Math.PI/5;ringAt(g,Math.sin(a)*16,Math.cos(a)*16,1.3,accent);}
+if(type==='blissey')for(const side of [-1,1]){mesh(g,new T.BoxGeometry(4,.03,1),accent,side*14,.05,0);mesh(g,new T.BoxGeometry(1,.03,4),accent,side*14,.05,0);}
+}}
+function ringAt(g,x,z,r,c){const m=ring(g,r,c);m.position.x=x;m.position.z=z;}
+function attack(type,radius){const g=new T.Group(),c=palettes[type][1];g.userData.attackType=type;ring(g,radius,c,.08,.11);
+if(type==='pikachu'){for(let i=0;i<6;i++){const a=i*Math.PI/3,x=Math.sin(a)*radius*.7,z=Math.cos(a)*radius*.7;const points=[[x,.1,z],[x+.3,.7,z],[x-.2,1.2,z],[x+.15,1.8,z]].map(v=>new T.Vector3(...v));g.add(new T.Line(new T.BufferGeometry().setFromPoints(points),new T.LineBasicMaterial({color:c})));}}
+if(type==='mew'){for(let i=0;i<3;i++){const m=mesh(g,new T.TorusGeometry(radius*(.4+i*.18),.05,6,40),c,0,.6+i*.24,0,true);m.rotation.x=Math.PI/2+i*.35;}}
+if(type==='wigglytuff'){for(let i=0;i<3;i++)ring(g,radius*(.35+i*.27),c,.2+i*.18,.09);for(const side of [-1,1]){mesh(g,new T.SphereGeometry(.2,10,8),c,side,1.1,0,true);mesh(g,new T.BoxGeometry(.07,.65,.07),c,side+.15,1.4,0,true);}}
+if(type==='blissey'){for(let i=0;i<5;i++){const a=i*Math.PI*2/5;const m=mesh(g,new T.SphereGeometry(.26,12,10),c,Math.sin(a)*radius*.6,.5,Math.cos(a)*radius*.6,true);m.scale.y=1.35;}}
+g.userData.animate=(t)=>{g.children.forEach((o,i)=>{if(o.geometry?.type==='TorusGeometry')o.rotation.z=t*.8;else if(o.geometry?.type==='SphereGeometry')o.position.y=.6+Math.sin(t*3+i)*.3;});};return g;}
+function hp(boss,camera){const el=document.getElementById('boss-hp-container');if(!boss||boss.isDead){el.style.visibility='hidden';return;}const pos=boss.mesh.position.clone().add(new T.Vector3(0,(boss.modelHeight||3.5)+.35,0)).project(camera);el.style.visibility=pos.z<1&&Math.abs(pos.x)<1&&Math.abs(pos.y)<1?'visible':'hidden';el.style.left=(pos.x+1)*innerWidth/2+'px';el.style.top=(1-pos.y)*innerHeight/2+'px';}
+function radar(ctx,player,angle,npcs){const labels=[],project=(x,z)=>{const dx=x-player.position.x,dz=z-player.position.z,d=Math.hypot(dx,dz);if(d>50)return null;const a=Math.atan2(dx,dz)-angle;return [55+Math.sin(a)*d*.9,55-Math.cos(a)*d*.9];};ctx.save();ctx.font='7px sans-serif';ctx.textAlign='center';ctx.lineWidth=2;
+for(const [name,x,z]of [['中心',0,0],['警局',-29,34],['研究所',26,-32]]){const p=project(x,z);if(!p)continue;ctx.fillStyle='#d4f7ff';ctx.fillRect(p[0]-2,p[1]-2,4,4);const ly=Math.max(12,Math.min(99,p[1]-5));labels.push([p[0],ly]);ctx.strokeStyle='#18352b';ctx.strokeText(name,p[0],ly);ctx.fillText(name,p[0],ly);}
+for(const n of npcs?.actors||[]){const pos=n.mesh?.position||n.root?.position;if(!pos)continue;const p=project(pos.x,pos.z);if(!p)continue;ctx.fillStyle='#76eeff';ctx.beginPath();ctx.arc(...p,2,0,Math.PI*2);ctx.fill();const text=(n.name||'NPC').replace('小姐','').replace('博士','');const label=[8,-8,16,-16].map(d=>[Math.max(14,Math.min(96,p[0])),Math.max(10,Math.min(101,p[1]+d))]).find(([lx,ly])=>!labels.some(([x,y])=>Math.abs(x-lx)<20&&Math.abs(y-ly)<8));if(label){ctx.strokeStyle='#18352b';ctx.strokeText(text,...label);ctx.fillText(text,...label);labels.push(label);}}
+ctx.restore();}
+window.V5GymPresentation={build,attack,hp,radar};})();
