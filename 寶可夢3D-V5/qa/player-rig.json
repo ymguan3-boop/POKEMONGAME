@@ -1,0 +1,42 @@
+{
+  "status": "TECHNICAL_PASS_VISUAL_REVIEW_REQUIRED",
+  "checks": [
+    {
+      "meshes": 130,
+      "bones": 18,
+      "skeletons": 130,
+      "sharedBones": true,
+      "clips": [
+        "Idle",
+        "Walk",
+        "Run",
+        "StartWalk",
+        "Stop",
+        "TurnLeft",
+        "TurnRight",
+        "Aim",
+        "Throw",
+        "CaptureWait",
+        "CatchFail",
+        "CatchSuccess1",
+        "CatchSuccess2",
+        "CatchSuccess3",
+        "LookAtNPC",
+        "TalkIdle",
+        "Nod",
+        "Wave",
+        "ReceiveItem",
+        "GiveItem"
+      ],
+      "suits": [
+        "trainer",
+        "none",
+        "pikachu",
+        "mew",
+        "wigglytuff",
+        "blissey"
+      ]
+    }
+  ],
+  "errors": []
+}

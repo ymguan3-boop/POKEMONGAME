@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "per-instance NPC exclusion",
+      "people": 3,
+      "companions": 3,
+      "excluded": true,
+      "sameWildAllowed": true
+    },
+    {
+      "name": "shared skeleton wardrobe",
+      "skeletons": 1,
+      "controllerUnchanged": true,
+      "rootUnchanged": true
+    },
+    {
+      "name": "quest once and permanent unlock without immediate spawn",
+      "first": 1,
+      "repeated": 1,
+      "consumed": true,
+      "flag": true,
+      "spawned": false
+    },
+    {
+      "name": "persisted used stone unlock",
+      "pass": true
+    },
+    {
+      "name": "actual keyboard walk-stop-idle",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

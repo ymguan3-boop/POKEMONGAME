@@ -1,0 +1,34 @@
+{
+  "status": "TECHNICAL_PASS_VISUAL_REVIEW_REQUIRED",
+  "checks": [
+    {
+      "id": "articuno",
+      "phase": "Flying",
+      "y": 5.5,
+      "pitch": 1.3499999543339436,
+      "clip": "Fly"
+    },
+    {
+      "id": "articuno",
+      "phase": "GroundIdle",
+      "y": 0,
+      "pitch": 0,
+      "clip": "Idle"
+    },
+    {
+      "id": "zapdos",
+      "phase": "Flying",
+      "y": 5.8,
+      "pitch": 1.3499999543339436,
+      "clip": "Fly"
+    },
+    {
+      "id": "zapdos",
+      "phase": "GroundIdle",
+      "y": 0,
+      "pitch": 0,
+      "clip": "Idle"
+    }
+  ],
+  "errors": []
+}

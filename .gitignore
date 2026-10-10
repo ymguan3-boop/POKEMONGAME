@@ -1,0 +1,8 @@
+# Private user reference photos, Word specification and downloaded source audits.
+/references/
+/versions/
+# Local visual evidence stays available on disk; publish reports instead.
+/寶可夢3D-V5/qa/*.png
+/寶可夢3D-V5/qa/*.webm
+/寶可夢3D-V5/qa/*.mp4
+node_modules/

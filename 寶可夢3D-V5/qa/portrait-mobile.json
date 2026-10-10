@@ -1,0 +1,238 @@
+{
+  "status": "PASS",
+  "scope": "Chromium touch emulation; physical iOS/Android performance not measured",
+  "checks": [
+    {
+      "name": "portrait framing / V4 controls",
+      "width": 390,
+      "height": 844,
+      "player": {
+        "feet": {
+          "x": 195,
+          "y": 474.04273924180757
+        },
+        "head": {
+          "x": 195,
+          "y": 344.778818247464
+        },
+        "height": 129.26392099434355
+      },
+      "pokemon": {
+        "feet": {
+          "x": 282.4297440568605,
+          "y": 357.4365048040151
+        },
+        "head": {
+          "x": 290.4394788954309,
+          "y": 269.8902328400296
+        },
+        "height": 87.54627196398548
+      },
+      "controls": [
+        {
+          "x": 14,
+          "y": 710,
+          "width": 112,
+          "height": 112,
+          "right": 126,
+          "bottom": 822
+        },
+        {
+          "x": 295,
+          "y": 754,
+          "width": 72,
+          "height": 72,
+          "right": 367,
+          "bottom": 826
+        },
+        {
+          "x": 334,
+          "y": 698,
+          "width": 44,
+          "height": 44,
+          "right": 378,
+          "bottom": 742
+        },
+        {
+          "x": 309,
+          "y": 646,
+          "width": 44,
+          "height": 44,
+          "right": 353,
+          "bottom": 690
+        },
+        {
+          "x": 309,
+          "y": 594,
+          "width": 44,
+          "height": 44,
+          "right": 353,
+          "bottom": 638
+        }
+      ],
+      "fov": 58,
+      "scrollWidth": 390
+    },
+    {
+      "name": "portrait framing / V4 controls",
+      "width": 360,
+      "height": 640,
+      "player": {
+        "feet": {
+          "x": 180,
+          "y": 359.4636885245934
+        },
+        "head": {
+          "x": 180,
+          "y": 261.4436536473661
+        },
+        "height": 98.02003487722732
+      },
+      "pokemon": {
+        "feet": {
+          "x": 246.2974362516478,
+          "y": 271.04189937745224
+        },
+        "head": {
+          "x": 252.37116883065852,
+          "y": 204.656100731776
+        },
+        "height": 66.38579864567623
+      },
+      "controls": [
+        {
+          "x": 14,
+          "y": 506,
+          "width": 112,
+          "height": 112,
+          "right": 126,
+          "bottom": 618
+        },
+        {
+          "x": 265,
+          "y": 550,
+          "width": 72,
+          "height": 72,
+          "right": 337,
+          "bottom": 622
+        },
+        {
+          "x": 304,
+          "y": 494,
+          "width": 44,
+          "height": 44,
+          "right": 348,
+          "bottom": 538
+        },
+        {
+          "x": 279,
+          "y": 442,
+          "width": 44,
+          "height": 44,
+          "right": 323,
+          "bottom": 486
+        },
+        {
+          "x": 279,
+          "y": 390,
+          "width": 44,
+          "height": 44,
+          "right": 323,
+          "bottom": 434
+        }
+      ],
+      "fov": 58,
+      "scrollWidth": 360
+    },
+    {
+      "name": "portrait framing / V4 controls",
+      "width": 430,
+      "height": 932,
+      "player": {
+        "feet": {
+          "x": 215,
+          "y": 523.4689964139392
+        },
+        "head": {
+          "x": 215,
+          "y": 380.7273206239768
+        },
+        "height": 142.74167578996236
+      },
+      "pokemon": {
+        "feet": {
+          "x": 311.54564154146215,
+          "y": 394.7047659684148
+        },
+        "head": {
+          "x": 320.39051460964646,
+          "y": 298.03044669064883
+        },
+        "height": 96.67431927776596
+      },
+      "controls": [
+        {
+          "x": 14,
+          "y": 798,
+          "width": 112,
+          "height": 112,
+          "right": 126,
+          "bottom": 910
+        },
+        {
+          "x": 335,
+          "y": 842,
+          "width": 72,
+          "height": 72,
+          "right": 407,
+          "bottom": 914
+        },
+        {
+          "x": 374,
+          "y": 786,
+          "width": 44,
+          "height": 44,
+          "right": 418,
+          "bottom": 830
+        },
+        {
+          "x": 349,
+          "y": 734,
+          "width": 44,
+          "height": 44,
+          "right": 393,
+          "bottom": 778
+        },
+        {
+          "x": 349,
+          "y": 682,
+          "width": 44,
+          "height": 44,
+          "right": 393,
+          "bottom": 726
+        }
+      ],
+      "fov": 58,
+      "scrollWidth": 430
+    },
+    {
+      "name": "two-finger joystick plus charged throw",
+      "before": [
+        0,
+        0,
+        23
+      ],
+      "after": [
+        5.070611801383412e-16,
+        0,
+        18.859531250223505
+      ],
+      "pass": true
+    },
+    {
+      "name": "inventory accessible through V4 menu",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,77 @@
+{
+  "phase": "B samples",
+  "errors": [],
+  "models": [
+    {
+      "id": "articuno",
+      "meshes": 11,
+      "bones": 9,
+      "triangles": 17032,
+      "bad": 0,
+      "clips": [
+        "Idle",
+        "Fly",
+        "Glide",
+        "Land",
+        "Takeoff",
+        "LookAround",
+        "Hurt",
+        "Attack"
+      ],
+      "bytes": 2917472,
+      "shots": {
+        "front": "qa/articuno-front.png",
+        "three_quarter": "qa/articuno-three_quarter.png",
+        "side": "qa/articuno-side.png",
+        "back": "qa/articuno-back.png",
+        "elevated_studio": "qa/articuno-elevated_studio.png"
+      },
+      "animation": {
+        "bodyRotation": [
+          0.624897301197052,
+          0,
+          0,
+          0.7807069420814514
+        ],
+        "finite": true
+      },
+      "status": "TECHNICAL_PASS_VISUAL_REVIEW_REQUIRED"
+    },
+    {
+      "id": "zapdos",
+      "meshes": 10,
+      "bones": 9,
+      "triangles": 12856,
+      "bad": 0,
+      "clips": [
+        "Idle",
+        "Fly",
+        "Glide",
+        "Land",
+        "Takeoff",
+        "LookAround",
+        "Hurt",
+        "Attack"
+      ],
+      "bytes": 2213608,
+      "shots": {
+        "front": "qa/zapdos-front.png",
+        "three_quarter": "qa/zapdos-three_quarter.png",
+        "side": "qa/zapdos-side.png",
+        "back": "qa/zapdos-back.png",
+        "elevated_studio": "qa/zapdos-elevated_studio.png"
+      },
+      "animation": {
+        "bodyRotation": [
+          0.624897301197052,
+          0,
+          0,
+          0.7807069420814514
+        ],
+        "finite": true
+      },
+      "status": "TECHNICAL_PASS_VISUAL_REVIEW_REQUIRED"
+    }
+  ],
+  "status": "TECHNICAL_PASS"
+}

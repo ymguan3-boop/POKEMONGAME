@@ -1,0 +1,138 @@
+{
+  "phase": "B samples",
+  "errors": [],
+  "models": [
+    {
+      "id": "piplup",
+      "meshes": 8,
+      "bones": 8,
+      "triangles": 14212,
+      "bad": 0,
+      "clips": [
+        "Idle",
+        "Walk",
+        "LookAround",
+        "Hurt",
+        "Attack"
+      ],
+      "bytes": 2419312,
+      "shots": {
+        "front": "qa/piplup-front.png",
+        "three_quarter": "qa/piplup-three_quarter.png",
+        "side": "qa/piplup-side.png",
+        "back": "qa/piplup-back.png",
+        "elevated_studio": "qa/piplup-elevated_studio.png"
+      },
+      "animation": {
+        "bodyRotation": [
+          0,
+          0,
+          0.02687207192368632,
+          0.9996388726854547
+        ],
+        "finite": true
+      },
+      "status": "TECHNICAL_PASS_VISUAL_REVIEW_REQUIRED"
+    },
+    {
+      "id": "bulbasaur",
+      "meshes": 14,
+      "bones": 8,
+      "triangles": 17204,
+      "bad": 0,
+      "clips": [
+        "Idle",
+        "Walk",
+        "LookAround",
+        "Hurt",
+        "Attack"
+      ],
+      "bytes": 2935672,
+      "shots": {
+        "front": "qa/bulbasaur-front.png",
+        "three_quarter": "qa/bulbasaur-three_quarter.png",
+        "side": "qa/bulbasaur-side.png",
+        "back": "qa/bulbasaur-back.png",
+        "elevated_studio": "qa/bulbasaur-elevated_studio.png"
+      },
+      "animation": {
+        "bodyRotation": [
+          0.012214832831728265,
+          -0.00014926472967729707,
+          0.012214832831728265,
+          0.9998507701238121
+        ],
+        "finite": true
+      },
+      "status": "TECHNICAL_PASS_VISUAL_REVIEW_REQUIRED"
+    },
+    {
+      "id": "moltres",
+      "meshes": 10,
+      "bones": 9,
+      "triangles": 33872,
+      "bad": 0,
+      "clips": [
+        "Idle",
+        "Fly",
+        "Glide",
+        "Land",
+        "Takeoff",
+        "LookAround",
+        "Hurt",
+        "Attack"
+      ],
+      "bytes": 5744280,
+      "shots": {
+        "front": "qa/moltres-front.png",
+        "three_quarter": "qa/moltres-three_quarter.png",
+        "side": "qa/moltres-side.png",
+        "back": "qa/moltres-back.png",
+        "elevated_studio": "qa/moltres-elevated_studio.png"
+      },
+      "animation": {
+        "bodyRotation": [
+          0.624897301197052,
+          0,
+          0,
+          0.7807069420814514
+        ],
+        "finite": true
+      },
+      "status": "TECHNICAL_PASS_VISUAL_REVIEW_REQUIRED"
+    },
+    {
+      "id": "kyogre",
+      "meshes": 8,
+      "bones": 7,
+      "triangles": 18280,
+      "bad": 0,
+      "clips": [
+        "Idle",
+        "Swim",
+        "LookAround",
+        "Hurt",
+        "Attack"
+      ],
+      "bytes": 3103824,
+      "shots": {
+        "front": "qa/kyogre-front.png",
+        "three_quarter": "qa/kyogre-three_quarter.png",
+        "side": "qa/kyogre-side.png",
+        "back": "qa/kyogre-back.png",
+        "elevated_studio": "qa/kyogre-elevated_studio.png"
+      },
+      "animation": {
+        "bodyRotation": [
+          0,
+          0.019544432392177877,
+          0,
+          0.9998089802322285
+        ],
+        "finite": true
+      },
+      "status": "TECHNICAL_PASS_VISUAL_REVIEW_REQUIRED"
+    }
+  ],
+  "status": "TECHNICAL_PASS"
+}

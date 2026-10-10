@@ -1,0 +1,24 @@
+/* V4 control positions, with a clear central play area on portrait phones. */
+@media (max-width: 600px) and (orientation: portrait) {
+  #unified-hud { top:calc(env(safe-area-inset-top) + 6px);width:98vw;gap:3px;flex-wrap:nowrap; }
+  #unified-hud>div { padding:4px 6px;gap:3px; }
+  #btn-toggle-menu { top:calc(env(safe-area-inset-top) + 43px);left:10px;min-width:44px;min-height:44px; }
+  #main-menu-panel { top:calc(env(safe-area-inset-top) + 96px);max-height:60dvh;overflow-y:auto; }
+  #v5-open-items { position:static!important;min-height:44px; }
+  #radar-controls { top:calc(env(safe-area-inset-top) + 43px);right:10px; }
+  #btn-toggle-radar { width:44px;height:44px; }
+  #radar-container { transform:scale(.65);margin-top:-12px; }
+  #canvas-container:after { top:calc(env(safe-area-inset-top) + 38px);font-size:9px;letter-spacing:0;white-space:nowrap; }
+  #notification { top:calc(env(safe-area-inset-top) + 68px);width:68vw;font-size:10px;line-height:14px;padding:5px 8px;border-radius:10px; }
+  #joystick-zone { width:112px;height:112px;left:14px;bottom:calc(env(safe-area-inset-bottom) + 22px); }
+  #joystick-knob { width:44px;height:44px; }
+  #action-controls { bottom:calc(env(safe-area-inset-bottom) + 18px);right:12px;gap:5px; }
+  #btn-throw { width:72px;height:72px; }
+  #btn-lock,#btn-unlock,#btn-switch-ball,#btn-use-berry { width:44px;height:44px; }
+  #btn-lock span:last-child,#btn-switch-ball span:last-child,#btn-use-berry span:nth-child(2) { font-size:10px; }
+  #v5-talk { bottom:calc(env(safe-area-inset-bottom) + 154px)!important;left:12px!important;transform:none!important;max-width:180px;padding:10px!important;font-size:12px;min-height:44px; }
+  #v5-dialogue { bottom:calc(env(safe-area-inset-bottom) + 20px)!important;max-height:55dvh;overflow-y:auto; }
+  #boss-hp-container { top:calc(env(safe-area-inset-top) + 94px);width:64vw; }
+  #berry-buff-indicator { max-width:110px;white-space:normal; }
+  #capture-card-inner { max-height:90dvh;overflow-y:auto; }
+}

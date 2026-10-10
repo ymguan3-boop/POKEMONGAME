@@ -1,0 +1,26 @@
+[
+  {
+    "file": "vendor/three.min.js",
+    "url": "https://sinnoh-summer-expedition.kyo1216kimo.chatgpt.site/three.min.js?v=20260802-glb14",
+    "bytes": 603445,
+    "sha256": "9274bbcec8d96168626c732b5d31c775aa8cfb7eaa0599bec0c175908a2c1ce2"
+  },
+  {
+    "file": "vendor/GLTFLoader.js",
+    "url": "https://sinnoh-summer-expedition.kyo1216kimo.chatgpt.site/GLTFLoader.js?v=20260802-glb14",
+    "bytes": 96550,
+    "sha256": "5c15967ba830918a9caea6338712c994c354bccd4edc4569bde411c3ec06a3e6"
+  },
+  {
+    "file": "vendor/game-runtime-state.js",
+    "url": "https://sinnoh-summer-expedition.kyo1216kimo.chatgpt.site/game-runtime-state.js?v=20260809-state12",
+    "bytes": 13971,
+    "sha256": "1c08e7befa43de539d1967787ed16d7eb90a5c344a70e38f456e2c3cc0c2655d"
+  },
+  {
+    "file": "vendor/tailwind.js",
+    "url": "https://cdn.tailwindcss.com/3.4.17",
+    "bytes": 407279,
+    "sha256": "176e894661aa9cdc9a5cba6c720044cbbf7b8bd80d1c9a142a7c24b1b6c50d15"
+  }
+]

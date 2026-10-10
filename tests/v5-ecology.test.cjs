@@ -1,0 +1,4 @@
+const {test}=require('node:test'),assert=require('node:assert/strict');const E=require('../寶可夢3D-V5/js/ecology.js');
+test('complete flight cycle visits landing and rest before takeoff',()=>{let s={phase:'Flying',elapsed:0};const seen=new Set([s.phase]);for(let i=0;i<280;i++){s=E.advanceFlight(s,.1);seen.add(s.phase);}assert.deepEqual([...seen],['Flying','Circling','Descending','Landing','GroundIdle','Takeoff']);assert.equal(s.phase,'Flying');});
+test('distance and quality budget stop far mixers and retain near animation',()=>{assert.equal(E.lod(75).interval,Infinity);assert.equal(E.lod(10).interval,0);assert.equal(E.lod(45).shadow,false);assert.equal(E.lod(10,'low').shadow,false);});
+test('blocked spawn returns no point rather than placing inside building',()=>{const z={x:0,z:0,rx:1,rz:1};assert.equal(E.point(z,[{x:0,z:0,radius:10}],()=>.5),null);assert.deepEqual(E.point(z,[],()=>.5),{x:0,z:0});});

@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "ball stays in hand until animation release marker",
+      "balls": 0,
+      "pending": true
+    },
+    {
+      "name": "hit triggers visual absorption without extra probability roll",
+      "pass": true
+    },
+    {
+      "name": "failed catch reforms smoothly; 75 percent original normal-ball rate",
+      "start": {
+        "rate": 0.75,
+        "roll": 0.999,
+        "result": "escaped",
+        "scale": 0.015
+      },
+      "end": {
+        "scale": 1,
+        "captured": false,
+        "active": false
+      }
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "flight phases in runtime",
+      "flight": [
+        {
+          "phase": "Flying",
+          "clip": "Fly",
+          "y": 6,
+          "pitch": 1.3499999543339436
+        },
+        {
+          "phase": "Circling",
+          "clip": "Glide",
+          "y": 6,
+          "pitch": 1.3499999543339436
+        },
+        {
+          "phase": "Descending",
+          "clip": "Fly",
+          "y": 2.7004444444444444,
+          "pitch": 1.3499999543339436
+        },
+        {
+          "phase": "Landing",
+          "clip": "Land",
+          "y": 0,
+          "pitch": 0.9562500188587252
+        },
+        {
+          "phase": "GroundIdle",
+          "clip": "Idle",
+          "y": 0,
+          "pitch": 0
+        },
+        {
+          "phase": "Takeoff",
+          "clip": "Takeoff",
+          "y": 3.4485000000000006,
+          "pitch": 0.39374998389678356
+        }
+      ]
+    },
+    {
+      "name": "distance animation activation",
+      "far": "sleep",
+      "near": "near"
+    },
+    {
+      "name": "building obstruction fades separate building materials",
+      "objects": 86,
+      "faded": 15,
+      "ground": true
+    },
+    {
+      "name": "bounded aerial zoom",
+      "min": 8,
+      "max": 18
+    }
+  ],
+  "errors": []
+}

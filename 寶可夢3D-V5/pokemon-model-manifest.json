@@ -1,0 +1,2569 @@
+[
+  {
+    "speciesId": "turtwig",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/turtwig.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "grotle",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/grotle.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "torterra",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/torterra.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "chimchar",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/chimchar.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "monferno",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/monferno.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "infernape",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/infernape.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "piplup",
+    "form": "default",
+    "sourceModel": "authoring/models/",
+    "targetGLB": "models/piplup.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "biped",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {
+      "front": "qa/piplup-front.png",
+      "three_quarter": "qa/piplup-three_quarter.png",
+      "side": "qa/piplup-side.png",
+      "back": "qa/piplup-back.png",
+      "elevated_studio": "qa/piplup-elevated_studio.png"
+    },
+    "performanceMetrics": {
+      "bones": 8,
+      "meshes": 8,
+      "triangles": 14212,
+      "bytes": 2419312
+    },
+    "knownIssues": [
+      "骨架與片段通過技術檢查；外觀精細度、完整捕捉演出與實體手機效能仍需驗收。"
+    ],
+    "actualClips": [
+      "Idle",
+      "Walk",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "technicalStatus": "PASS"
+  },
+  {
+    "speciesId": "prinplup",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/prinplup.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "empoleon",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/empoleon.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "starly",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/starly.glb",
+    "targetGLB": "models/starly.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "staravia",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/staravia.glb",
+    "targetGLB": "models/staravia.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "staraptor",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/staraptor.glb",
+    "targetGLB": "models/staraptor.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "bidoof",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/bidoof.glb",
+    "targetGLB": "models/bidoof.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "shinx",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/shinx.glb",
+    "targetGLB": "models/shinx.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "luxio",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/luxio.glb",
+    "targetGLB": "models/luxio.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "luxray",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/luxray.glb",
+    "targetGLB": "models/luxray.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "riolu",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/riolu.glb",
+    "targetGLB": "models/riolu.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "lucario",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/lucario.glb",
+    "targetGLB": "models/lucario.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "gible",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/gible.glb",
+    "targetGLB": "models/gible.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "gabite",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/gabite.glb",
+    "targetGLB": "models/gabite.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "garchomp",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/garchomp.glb",
+    "targetGLB": "models/garchomp.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "drifloon",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/drifloon.glb",
+    "targetGLB": "models/drifloon.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "buneary",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/buneary.glb",
+    "targetGLB": "models/buneary.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "dialga",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/dialga.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "palkia",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/palkia.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "giratina",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/giratina.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "arceus",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/arceus.glb",
+    "targetGLB": "models/arceus.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "cherubi",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/cherubi.glb",
+    "targetGLB": "models/cherubi.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "cherrim",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/cherrim.glb",
+    "targetGLB": "models/cherrim.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "buizel",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/buizel.glb",
+    "targetGLB": "models/buizel.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "floatzel",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/floatzel.glb",
+    "targetGLB": "models/floatzel.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "pachirisu",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/pachirisu.glb",
+    "targetGLB": "models/pachirisu.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "bronzor",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/bronzor.glb",
+    "targetGLB": "models/bronzor.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "bronzong",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/bronzong.glb",
+    "targetGLB": "models/bronzong.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "misdreavus",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/misdreavus.glb",
+    "targetGLB": "models/misdreavus.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "weavile",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/weavile.glb",
+    "targetGLB": "models/weavile.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "togekiss",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/togekiss.glb",
+    "targetGLB": "models/togekiss.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "rotom",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/rotom.glb",
+    "targetGLB": "models/rotom.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "roserade",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/roserade.glb",
+    "targetGLB": "models/roserade.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "magnezone",
+    "form": "default",
+    "sourceModel": "寶可夢3D-V4/models/magnezone.glb",
+    "targetGLB": "models/magnezone.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "KEEP_PENDING_REVIEW",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "pikachu",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/pikachu.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "charizard",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/charizard.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "wigglytuff",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/wigglytuff.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "blissey",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/blissey.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "bulbasaur",
+    "form": "default",
+    "sourceModel": "authoring/models/",
+    "targetGLB": "models/bulbasaur.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "quadruped",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {
+      "front": "qa/bulbasaur-front.png",
+      "three_quarter": "qa/bulbasaur-three_quarter.png",
+      "side": "qa/bulbasaur-side.png",
+      "back": "qa/bulbasaur-back.png",
+      "elevated_studio": "qa/bulbasaur-elevated_studio.png"
+    },
+    "performanceMetrics": {
+      "bones": 8,
+      "meshes": 14,
+      "triangles": 17204,
+      "bytes": 2935672
+    },
+    "knownIssues": [
+      "骨架與片段通過技術檢查；外觀精細度、完整捕捉演出與實體手機效能仍需驗收。"
+    ],
+    "actualClips": [
+      "Idle",
+      "Walk",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "technicalStatus": "PASS"
+  },
+  {
+    "speciesId": "ivysaur",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/ivysaur.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "venusaur",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/venusaur.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "charmander",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/charmander.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "charmeleon",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/charmeleon.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "squirtle",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/squirtle.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "wartortle",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/wartortle.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "blastoise",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/blastoise.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "chikorita",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/chikorita.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "bayleef",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/bayleef.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "meganium",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/meganium.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "cyndaquil",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/cyndaquil.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "quilava",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/quilava.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "typhlosion",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/typhlosion.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "totodile",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/totodile.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "croconaw",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/croconaw.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "feraligatr",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/feraligatr.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "treecko",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/treecko.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "grovyle",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/grovyle.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "sceptile",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/sceptile.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "torchic",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/torchic.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "combusken",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/combusken.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "blaziken",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/blaziken.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "mudkip",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/mudkip.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "marshtomp",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/marshtomp.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "swampert",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/swampert.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "articuno",
+    "form": "default",
+    "sourceModel": "authoring/models/",
+    "targetGLB": "models/articuno.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "flying",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [
+      "sky"
+    ],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {
+      "front": "qa/articuno-front.png",
+      "three_quarter": "qa/articuno-three_quarter.png",
+      "side": "qa/articuno-side.png",
+      "back": "qa/articuno-back.png",
+      "elevated_studio": "qa/articuno-elevated_studio.png",
+      "gameplay_camera": "qa/articuno-Flying-portrait.png",
+      "ground_gameplay_camera": "qa/articuno-GroundIdle-portrait.png"
+    },
+    "performanceMetrics": {
+      "bones": 9,
+      "meshes": 11,
+      "triangles": 17032,
+      "bytes": 2917472
+    },
+    "knownIssues": [
+      "骨架與片段通過技術檢查；外觀精細度、完整捕捉演出與實體手機效能仍需驗收。"
+    ],
+    "actualClips": [
+      "Idle",
+      "Fly",
+      "Glide",
+      "Land",
+      "Takeoff",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "technicalStatus": "PASS"
+  },
+  {
+    "speciesId": "zapdos",
+    "form": "default",
+    "sourceModel": "authoring/models/",
+    "targetGLB": "models/zapdos.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "flying",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [
+      "sky"
+    ],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {
+      "front": "qa/zapdos-front.png",
+      "three_quarter": "qa/zapdos-three_quarter.png",
+      "side": "qa/zapdos-side.png",
+      "back": "qa/zapdos-back.png",
+      "elevated_studio": "qa/zapdos-elevated_studio.png",
+      "gameplay_camera": "qa/zapdos-Flying-portrait.png",
+      "ground_gameplay_camera": "qa/zapdos-GroundIdle-portrait.png"
+    },
+    "performanceMetrics": {
+      "bones": 9,
+      "meshes": 10,
+      "triangles": 12856,
+      "bytes": 2213608
+    },
+    "knownIssues": [
+      "骨架與片段通過技術檢查；外觀精細度、完整捕捉演出與實體手機效能仍需驗收。"
+    ],
+    "actualClips": [
+      "Idle",
+      "Fly",
+      "Glide",
+      "Land",
+      "Takeoff",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "technicalStatus": "PASS"
+  },
+  {
+    "speciesId": "moltres",
+    "form": "default",
+    "sourceModel": "authoring/models/",
+    "targetGLB": "models/moltres.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "flying",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {
+      "front": "qa/moltres-front.png",
+      "three_quarter": "qa/moltres-three_quarter.png",
+      "side": "qa/moltres-side.png",
+      "back": "qa/moltres-back.png",
+      "elevated_studio": "qa/moltres-elevated_studio.png"
+    },
+    "performanceMetrics": {
+      "bones": 9,
+      "meshes": 10,
+      "triangles": 33872,
+      "bytes": 5744280
+    },
+    "knownIssues": [
+      "骨架與片段通過技術檢查；外觀精細度、完整捕捉演出與實體手機效能仍需驗收。"
+    ],
+    "actualClips": [
+      "Idle",
+      "Fly",
+      "Glide",
+      "Land",
+      "Takeoff",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "technicalStatus": "PASS"
+  },
+  {
+    "speciesId": "raikou",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/raikou.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "entei",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/entei.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "suicune",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/suicune.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "kyogre",
+    "form": "default",
+    "sourceModel": "authoring/models/",
+    "targetGLB": "models/kyogre.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "swimmer",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {
+      "front": "qa/kyogre-front.png",
+      "three_quarter": "qa/kyogre-three_quarter.png",
+      "side": "qa/kyogre-side.png",
+      "back": "qa/kyogre-back.png",
+      "elevated_studio": "qa/kyogre-elevated_studio.png"
+    },
+    "performanceMetrics": {
+      "bones": 7,
+      "meshes": 8,
+      "triangles": 18280,
+      "bytes": 3103824
+    },
+    "knownIssues": [
+      "骨架與片段通過技術檢查；外觀精細度、完整捕捉演出與實體手機效能仍需驗收。"
+    ],
+    "actualClips": [
+      "Idle",
+      "Swim",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "technicalStatus": "PASS"
+  },
+  {
+    "speciesId": "groudon",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/groudon.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "rayquaza",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/rayquaza.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "mew",
+    "form": "default",
+    "sourceModel": "pallet-town/js/models-v2/",
+    "targetGLB": "models/mew.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "OPTIMIZE",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "raichu",
+    "form": "default",
+    "sourceModel": null,
+    "targetGLB": "models/raichu.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "REBUILD",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "caterpie",
+    "form": "default",
+    "sourceModel": null,
+    "targetGLB": "models/caterpie.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "REBUILD",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "metapod",
+    "form": "default",
+    "sourceModel": null,
+    "targetGLB": "models/metapod.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "REBUILD",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "butterfree",
+    "form": "default",
+    "sourceModel": null,
+    "targetGLB": "models/butterfree.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "REBUILD",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "weedle",
+    "form": "default",
+    "sourceModel": null,
+    "targetGLB": "models/weedle.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "REBUILD",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "kakuna",
+    "form": "default",
+    "sourceModel": null,
+    "targetGLB": "models/kakuna.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "REBUILD",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  },
+  {
+    "speciesId": "beedrill",
+    "form": "default",
+    "sourceModel": null,
+    "targetGLB": "models/beedrill.glb",
+    "referencePriority": "user > verified official game visuals > V4",
+    "rigType": "PENDING_AUDIT",
+    "requiredClips": [
+      "Idle",
+      "Move",
+      "Hurt",
+      "CaptureShrink"
+    ],
+    "habitat": [],
+    "collider": "V4 gameplay sphere + per-model anchors",
+    "LOD": [
+      "near-full",
+      "mid-reduced-tick",
+      "far-sleep"
+    ],
+    "status": "NEEDS_FIX",
+    "decision": "REBUILD",
+    "reviewShots": {},
+    "performanceMetrics": {},
+    "knownIssues": [
+      "未完成 4+1、骨架與捕捉相容驗收，不得當作完成版發布"
+    ]
+  }
+]

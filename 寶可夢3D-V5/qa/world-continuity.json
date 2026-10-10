@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "berries": 5,
+  "respawn": {
+    "x": 35.287135149976834,
+    "z": 49.143131006827566
+  },
+  "checks": [
+    "initial berries use loaded GLB",
+    "respawn returns to shore habitat"
+  ],
+  "errors": []
+}

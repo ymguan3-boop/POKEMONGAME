@@ -1,0 +1,128 @@
+{
+  "status": "PASS",
+  "loaded": {
+    "ready": [
+      "normal",
+      "ultra",
+      "great",
+      "master",
+      "supply",
+      "revive",
+      "thunderStone",
+      "potion",
+      "fireStone",
+      "waterStone",
+      "berry"
+    ],
+    "failed": {}
+  },
+  "models": [
+    {
+      "id": "normal",
+      "height": 0.6,
+      "ground": 0,
+      "finite": true,
+      "triangles": 3008,
+      "center": [
+        0,
+        2.7755575615628914e-17,
+        1.3877787807814457e-17
+      ]
+    },
+    {
+      "id": "great",
+      "height": 0.6,
+      "ground": 0,
+      "finite": true,
+      "triangles": 3776,
+      "center": [
+        0,
+        2.7755575615628914e-17,
+        1.3877787807814457e-17
+      ]
+    },
+    {
+      "id": "ultra",
+      "height": 0.6,
+      "ground": 0,
+      "finite": true,
+      "triangles": 3488,
+      "center": [
+        0,
+        0,
+        1.3877787807814457e-17
+      ]
+    },
+    {
+      "id": "master",
+      "height": 0.6,
+      "ground": 0,
+      "finite": true,
+      "triangles": 4832,
+      "center": [
+        0,
+        1.3877787807814457e-17,
+        1.3877787807814457e-17
+      ]
+    },
+    {
+      "id": "berry",
+      "height": 0.6,
+      "ground": -1.3877787807814457e-17,
+      "finite": true,
+      "triangles": 17664,
+      "center": null
+    },
+    {
+      "id": "supply",
+      "height": 0.6000000000000001,
+      "ground": 2.7755575615628914e-17,
+      "finite": true,
+      "triangles": 3440,
+      "center": null
+    },
+    {
+      "id": "potion",
+      "height": 0.6,
+      "ground": 0,
+      "finite": true,
+      "triangles": 1112,
+      "center": null
+    },
+    {
+      "id": "revive",
+      "height": 0.6,
+      "ground": 0,
+      "finite": true,
+      "triangles": 16,
+      "center": null
+    },
+    {
+      "id": "thunderStone",
+      "height": 0.6,
+      "ground": 0,
+      "finite": true,
+      "triangles": 100,
+      "center": null
+    },
+    {
+      "id": "fireStone",
+      "height": 0.6,
+      "ground": 0,
+      "finite": true,
+      "triangles": 1120,
+      "center": null
+    },
+    {
+      "id": "waterStone",
+      "height": 0.6,
+      "ground": 0,
+      "finite": true,
+      "triangles": 648,
+      "center": null
+    }
+  ],
+  "rewardMid": 1,
+  "rewardEnd": 0,
+  "errors": []
+}

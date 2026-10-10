@@ -1,0 +1,24 @@
+{
+  "status": "TECHNICAL_PASS_VISUAL_REVIEW_REQUIRED",
+  "checks": [
+    {
+      "name": "all 44 V4 and expanded 87 IDs retained",
+      "count": 87
+    },
+    {
+      "name": "Raichu eligible only after unlock, weighted .15",
+      "blocked": true,
+      "count": 60,
+      "weight": 0.15
+    },
+    {
+      "name": "legacy Starly GLB loads",
+      "meshes": 8
+    },
+    {
+      "name": "7 new models load into actual elevated gameplay camera",
+      "pass": true
+    }
+  ],
+  "errors": []
+}
