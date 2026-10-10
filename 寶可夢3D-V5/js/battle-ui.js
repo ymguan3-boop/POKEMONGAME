@@ -57,7 +57,11 @@
    this.layer.onclick=e=>{
     const b=e.target.closest('[data-action]');if(!b)return;
     const a=b.dataset.action;
-    if(a==='abort'||a==='exit')return this.controller.exit(a==='abort');
+    if(a==='abort')return this.controller.exit(true);
+    if(a==='exit'){
+      if(this.controller.session?.status==='playing'&&!window.confirm('確定放棄這場 3D 對戰並返回真新鎮嗎？'))return;
+      return this.controller.exit();
+    }
     if(a==='retry')return this.controller.retry();
     if(a==='normal'||a==='special'||a==='defend')return this.controller.action({type:a});
     if(a==='switch-menu'){this.swapping=!this.swapping;return this.renderBattle();}
