@@ -113,9 +113,15 @@
    return {ok:true,events,outcome:getOutcome(battle),needsSwitch:battle.requiresSwitch};
  }
  function pickAIAction(battle) {
-   const me=actor(battle,1),target=actor(battle,0);
+   const me=actor(battle,1),target=actor(battle,0),reserve=available(battle,1);
+   if(me.hp<me.maxHp*.3&&reserve.length){
+     // Defensive switching is a deliberate AI turn, not a free replacement.
+     const healthier=reserve.find(p=>battle.teams[1][p.i].hp>me.hp*2);
+     if(healthier)return {type:'switch',index:healthier.i};
+   }
+   if(me.hp<me.maxHp*.5&&battle.round%4===0)return {type:'defend'};
    const options=[{type:'normal',d:damage(me,target,me.skills[0])}];
-   if (me.specialWait===0) options.push({type:'special',d:damage(me,target,me.skills[1])});
+   if(me.specialWait===0)options.push({type:'special',d:damage(me,target,me.skills[1])});
    options.sort((a,b)=>b.d-a.d);
    return {type:options[0].type};
  }
