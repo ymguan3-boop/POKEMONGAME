@@ -64,3 +64,6 @@ body.v5-battle-active #btn-throw,
 body.v5-battle-active #berry-buff-indicator{
  visibility:hidden!important;pointer-events:none!important;
 }
+
+.v5-battle-order{display:flex;justify-content:center;gap:4px;margin-top:4px}
+.v5-battle-order button{min-height:42px;min-width:36px;padding:5px;font-size:15px;line-height:1}
