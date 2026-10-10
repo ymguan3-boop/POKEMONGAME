@@ -1,20 +1,56 @@
-# 寶可夢 3D-V5 特別版工作區
+# 寶可夢 3D-V5｜真新鎮與專屬 3D 回合制擂台
 
-以真新鎮寶可夢中心為中心的直立手機 3D 冒險，新增 2D 卡冊、牌組編輯及 NPC 卡牌對戰。依第三人稱空拍視角需求及《2D卡牌遊戲參考_v2.docx》實作。[公開遊玩](https://ymguan3-boop.github.io/POKEMONGAME/寶可夢3D-V5/)。
+[公開遊玩（目前正式站需待 PR 合併部署）](https://ymguan3-boop.github.io/POKEMONGAME/寶可夢3D-V5/)
 
-目前核對 61 種 V5 新模型：36 種第 1～4 代御三家與進化型、12 種指定神獸、4 種道館寶可夢、7 種新增野生寶可夢，以及超夢、胖丁。舊版 28 種模型不在 V5 圖鑑／出沒名單；相容資料僅用於既有存檔。超夢與胖丁只會在合法牌組對戰勝利後於場地出現。
+> 開發說明：本功能在 `feature/v5-3d-turn-battle` 分支實作。尚未合併 `main` 前，GitHub Pages 正式網址可能仍顯示原本的卡牌對戰；不要把 PR 完成誤認為正式站已更新。
 
-卡冊列出 61 種，含 56 張由本版 3D 模型衍生的 Q 版四宮格切圖。皮卡丘、夢幻、胖可丁、幸福蛋與胖丁的插畫生成遭服務輸出審查拒絕，改以真正的 V5 3D 模型畫面搭配動感色彩卡面，並標示「3D 模型動感卡面」。卡片底部可按「查看 3D 模型」。[模型與卡圖來源盤點](cards/model-sources.json)。
+## 主要玩法
 
-卡牌規則採使用者提供的 V5 草案：永久持有 20 張、至少 6 張基礎型、同名最多 2 張、傳說級最多 1 張、進化需前階；玩家需向卡牌訓練家主動交談並確認，牌組不合法無法開戰。對戰為獨立 2D 畫面，起手 5 張，能量每回合取得 1 點，先得 3 分者獲勝。可自行選擇領取一次永久 20 張入門卡包，無需先贏卡戰。其他 NPC 與夥伴在主角碰觸時自動對話，並顯示小型頭頂名稱。這是本遊戲的簡化規則，並非官方 PTCG 規則或卡框。
+- 第三人稱高斜角的真新鎮探索與野外捕捉、原四座道館均保持原有機制。
+- V5 圖鑑維持 **61 種新模型**。從未成功捕捉的物種只會顯示相同的深色鎖定方塊，完全不載入其插畫/預覽圖；捕捉後顯示 Q 版卡圖、技能及模型。
+- 選單的「⚔️ 寶可夢隊伍」可從**真實捕捉**的物種選擇三種不同夥伴；只持有舊卡牌或入門卡包者不得出戰。
+- 找到 NPC「寶可夢對戰訓練家」（保留既有 `card-rival` 內部 ID）並主動確認挑戰，前往**獨立的 3D 競技擂台**。
+- 3 對 3，雙方一次各上一隻；回合操作：**普通攻擊、特殊技能（冷卻兩次自身指令機會）、防禦（下次傷害減半）、更換夥伴**。三隻全部倒下即判負；被擊倒後可免費強制換人。
+- 擂台沿用原 V5 3D 模型（GLB 與程式關節建模混合）、動畫控制器與探索的同一個 WebGL renderer，沒有新增常駐 renderer。
+- 對戰時世界探索暫停，雷達、搖桿和投球等 UI 暫時隱藏；戰後回原本的真新鎮角色座標和相機角度。
+- 首次正式勝利解鎖超夢、胖丁於野外出現；**仍須自行捕捉**才會加入圖鑑/隊伍。舊卡牌勝利紀錄已存在者不會重複領首次獎勵。
+- 「重置進度」需要**連續兩次明確確認**；任一次取消不重置。
 
-本機執行 `node tools/serve-v5.cjs` 後打開 `http://127.0.0.1:4179/`。卡牌規則測試：`node --test tests/card-battle.test.cjs`；手機與場景 QA：`node tools/qa-v5-mobile.cjs`、`node tools/qa-v5-remodel-ui.cjs`、`node tools/qa-v5-cards.cjs`。以上命令從儲存庫根目錄執行。
+## 技術與存檔
 
+- 仍用 Three.js、既有 V5 模型載入器與 `V5AnimationController`，不要求付費 API。
+- 戰鬥模組：`js/battle-core.js`、`battle-data.js`、`battle-arena.js`、`battle-ui.js`、`battle-controller.js`、`css/battle3d.css`。
+- 新增 `battle3d` 儲存隊伍、首發、勝敗與首次解鎖旗標，`schemaVersion` 保持 5；舊 `captureCounts`、`pokedexUnlocks`、`gyms`、`cardDeck`、`cardCollection`、`cardWins`、`worldFlags` 等欄位不得刪除。
+- 舊 `js/card-battle.js` 保留供回退與資料相容，但正式選單與 NPC 均改走 3D 回合制。
+- 遇到模型載入失敗時應顯示可返回真新鎮的錯誤，而非黑屏；可取消載入，不算失敗場次。
+
+## 測試與限制
+
+自儲存庫**根目錄**執行：
+
+```bash
+node tools/serve-v5.cjs
+node --test tests/battle-core.test.cjs tests/battle-save-migration.test.cjs
+node tools/qa-v5-battle.cjs
+node tools/qa-v5-mobile.cjs
+node tools/qa-v5-remodel-ui.cjs
+node tools/qa-v5-integration.cjs
+```
+
+`tools/qa-v5-battle.cjs` 需要 Playwright/Chromium（可透過 `V5_PLAYWRIGHT_MODULE` 指定現有安裝），它的測試以本機開發伺服器 `http://127.0.0.1:4179/?qa=1` 執行，對 360×640、390×844、430×932 截圖並檢查 NPC 對戰、模型及退出後還原。瀏覽器手機模擬**不等於實際 Android/iPhone 長時間效能驗收**。
+
+既有 `tests/card-battle.test.cjs` 仍保留測試舊版規則，但不能代表新 3D 對戰已通過；舊 `tools/qa-v5-cards.cjs` 可能預期舊卡牌 UI，若測試失敗須說明新舊功能差異，不得偽稱通過。
+
+## 資產與詳細資料
+
+目前 V5 收錄 61 種新模型；13 種為骨架 GLB，其餘採程式模型/關節動畫。逐種的模型美術品質及手機 GPU 效能仍需最終驗收。舊版 28 種 V4 模型只保留於存檔相容資料，不加入 V5 的圖鑑與對戰名單。
+
+- [V5 模型來源與卡圖](cards/model-sources.json)
 - [架構與資產盤點](docs/ARCHITECTURE_ASSET_AUDIT.md)
 - [美術準則](docs/ART_DIRECTION_V5.md)
 - [逐種模型清單](pokemon-model-manifest.json)
-- [直立手機操作與驗收](docs/MOBILE_ACCEPTANCE.md)
+- [手機驗收基準](docs/MOBILE_ACCEPTANCE.md)
 - [逐種模型驗收進度](docs/MODEL_QA_REPORT.md)
-- [新模型限定、雷達與道館修正及尚未完成範圍](docs/NEW_MODEL_POLICY.md)
+- [新模型與道館政策](docs/NEW_MODEL_POLICY.md)
 
-V1～V4 保持原狀。V5 的 29 個不必要舊版 GLB（含舊主角）及舊縮圖已自 V5 目錄移除；新主角使用 `player-wardrobe.glb`。野生進化鏈在場景中以主角身高的約 50%／65%／84.5% 呈現；道館首領與神獸維持特殊尺寸。最後抽驗涵蓋直立手機置中計數列、三階體型與 3D 預覽對比，以及卡戰勝利雙獎勵。
+**修改範圍：只限 V5 及必要的 V5 專屬 tests/tools，V1～V4 不修改。**
