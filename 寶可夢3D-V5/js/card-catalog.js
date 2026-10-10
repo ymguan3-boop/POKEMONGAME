@@ -16,16 +16,54 @@
  });
  window.V5CardCatalog=Object.freeze(entries);
  window.V5CardById=Object.freeze(Object.fromEntries(entries.map(c=>[c.id,c])));
- function render(state,list){list.replaceChildren();const frag=document.createDocumentFragment();let caught=0;
-  for(const c of entries){const count=Number(state.captureCounts?.[c.id])||0;if(count>0)caught++;
-   const card=document.createElement('article');card.className='v5-dex-card'+(c.art?'':' v5-model-card');card.dataset.species=c.id;card.tabIndex=0;card.setAttribute('aria-label',`查看${c.name}卡牌詳情`);card.onclick=e=>{if(!e.target.closest('button'))window.V5CardDetails.open(c,count)};card.onkeydown=e=>{if(e.key==='Enter'&&e.target===card)window.V5CardDetails.open(c,count)};
-   const art=document.createElement('div');art.className='v5-dex-art';const img=document.createElement('img');img.loading='lazy';img.decoding='async';img.alt=`${c.name}的${c.art?'Q 版卡牌插畫':'新 3D 模型預覽圖'}`;img.src=c.art||`cards/model-thumbs/${c.id}.webp`;img.onerror=()=>{img.onerror=null;img.style.display='none';art.append(Object.assign(document.createElement('span'),{textContent:'模型縮圖製作中'}));};art.append(img);card.append(art);
-   const title=document.createElement('div');title.className='v5-dex-title';title.innerHTML=`<strong></strong><span>HP ${c.hp}</span>`;title.querySelector('strong').textContent=c.name;card.append(title);
-   const detail=document.createElement('p');detail.className='v5-dex-detail';detail.textContent=`${c.element} · ${c.legendary?'傳說':c.stage===1?'基礎型':c.stage===2?'一階進化':'二階進化'} · ${c.attack} ${c.damage}`;card.append(detail);
-   const desc=document.createElement('p');desc.className='v5-dex-desc';desc.textContent=c.description;card.append(desc);
-   const footer=document.createElement('div');footer.className='v5-dex-footer';const status=document.createElement('small');status.textContent=`${count?'已捕捉 '+count+' 次':'尚未捕捉'} · ${c.art?'Q 版卡圖':'3D 模型動感卡面'}`;footer.append(status);
-   const btn=document.createElement('button');btn.type='button';btn.textContent='查看 3D 模型';btn.onclick=()=>window.V5ModelViewer?.open(c);footer.append(btn);card.append(footer);frag.append(card);
-  }list.append(frag);return {caught,total:entries.length};
+ function render(state,list){
+  list.replaceChildren();
+  const frag=document.createDocumentFragment();
+  let caught=0;
+  for(const c of entries){
+   const count=Math.max(0,Number(state.captureCounts?.[c.id])||0);
+   // Legacy saves may record a successful catch in pokedexUnlocks only.
+   const discovered=count>0||state.pokedexUnlocks?.[c.id]===true;
+   if(discovered)caught++;
+   const card=document.createElement('article');
+   card.className='v5-dex-card'+(c.art?'':' v5-model-card')+(discovered?'':' is-unseen');
+   card.dataset.species=c.id;
+   if(discovered){
+    card.tabIndex=0;
+    card.setAttribute('aria-label',`查看${c.name}圖鑑詳情`);
+    card.onclick=e=>{if(!e.target.closest('button'))window.V5CardDetails.open(c,count)};
+    card.onkeydown=e=>{if(e.key==='Enter'&&e.target===card)window.V5CardDetails.open(c,count)};
+   }else{
+    card.setAttribute('aria-label',`尚未捕捉的圖鑑項目 #${String(c.cardNumber).padStart(3,'0')}`);
+   }
+   const art=document.createElement('div');art.className='v5-dex-art';
+   const img=document.createElement('img');img.loading='lazy';img.decoding='async';
+   img.alt=discovered?`${c.name}的${c.art?'Q 版卡牌插畫':'新 3D 模型預覽圖'}`:'尚未捕捉的寶可夢暗影';
+   img.src=c.art||`cards/model-thumbs/${c.id}.webp`;
+   img.onerror=()=>{img.onerror=null;img.style.display='none';art.append(Object.assign(document.createElement('span'),{textContent:discovered?'模型縮圖製作中':'？'}));};
+   art.append(img);card.append(art);
+   const title=document.createElement('div');title.className='v5-dex-title';
+   title.innerHTML='<strong></strong><span></span>';
+   title.querySelector('strong').textContent=discovered?c.name:'？？？';
+   title.querySelector('span').textContent=discovered?`HP ${c.hp}`:'待解鎖';
+   card.append(title);
+   const detail=document.createElement('p');detail.className='v5-dex-detail';
+   detail.textContent=discovered?`${c.element} · ${c.legendary?'傳說':c.stage===1?'基礎型':c.stage===2?'一階進化':'二階進化'} · ${c.attack} ${c.damage}`:'尚未捕捉 · 等待解鎖';
+   card.append(detail);
+   const desc=document.createElement('p');desc.className='v5-dex-desc';
+   desc.textContent=discovered?c.description:'成功捕捉後，才會顯示完整的圖鑑資訊。';
+   card.append(desc);
+   const footer=document.createElement('div');footer.className='v5-dex-footer';
+   const status=document.createElement('small');
+   status.textContent=discovered?`${count>0?'已捕捉 '+count+' 次':'已捕捉'} · ${c.art?'Q 版卡圖':'3D 模型動感卡面'}`:'🔒 尚未捕捉';
+   footer.append(status);
+   if(discovered){
+    const btn=document.createElement('button');btn.type='button';btn.textContent='查看 3D 模型';
+    btn.onclick=()=>window.V5ModelViewer?.open(c);footer.append(btn);
+   }
+   card.append(footer);frag.append(card);
+  }
+  list.append(frag);return {caught,total:entries.length};
  }
  window.renderV5Pokedex=render;
  window.V5CardDetails={open(c,count){this.close();const root=document.createElement('section');root.id='v5-card-detail';if(!c.art)root.classList.add('v5-model-detail');root.role='dialog';root.setAttribute('aria-modal','true');root.innerHTML='<div class="inner"><button class="close">關閉</button><h2></h2><img><p class="stats"></p><div class="skills"></div><p class="description"></p><p class="source"></p><button class="model">查看 3D 模型</button></div>';root.querySelector('h2').textContent=c.name+' · HP '+c.hp;root.querySelector('img').src=c.art||`cards/model-thumbs/${c.id}.webp`;root.querySelector('img').alt=c.art?c.name+'Q 版卡牌插畫':c.name+'V5 3D 模型動感卡面';root.querySelector('.stats').textContent=`${c.element}｜${c.legendary?'傳說':c.evolvesFrom?'進化型':'基礎型'}｜弱點 ${c.weakness}｜撤退 ${c.retreatCost}`;for(const skill of c.skills){const p=document.createElement('p');p.className='skill';p.textContent=`✦ ${skill.energy} 能量　${skill.name}　${skill.damage} 傷害｜${skill.effect}`;root.querySelector('.skills').append(p)}root.querySelector('.description').textContent=c.description;root.querySelector('.source').textContent=`V5 #${String(c.cardNumber).padStart(3,'0')} · 新製模型 · ${count?'已捕捉 '+count+' 次':'尚未捕捉'} · ${c.art?'Q 版卡圖':'3D 模型動感卡面'}`;root.querySelector('.close').onclick=()=>this.close();root.querySelector('.model').onclick=()=>window.V5ModelViewer?.open(c);document.body.append(root);this.root=root;},close(){this.root?.remove();this.root=null;}};
