@@ -141,6 +141,8 @@
    if(!this.active){this.ui.close();return;}
    ++this.sequence;
    const inProgress=this.session?.status==='playing';
+   // Count a completed victory even if the user closes the result during its final animation.
+   if(this.session?.status==='finished'&&!this.recorded)this.recordOutcome();
    if(inProgress&&!cancelled){
     root.V5BattleCore.forfeit(this.session);
     this.recordOutcome(true);
