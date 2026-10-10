@@ -30,7 +30,7 @@
 | A15 | NOT RUN | 四座原本道館與野外捕捉需要完整端對端回歸。 |
 | A16 | NOT RUN | 新增 `tools/qa-v5-battle.cjs` 規劃三種直立解析度測試，但未實際啟動 Playwright。 |
 | A17 | NOT RUN | 長時間五場、FPS、WebGL context、記憶體實測待補。 |
-| A18 | 待 PR diff 確認 | 變更均限定 V5、新增 V5 專用測試/工具及首頁 V5 說明；合併前須跑比較確認。 |
+| A18 | PASS（GitHub diff） | main...feature 比對結果僅有 V5、V5 測試/工具與首頁 V5 說明等 19 個檔案；V1～V4 路徑零變更。 |
 
 ## Codex 待執行命令
 
