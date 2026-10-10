@@ -746,7 +746,7 @@
       "Hurt"
     ],
     "cardArt": null,
-    "cardArtStatus": "blocked-by-image-service",
+    "cardArtStatus": "model-based-action-card (image generation blocked)",
     "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
   },
   {
@@ -761,7 +761,7 @@
       "Hurt"
     ],
     "cardArt": null,
-    "cardArtStatus": "blocked-by-image-service",
+    "cardArtStatus": "model-based-action-card (image generation blocked)",
     "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
   },
   {
@@ -776,7 +776,7 @@
       "Hurt"
     ],
     "cardArt": null,
-    "cardArtStatus": "blocked-by-image-service",
+    "cardArtStatus": "model-based-action-card (image generation blocked)",
     "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
   },
   {
@@ -791,7 +791,7 @@
       "Hurt"
     ],
     "cardArt": null,
-    "cardArtStatus": "blocked-by-image-service",
+    "cardArtStatus": "model-based-action-card (image generation blocked)",
     "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
   },
   {
@@ -919,5 +919,20 @@
     "cardArt": "cards/art/beedrill.webp",
     "cardArtStatus": "generated",
     "modelSha256": "2c3e4f90812368db1bd9fb4e7dc3d9ac755d625ea37b11740d3b2434b1be9338"
+  },
+  {
+    "id": "jigglypuff",
+    "name": "胖丁",
+    "modelPath": "js/models-v2/jigglypuff.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": null,
+    "cardArtStatus": "model-based-action-card",
+    "modelSha256": "088a4bf5a247f24c7c1cb442caf5a09d8d816bc0ae2485c1d42d96cb478ad864"
   }
 ]

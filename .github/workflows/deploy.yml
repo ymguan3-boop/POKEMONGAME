@@ -27,10 +27,21 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Prepare the five public versions
+        shell: bash
+        run: |
+          mkdir -p _site
+          cp index.html _site/index.html
+          for version in 1 2 3 4 5; do
+            cp -R "寶可夢3D-V${version}" "_site/寶可夢3D-V${version}"
+          done
+          rm -rf _site/寶可夢3D-V5/authoring _site/寶可夢3D-V5/qa
+          rm -f _site/寶可夢3D-V5/vendor/GLTFExporter.js
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: "_site"
 
       - name: Deploy to GitHub Pages
         id: deployment

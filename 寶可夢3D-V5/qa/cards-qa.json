@@ -3,7 +3,7 @@
     [
       "V5 catalog model roster and 56 generated card artworks",
       {
-        "total": 60,
+        "total": 61,
         "art": 56,
         "legacy": 0,
         "viewerModel": true
@@ -22,12 +22,13 @@
       true
     ],
     [
-      "legitimate 2D win spawns one catchable Mewtwo in world",
+      "legitimate 2D win spawns Mewtwo and Jigglypuff in world",
       {
         "winner": 0,
         "steps": 17,
         "wins": 1,
-        "mewtwo": true
+        "mewtwo": true,
+        "jigglypuff": true
       }
     ],
     [
