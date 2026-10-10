@@ -4,7 +4,7 @@
  function catalog(){return root.V5CardCatalog || []}
  function caught(save){return catalog().filter(c=>root.V5BattleCore.isCaught(c.id,save,catalog()))}
  function npcParty(){
-  const entries=catalog(), ids=['bulbasaur','charmander','squirtle'];
+  const entries=catalog(), ids=['chikorita','cyndaquil','totodile'];
   const found=ids.filter(id=>entries.some(c=>c.id===id));
   if(found.length!==3)throw new Error('NPC 的三隻 V5 模型尚未準備完成');
   return found;
