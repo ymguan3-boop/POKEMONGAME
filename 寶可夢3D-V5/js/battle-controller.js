@@ -28,6 +28,13 @@
    else if(party.length<3)party.push(id);
    this.data().party=party;this.data().leader=party[0]||null;this.persist();
   }
+  moveParty(index,direction){
+   if(this.active)return;
+   const party=this.party(),next=index+direction;
+   if(!Number.isInteger(index)||next<0||next>=party.length)return;
+   [party[index],party[next]]=[party[next],party[index]];
+   this.data().party=party;this.data().leader=party[0]||null;this.persist();
+  }
   persist(){this.ctx.save();}
   openTeam(challenge=false){
    if(this.active)return false;
