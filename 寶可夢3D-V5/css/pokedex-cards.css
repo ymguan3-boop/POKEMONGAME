@@ -10,3 +10,12 @@
 #v5-card-detail .skills{border-top:2px solid #bfd8cd;border-bottom:2px solid #bfd8cd;padding:4px 0}#v5-card-detail .skill{font-weight:700;color:#2a5264}
 #v5-card-detail.v5-model-detail .inner{background:linear-gradient(150deg,#fffcf2,#efc8e5 54%,#d3d9ff)}#v5-card-detail.v5-model-detail img{mix-blend-mode:multiply;filter:contrast(1.18) saturate(1.18);box-shadow:0 8px 22px #59466d55}
 @media(max-width:500px){#pokedex-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px!important;padding:7px!important}.v5-dex-card{padding:5px;border-radius:10px}.v5-dex-title{font-size:13px}.v5-dex-title span{font-size:11px}.v5-dex-footer{display:block}.v5-dex-footer button{width:100%;margin-top:4px}.v5-dex-detail{font-size:10px}.v5-dex-desc{font-size:10px}}
+
+/* Pokédex discovery state: unseen species stay in shadow until their first catch. */
+.v5-dex-card.is-unseen{--accent:#7d929a;background:linear-gradient(155deg,#d8dfdf,#acbabe);color:#475861}
+.v5-dex-card.is-unseen .v5-dex-art{position:relative;background:linear-gradient(145deg,#aebec6,#758d9e)!important;isolation:isolate}
+.v5-dex-card.is-unseen .v5-dex-art img{filter:grayscale(1) brightness(.38) contrast(1.8)!important;opacity:.82;mix-blend-mode:normal!important}
+.v5-dex-card.is-unseen .v5-dex-art::after{content:'？'!important;position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(28px,8vw,53px);font-weight:900;color:#f1f7fa!important;text-shadow:0 2px 14px #0d2534dd;z-index:2;pointer-events:none}
+.v5-dex-card.is-unseen .v5-dex-title span{color:#60727a}
+.v5-dex-card.is-unseen .v5-dex-detail,.v5-dex-card.is-unseen .v5-dex-desc{color:#61727a}
+.v5-dex-card.is-unseen .v5-dex-footer{color:#465e6b}
