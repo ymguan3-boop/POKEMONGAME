@@ -21,6 +21,7 @@
     const action=btn.dataset.action,id=btn.dataset.id;
     if(action==='close')this.close();
     if(action==='toggle'){this.controller.toggleParty(id);this.renderParty();}
+    if(action==='move'){this.controller.moveParty(Number(btn.dataset.index),Number(btn.dataset.delta));this.renderParty();}
     if(action==='start')this.controller.start();
     if(action==='save'){this.controller.persist();this.close();}
    });
