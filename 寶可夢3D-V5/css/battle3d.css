@@ -50,3 +50,17 @@
 body.v5-battle-active #unified-hud,body.v5-battle-active #main-menu-panel,body.v5-battle-active #v5-talk{visibility:hidden!important;pointer-events:none!important}
 @media(max-height:680px){.v5-battle-bottom{height:47%}.v5-battle-hp.player{bottom:calc(47% + 9px)}.v5-battle-teamdots.player{bottom:47%}.v5-battle-actions button{font-size:12px}.v5-battle-message{min-height:18px;padding:3px 7px}}
 @media(max-width:375px){.v5-battle-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.v5-battle-party-panel{padding:9px}.v5-battle-hp{width:min(63vw,220px)}}
+
+/* Battle input isolation: hide world radar, navigation and catching controls. */
+body.v5-battle-active #radar-controls,
+body.v5-battle-active #radar-container,
+body.v5-battle-active #btn-auto-nav,
+body.v5-battle-active #joystick-zone,
+body.v5-battle-active #btn-use-berry,
+body.v5-battle-active #btn-switch-ball,
+body.v5-battle-active #btn-unlock,
+body.v5-battle-active #btn-lock,
+body.v5-battle-active #btn-throw,
+body.v5-battle-active #berry-buff-indicator{
+ visibility:hidden!important;pointer-events:none!important;
+}
