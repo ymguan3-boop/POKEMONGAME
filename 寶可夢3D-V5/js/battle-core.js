@@ -5,10 +5,10 @@
  const safeCount = value => Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
  function isCaught(id, save, catalog) {
    if (!catalog.some(card => card.id === id)) return false;
-   return safeCount(save && save.captureCounts && save.captureCounts[id]) > 0
+   return Boolean(safeCount(save && save.captureCounts && save.captureCounts[id]) > 0
       || (save && save.pokedexUnlocks && save.pokedexUnlocks[id] === true)
       || (save && save.specialPokemonCaptured && save.specialPokemonCaptured[id] === true)
-      || (save && save.gymRewardCaptured && save.gymRewardCaptured[id] === true);
+      || (save && save.gymRewardCaptured && save.gymRewardCaptured[id] === true));
  }
  function validateParty(ids, save, catalog) {
    const distinct = Array.isArray(ids) ? [...new Set(ids)] : [];
