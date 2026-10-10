@@ -31,6 +31,7 @@
   persist(){this.ctx.save();}
   openTeam(challenge=false){
    if(this.active)return false;
+   this.state.interactionOpen=true;
    this.ui.showParty(challenge);return true;
   }
   isInBattle(){return this.active;}
