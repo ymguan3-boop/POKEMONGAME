@@ -1,0 +1,52 @@
+/* V5 portrait-first three-dimensional turn battle and party selector. */
+.v5-battle-party,.v5-battle-overlay{position:fixed;inset:0;z-index:9999;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif;color:#ecf9fa;touch-action:pan-y}
+.v5-battle-party{display:grid;place-items:center;background:rgba(6,17,27,.95);padding:max(env(safe-area-inset-top),12px) 9px max(env(safe-area-inset-bottom),12px)}
+.v5-battle-party-panel{box-sizing:border-box;width:min(100%,540px);max-height:96dvh;background:#102b3d;border:2px solid #61b5ce;border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:8px;box-shadow:0 8px 28px #0009}
+.v5-battle-party-panel header,.v5-battle-party-panel footer{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.v5-battle-party-panel h2{font-size:19px;font-weight:800;margin:0}
+.v5-battle-party-panel p{font-size:13px;line-height:1.5;margin:3px 0}
+.v5-battle-party button,.v5-battle-overlay button{cursor:pointer;border:1px solid #81c3d1;background:#21566a;border-radius:11px;color:white;min-height:48px;padding:8px 11px;font-weight:700;touch-action:manipulation}
+.v5-battle-party button:disabled,.v5-battle-overlay button:disabled{opacity:.45;cursor:default}
+.v5-battle-party button.primary{background:#206e68}
+.v5-battle-selected{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.v5-battle-selected div{background:#1e465a;border:1px dashed #5b99ad;border-radius:9px;padding:10px 5px;min-width:0;text-align:center;font-size:12px;overflow-wrap:anywhere}
+.v5-battle-notice{color:#a8e5dd}
+.v5-battle-grid{overflow:auto;flex:1;min-height:80px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-content:start;gap:8px;padding:3px}
+.v5-battle-grid .v5-battle-pokemon{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px;background:#28495a;font-size:12px;min-width:0;min-height:104px}
+.v5-battle-grid .v5-battle-pokemon.picked{border:2px solid #e8c968;background:#30685d}
+.v5-battle-pokemon img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:7px;max-height:78px}
+.v5-battle-pokemon span{overflow-wrap:anywhere}
+.v5-battle-pokemon small{font-size:10px;color:#cde6f0}
+.v5-battle-empty{grid-column:span 3}
+.v5-battle-overlay{background:transparent;display:block;overflow:hidden}
+.v5-battle-overlay::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(4,22,34,.28) 0%,transparent 37%,transparent 52%,rgba(3,15,23,.4) 72%)}
+.v5-battle-top{position:absolute;left:8px;right:8px;top:max(8px,env(safe-area-inset-top));padding:6px 10px;background:#133c54eb;border:1px solid #d1e5e4;border-radius:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px}
+.v5-battle-top button{min-height:42px;font-size:12px;padding:5px 9px;background:#7c4652}
+.v5-battle-hp{position:absolute;width:min(62vw,250px);background:#0b283bdd;border:1px solid #b8e2dd;border-radius:9px;padding:7px}
+.v5-battle-hp.enemy{top:calc(max(8px,env(safe-area-inset-top)) + 62px);left:10px}
+.v5-battle-hp.player{bottom:calc(42% + 11px);right:10px}
+.v5-battle-hp>div:first-child{display:flex;gap:6px;justify-content:space-between;align-items:center;font-size:12px}
+.v5-battle-hp span{font-size:11px;white-space:nowrap}
+.v5-battle-track{height:9px;margin-top:5px;border-radius:10px;background:#0a1c29;overflow:hidden}
+.v5-battle-track i{display:block;height:100%;border-radius:10px;background:#4bdd94;transition:width .2s}
+.v5-battle-teamdots{position:absolute;display:flex;gap:4px;color:white;text-shadow:0 0 2px #000}
+.v5-battle-teamdots.npc{top:calc(max(8px,env(safe-area-inset-top)) + 128px);left:15px}
+.v5-battle-teamdots.player{bottom:calc(42% + 0px);right:15px}
+.v5-battle-teamdots span.faint{opacity:.3}
+.v5-battle-bottom{position:absolute;left:0;right:0;bottom:0;height:42%;box-sizing:border-box;background:#10283ee8;border-top:3px solid #61b5cc;padding:8px 10px max(10px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:7px}
+.v5-battle-message{font-size:12px;min-height:24px;background:#215067;border-radius:8px;padding:5px 9px}
+.v5-battle-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(48px,1fr));gap:9px;flex:1;min-height:0}
+.v5-battle-actions button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;white-space:normal;font-size:14px}
+.v5-battle-actions button:nth-child(2){background:#895d30}
+.v5-battle-actions button:nth-child(3){background:#276c73}
+.v5-battle-actions button:nth-child(4){background:#514c8c}
+.v5-battle-actions button small{font-size:10px;font-weight:400}
+.v5-battle-switch{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;background:#264f67;border-radius:8px;padding:7px;font-size:12px;max-height:100px;overflow-y:auto}
+.v5-battle-switch button{font-size:11px;min-height:42px;padding:6px 8px}
+.v5-battle-loading,.v5-battle-result{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(92vw,360px);box-sizing:border-box;border-radius:18px;border:2px solid #a8d5e4;background:#112d45f5;padding:22px 14px;text-align:center;box-shadow:0 8px 28px #000b}
+.v5-battle-result{z-index:5;top:43%}
+.v5-battle-result h2{font-size:21px;margin:0 0 12px}
+.v5-battle-result button,.v5-battle-loading button{margin:6px}
+body.v5-battle-active #unified-hud,body.v5-battle-active #main-menu-panel,body.v5-battle-active #v5-talk{visibility:hidden!important;pointer-events:none!important}
+@media(max-height:680px){.v5-battle-bottom{height:47%}.v5-battle-hp.player{bottom:calc(47% + 9px)}.v5-battle-teamdots.player{bottom:47%}.v5-battle-actions button{font-size:12px}.v5-battle-message{min-height:18px;padding:3px 7px}}
+@media(max-width:375px){.v5-battle-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.v5-battle-party-panel{padding:9px}.v5-battle-hp{width:min(63vw,220px)}}
