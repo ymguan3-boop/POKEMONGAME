@@ -52,6 +52,7 @@ body.v5-battle-active #unified-hud,body.v5-battle-active #main-menu-panel,body.v
 @media(max-width:375px){.v5-battle-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.v5-battle-party-panel{padding:9px}.v5-battle-hp{width:min(63vw,220px)}}
 
 /* Battle input isolation: hide world radar, navigation and catching controls. */
+body.v5-battle-active #btn-toggle-menu,
 body.v5-battle-active #radar-controls,
 body.v5-battle-active #radar-container,
 body.v5-battle-active #btn-auto-nav,
