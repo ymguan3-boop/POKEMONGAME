@@ -111,6 +111,7 @@
    this.dialog?.remove();this.dialog=null;
    this.layer?.remove();this.layer=null;
    this.swapping=false;
+   if(!this.controller.active)this.controller.state.interactionOpen=false;
   }
  }
  root.V5BattleUI=BattleUI;
