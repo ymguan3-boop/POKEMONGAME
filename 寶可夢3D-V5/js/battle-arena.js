@@ -7,7 +7,7 @@
   constructor(){
    this.scene=new T.Scene();this.scene.background=new T.Color(0xb8e7e9);
    this.camera=new T.PerspectiveCamera(47,1,.1,150);
-   this.camera.position.set(8,10,16);this.camera.lookAt(0,1,0);
+   this.camera.position.set(8,10,16);this.camera.lookAt(0,-1.8,0); // Frame both models above the portrait action panel.
    this.fighters=[null,null];this.owned=[];this.fx=[];this.disposed=false;this.generation=0;
    this.makeStage();
   }
