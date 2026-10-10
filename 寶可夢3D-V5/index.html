@@ -2506,6 +2506,7 @@
                 mergeMaps.forEach(key => { if(!data[key])return;const activeOnly=['pokedexUnlocks','captureCounts','hasReachedLimit','legendarySpawned','gymRewardCaptured','specialPokemonCaptured'].includes(key);const values=activeOnly?Object.fromEntries(Object.entries(data[key]).filter(([id])=>id in POKEDEX_DATA)):data[key];gameState[key]={...gameState[key],...values}; });
                 gameState.battle3d=V5Progress.normalizeBattle(data.battle3d,data);
                 gameState.battle3d.party=V5BattleData.normalizeParty(gameState.battle3d.party,gameState);
+                gameState.battle3d.leader=gameState.battle3d.party[0]||null;
                 if(!('cardCollection' in data))for(const card of V5CardCatalog){const n=Number(gameState.captureCounts[card.id])||0;if(n>0)gameState.cardCollection[card.id]=n;}
                 if (data.gyms) Object.keys(gameState.gyms).forEach(key => {
                     if (data.gyms[key] && 'cleared' in data.gyms[key]) gameState.gyms[key].cleared = Boolean(data.gyms[key].cleared);
