@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
-    <title>V5 樣板驗證 — 寶可夢 3D 遠征：V5 開發預覽・尚未驗收</title>
+    <title>寶可夢 3D-V5 特別版・真新鎮</title>
+    <link rel="stylesheet" href="css/pokedex-cards.css">
     <script src="vendor/tailwind.js"></script>
     <script src="vendor/three.min.js"></script>
     <script src="vendor/GLTFLoader.js"></script>
-    <script src="js/roster.js"></script><script src="js/legacy-roster.js"></script><script src="js/new-roster.js"></script>
+    <script src="js/roster.js"></script><script src="js/legacy-roster.js"></script><script src="js/new-roster.js"></script><script src="js/v5-special.js"></script>
     <script src="js/models-v2/kit.js"></script>
 <script src="js/models-v2/gen12.js"></script>
 <script src="js/models-v2/gen34.js"></script>
 <script src="js/models-v2/special.js"></script>
+<script src="js/models-v2/mewtwo.js"></script>
 <script src="js/models-v2/measurements.js"></script>
 <script src="js/models-v2/sizing.js"></script>
     <script src="js/articulated-models.js"></script><script src="js/gym-presentation.js"></script><script src="js/town.js"></script>
     <script src="js/game-runtime-state.js"></script>
+    <script src="js/card-art.js"></script><script src="js/card-catalog.js"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script>
     
     <style>
         body { margin: 0; padding: 0; overflow: hidden; user-select: none; -webkit-user-select: none; background-color: #000; font-family: -apple-system, BlinkMacSystemFont, sans-serif; touch-action: none; height: 100dvh; width: 100dvw; }
@@ -39,7 +42,7 @@
     </style><link rel="stylesheet" href="mobile.css"><link rel="icon" href="icon.svg"></head>
 <body data-game-version="20261009-pallet-v2-detailed">
 
-    <div id="v5-loading" role="status" style="position:fixed;inset:0;z-index:200;background:#dfeeda;display:grid;place-content:center;text-align:center;color:#234b50;padding:25px"><h1 style="font-size:25px;font-weight:bold">真新鎮旅程</h1><p id="v5-loading-text">正在準備新主角與場景…</p><small>開發預覽：28 種舊版寶可夢仍待重製，暫不在場景顯示；既有圖鑑與存檔保留。</small></div><div id="canvas-container"></div>
+    <div id="v5-loading" role="status" style="position:fixed;inset:0;z-index:200;background:#dfeeda;display:grid;place-content:center;text-align:center;color:#234b50;padding:25px"><h1 style="font-size:25px;font-weight:bold">真新鎮旅程</h1><p id="v5-loading-text">正在準備新主角與場景…</p><small>V5 特別版 3D 冒險與 2D 卡牌</small></div><div id="canvas-container"></div>
 
     <div id="unified-hud" class="absolute top-2 md:top-4 left-1/2 -translate-x-1/2 z-20 flex flex-wrap justify-center items-center gap-1.5 md:gap-3 pointer-events-none transition-all w-[92vw] md:w-auto">
         <div class="bg-blue-900/80 backdrop-blur-md px-2.5 py-1 md:px-3 md:py-1.5 rounded-full border border-blue-400/50 flex items-center gap-1.5 shadow-lg shrink-0">
@@ -100,7 +103,7 @@
         </div>
         <button id="btn-gyms" class="bg-purple-600/90 hover:bg-purple-500 text-white font-bold px-3 py-2.5 rounded-xl text-xs border border-purple-400 shadow-lg active:scale-95 transition-all touch-element flex items-center justify-center gap-2 pointer-events-auto cursor-pointer"><span>🏟️</span> 道館挑戰設施</button>
         <button id="btn-outfits" class="bg-pink-600/90 hover:bg-pink-500 text-white font-bold px-3 py-2.5 rounded-xl text-xs border border-pink-300 shadow-lg active:scale-95 transition-all touch-element flex items-center justify-center gap-2 pointer-events-auto cursor-pointer"><span>👗</span> 變身套裝</button>
-        <button id="btn-pokedex" class="bg-blue-600/90 hover:bg-blue-500 text-white font-bold px-3 py-2.5 rounded-xl text-xs border border-blue-400 shadow-lg active:scale-95 transition-all touch-element flex items-center justify-center gap-2 pointer-events-auto cursor-pointer"><span>📖</span> 四世代圖鑑</button>
+        <button id="btn-pokedex" class="bg-blue-600/90 hover:bg-blue-500 text-white font-bold px-3 py-2.5 rounded-xl text-xs border border-blue-400 shadow-lg active:scale-95 transition-all touch-element flex items-center justify-center gap-2 pointer-events-auto cursor-pointer"><span>📖</span> V5 特別版圖鑑</button>
         <button id="btn-instructions" class="bg-emerald-600/90 hover:bg-emerald-500 text-white font-bold px-3 py-2.5 rounded-xl text-xs border border-emerald-400 shadow-lg active:scale-95 transition-all touch-element flex items-center justify-center gap-2 pointer-events-auto cursor-pointer"><span>💡</span> 遊戲說明</button>
         <button id="btn-reset" class="bg-slate-700/90 hover:bg-slate-600 text-white font-bold px-3 py-2 rounded-xl text-xs border border-slate-500 shadow-lg active:scale-95 transition-all touch-element pointer-events-auto cursor-pointer">重置進度</button>
     </div>
@@ -218,7 +221,7 @@
         <div class="bg-gradient-to-b from-slate-800 to-slate-900 border-2 border-blue-400 rounded-2xl w-72 md:w-80 overflow-hidden capture-card-glow transform scale-90 transition-transform duration-300 flex flex-col" id="capture-card-inner">
             <div class="bg-gradient-to-r from-blue-500 to-cyan-600 p-2 text-center border-b-2 border-blue-700 shrink-0"><h3 class="text-white font-black text-lg tracking-widest">成功捕捉！</h3></div>
             <div class="h-48 w-full bg-slate-950 flex items-center justify-center relative overflow-hidden shrink-0" style="background: radial-gradient(circle, #1e293b 0%, #020617 100%);">
-                <img id="capture-model-fallback" src="thumbs/thumb-turtwig.png" alt="捕捉到的寶可夢模型" class="hidden absolute inset-0 w-full h-full object-contain p-4 drop-shadow-2xl" />
+                <img id="capture-model-fallback" src="cards/model-thumbs/turtwig.webp" alt="捕捉到的寶可夢模型" class="hidden absolute inset-0 w-full h-full object-contain p-4 drop-shadow-2xl" />
                 <div id="capture-3d-container" class="w-full h-full pointer-events-none absolute inset-0"></div>
             </div>
             <div class="p-4 text-center flex-1 flex flex-col justify-between z-10">
@@ -234,11 +237,11 @@
     <div id="pokedex-modal" class="hidden fixed inset-0 z-[80] bg-black/80 backdrop-blur-lg flex items-center justify-center p-2 md:p-4 touch-element pointer-events-auto">
         <div class="bg-slate-900 border-2 border-blue-500 w-full max-w-4xl rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[90vh] pointer-events-auto">
             <div class="bg-blue-600 p-4 text-white flex justify-between items-center border-b-4 border-black shrink-0">
-                <div class="flex items-center gap-2"><div class="w-8 h-8 bg-cyan-400 border-2 border-white rounded-full shadow-[0_0_8px_#22d3ee]"></div><h2 class="font-black text-lg md:text-xl tracking-wider">四世代 3D 圖鑑</h2></div>
+                <div class="flex items-center gap-2"><div class="w-8 h-8 bg-cyan-400 border-2 border-white rounded-full shadow-[0_0_8px_#22d3ee]"></div><h2 class="font-black text-lg md:text-xl tracking-wider">V5 特別版圖鑑</h2></div>
                 <button id="btn-close-pokedex" class="bg-black/40 hover:bg-black/60 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm transition-all cursor-pointer">✕</button>
             </div>
             <div class="bg-slate-800 px-6 py-3 border-b border-slate-700 flex justify-between items-center text-sm text-gray-300 shrink-0">
-                <span>收集進度：<strong id="pokedex-progress" class="text-cyan-400">0 / 52</strong></span>
+                <span>收集進度：<strong id="pokedex-progress" class="text-cyan-400">0 / 60</strong></span>
                 <div class="w-1/2 md:w-2/3 bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-700"><div id="pokedex-progress-bar" class="bg-gradient-to-r from-blue-500 to-cyan-500 h-full w-0 transition-all duration-500"></div></div>
             </div>
             <div id="pokedex-list" class="p-4 md:p-6 overflow-y-auto grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 flex-1 content-start"></div>
@@ -286,7 +289,7 @@
         // GLB assets are generated and packaged in public/models. The legacy
         // single-file runtime keeps its procedural fallback when a loader CDN
         // is unavailable, so the game never fails to initialize offline.
-        const GAME_ASSET_BASE = 'thumbs/';
+        const GAME_ASSET_BASE = 'cards/model-thumbs/';
         const gltfLoader = (window.THREE && typeof THREE.GLTFLoader === 'function') ? new THREE.GLTFLoader() : null;
         const GLB_TYPES = new Set([...Object.keys(PalletRoster.dex),'trainer','pokemon_center']);
         const PACKAGED_GLB_TYPES = new Set(['trainer','pokemon_center',...V5LegacySpecies]);
@@ -305,6 +308,8 @@
             if(!glbAssetCache.has(type))glbAssetCache.set(type,Promise.resolve().then(()=>V5ArticulatedModels.build(type)));
             return glbAssetCache.get(type);
         };
+        window.V5ViewerAsset=getGLBAsset;
+        window.V5ViewerClone=cloneRuntimeGLBScene;
         const applyGLBAssetToPokemon = (pokemon, asset) => {
             if (pokemon.isCaptured || !pokemon.mesh.parent) return false;
             const replacement = cloneRuntimeGLBScene(asset.scene);
@@ -385,7 +390,7 @@
             pokemons: [], activeBalls: [], particles: [], respawnQueue: [],
             berries: [], activeOakDrop: null, oakDropTimer: 0, nextOakDropTime: 50,
             isTimeStopped: false, timeStopTimer: 0,
-            pokedexUnlocks: {}, captureCounts: {}, hasReachedLimit: {},
+            pokedexUnlocks: {}, captureCounts: {}, hasReachedLimit: {},cardCollection:{},cardDeck:[],cardDeckActive:false,cardStarterReceived:false,cardWins:0,interactionOpen:false,
             legendarySpawned: Object.fromEntries(PalletRoster.legends.map(t=>[t,false])),
             gymRewardCaptured: { pikachu: false, mew: false, wigglytuff: false, blissey: false },
             specialPokemonCaptured: Object.fromEntries(SPECIAL_POKEMON_TYPES.map(type => [type, false])),
@@ -953,18 +958,18 @@
         // 本機立即保存；雲端採 450ms 尾端合併，避免連續投球產生大量同步工作。
         const saveGameData = () => { 
             refreshSpecialCaptureState();
-            const dataToSave = { ...gameState.v5Preserved, schemaVersion:5,items:gameState.items,worldFlags:gameState.worldFlags,npcRewards:gameState.npcRewards,quests:gameState.quests, 
-                captureCounts: gameState.captureCounts, 
-                pokedexUnlocks: gameState.pokedexUnlocks, 
-                legendarySpawned: gameState.legendarySpawned, 
-                hasReachedLimit: gameState.hasReachedLimit, 
+            const dataToSave = { ...gameState.v5Preserved, schemaVersion:5,items:gameState.items,worldFlags:gameState.worldFlags,npcRewards:gameState.npcRewards,quests:gameState.quests,cardCollection:gameState.cardCollection||{},cardDeck:gameState.cardDeck||[],cardDeckActive:!!gameState.cardDeckActive,cardStarterReceived:!!gameState.cardStarterReceived,cardWins:gameState.cardWins||0,
+                captureCounts: {...(gameState.v5Preserved?.captureCounts||{}),...gameState.captureCounts},
+                pokedexUnlocks: {...(gameState.v5Preserved?.pokedexUnlocks||{}),...gameState.pokedexUnlocks},
+                legendarySpawned: {...(gameState.v5Preserved?.legendarySpawned||{}),...gameState.legendarySpawned},
+                hasReachedLimit: {...(gameState.v5Preserved?.hasReachedLimit||{}),...gameState.hasReachedLimit},
                 pokeballs: gameState.pokeballs, 
                 masterBallCount: gameState.masterBallCount, 
                 greatBallCount: gameState.greatBallCount, 
                 berryCount: gameState.berryCount, 
                 gyms: gameState.gyms, 
-                gymRewardCaptured: gameState.gymRewardCaptured,
-                specialPokemonCaptured: gameState.specialPokemonCaptured,
+                gymRewardCaptured: {...(gameState.v5Preserved?.gymRewardCaptured||{}),...gameState.gymRewardCaptured},
+                specialPokemonCaptured: {...(gameState.v5Preserved?.specialPokemonCaptured||{}),...gameState.specialPokemonCaptured},
                 equip: gameState.equip 
             };
             localStorage.setItem('pokemon3d_v5_preview', JSON.stringify(dataToSave));
@@ -1358,20 +1363,12 @@
 
     <script>
         const updatePokedexUI = () => {
-            const listDiv = document.getElementById('pokedex-list'); if (!listDiv) return; listDiv.innerHTML = ""; let unlockedCount = 0;
-            Object.keys(POKEDEX_DATA).forEach(key => {
-                const info = POKEDEX_DATA[key]; const isUnlocked = gameState.pokedexUnlocks[key]; if (isUnlocked) unlockedCount++;
-                const card = document.createElement('div'); card.className = `p-3 rounded-xl border-2 flex flex-col items-center text-center transition-all relative overflow-hidden h-full min-h-[15rem] ${isUnlocked ? `bg-slate-800 ${info.border} text-white shadow-lg` : "bg-slate-900 border-slate-700 text-gray-500 opacity-80"}`;
-                const countText = gameState.captureCounts[key] >= MAX_CAPTURE_LIMIT ? "MAX" : gameState.captureCounts[key];
-                const countColor = gameState.captureCounts[key] >= MAX_CAPTURE_LIMIT ? "text-red-400 font-bold" : (isUnlocked ? 'text-cyan-400' : 'text-gray-500');
-                
-                const imgStyle = isUnlocked ? "drop-shadow-xl" : "brightness-0 opacity-40 drop-shadow-none";
-                const mediaHTML = `<img src="${GAME_ASSET_BASE}thumb-${key}.png" alt="${isUnlocked ? info.name : '未知寶可夢'}" width="192" height="192" loading="lazy" decoding="async" class="w-24 h-24 object-contain ${imgStyle}" />`;
-
-                card.innerHTML = `<div class="absolute top-2 left-2 text-[10px] px-2 py-0.5 rounded font-bold bg-black/60 ${countColor}">捕捉數: ${countText}</div>${mediaHTML}<div class="font-black text-base tracking-wide mt-2">${isUnlocked ? info.name : "未知寶可夢"}</div><div class="text-[10px] uppercase font-bold px-2 py-0.5 rounded mt-1 ${isUnlocked ? info.color : 'bg-slate-800'} text-white">${isUnlocked ? info.type : "???"}</div><p class="text-xs mt-3 text-left w-full flex-1 leading-relaxed">${isUnlocked ? info.desc : "？？？？？？"}</p>`;
-                listDiv.appendChild(card);
-            });
-            const totalObj = Object.keys(POKEDEX_DATA).length; const statusText = `${unlockedCount} / ${totalObj}`; document.getElementById('pokedex-progress').innerText = statusText; document.getElementById('hud-capture-score').innerText = statusText; document.getElementById('pokedex-progress-bar').style.width = `${(unlockedCount / totalObj) * 100}%`; checkLegendarySpawns(unlockedCount, totalObj);
+            const listDiv=document.getElementById('pokedex-list');if(!listDiv)return;
+            const {caught,total}=renderV5Pokedex(gameState,listDiv),statusText=`${caught} / ${total}`;
+            document.getElementById('pokedex-progress').innerText=statusText;
+            document.getElementById('hud-capture-score').innerText=statusText;
+            document.getElementById('pokedex-progress-bar').style.width=`${caught/total*100}%`;
+            checkLegendarySpawns(caught,total);
         };
 
         const disposeCapturePreview = () => {
@@ -1423,7 +1420,7 @@
             capCard.dataset.specialPokemon = isSpecialPokemonType(type) ? 'true' : 'false';
             capCard.setAttribute('aria-label', `${info.name}圖鑑說明：${info.desc}`);
             capCard.setAttribute('aria-hidden', 'false');
-            fallbackImage.src = `${GAME_ASSET_BASE}thumb-${type}.png`;
+            fallbackImage.src = `${GAME_ASSET_BASE}${type}.webp`;
             fallbackImage.alt = `${info.name}模型`;
             fallbackImage.classList.remove('hidden');
             capCard.dataset.modelStatus = 'thumbnail';
@@ -1522,6 +1519,8 @@
 
             gameState.pokedexUnlocks[pokemon.type] = true;
             gameState.captureCounts[pokemon.type] = captureOutcome.nextCount;
+            if(window.V5CardById?.[pokemon.type]){gameState.cardCollection||={};gameState.cardCollection[pokemon.type]=(gameState.cardCollection[pokemon.type]||0)+1;}
+            if(pokemon.type==='mewtwo')gameState.worldFlags.mewtwoAwaiting=false;
             if (captureOutcome.isSpecial) gameState.specialPokemonCaptured[pokemon.type] = true;
             if (GYM_BOSS_TYPES.includes(pokemon.type)) gameState.gymRewardCaptured[pokemon.type] = true;
             if (!captureOutcome.isSpecial && gameState.captureCounts[pokemon.type] >= MAX_CAPTURE_LIMIT && !gameState.hasReachedLimit[pokemon.type]) {
@@ -1833,7 +1832,7 @@
 
         const createBallVisual=(type)=>v5Items?.ball(type)||createLegacyBallVisual(type);
         const releaseAndThrow = () => {
-            if (!gameState.isCharging || gameState.isShowingCapture || v5PlayerVisual?.pendingRelease) return;
+            if (!gameState.isCharging || gameState.isShowingCapture || gameState.interactionOpen || v5PlayerVisual?.pendingRelease) return;
             gameState.isCharging = false; document.getElementById('power-bar-container').classList.add('opacity-0');
             const inGym = gameState.currentMode.startsWith('gym');
             if (!inGym) { 
@@ -1939,13 +1938,13 @@
             let moveX = 0, moveZ = 0; if (keys.w) moveZ += 1; if (keys.s) moveZ -= 1; if (keys.a) moveX += 1; if (keys.d) moveX -= 1; if (joyActive) { moveX -= joyVector.x; moveZ -= joyVector.y; }
             let isMovingManual = (Math.abs(moveX) > 0.05 || Math.abs(moveZ) > 0.05);
 
-            if (isMovingManual && !gameState.isShowingCapture) {
+            if (isMovingManual && !gameState.isShowingCapture && !gameState.interactionOpen) {
                 if (gameState.autoNavigateCenter) stopAutoNavigation({ resumeLock: true });
                 const moveAngle = gameState.camAngle + Math.atan2(moveX, moveZ); const moveSpeed = (hasMewCompanion() ? 7.2 : 6.0) * Math.min(1.0, Math.sqrt(moveX**2 + moveZ**2));
                 player.position.addScaledVector(new THREE.Vector3(Math.sin(moveAngle), 0, Math.cos(moveAngle)), moveSpeed * delta); resolveCollision(player.position, 0.4); 
                 if (!gameState.autoLock) player.rotation.y += Math.atan2(Math.sin(moveAngle - player.rotation.y), Math.cos(moveAngle - player.rotation.y)) * 15 * delta; 
             } 
-            else if (gameState.autoLock && isLockTargetAvailable(gameState.lockedTarget) && !gameState.isShowingCapture && !gameState.captureInProgress) {
+            else if (gameState.autoLock && isLockTargetAvailable(gameState.lockedTarget) && !gameState.isShowingCapture && !gameState.captureInProgress && !gameState.interactionOpen) {
                 if (gameState.lockedTarget.mesh && gameState.lockedTarget.mesh.position) {
                     const targetPos = gameState.lockedTarget.mesh.position; const dist = player.position.distanceTo(targetPos);
                     const approach = resolveLockApproachState({ target: gameState.lockedTarget, distance: dist });
@@ -1954,7 +1953,7 @@
                 } else maintainAutoLock();
             }
 
-            if (gameState.autoNavigateCenter && pokemonCenter && !gameState.isShowingCapture && gameState.currentMode === 'world') {
+            if (gameState.autoNavigateCenter && pokemonCenter && !gameState.isShowingCapture && !gameState.interactionOpen && gameState.currentMode === 'world') {
                 const centerPos = new THREE.Vector3(pokemonCenter.userData.x, 0, pokemonCenter.userData.z);
                 const dist = player.position.distanceTo(centerPos);
                 
@@ -2260,10 +2259,18 @@
                 }
             };
 
+            const spawnV5Mewtwo=()=>{
+                if(gameState.specialPokemonCaptured.mewtwo||gameState.pokemons.some(p=>p.type==='mewtwo'))return false;
+                const zones=[V5Ecology.zones.forest,V5Ecology.zones.grass];let spot=null;
+                for(let i=0;i<20;i++){const candidate=V5Ecology.point(zones[i%2],gameState.obstacles);if(candidate&&Math.hypot(candidate.x-player.position.x,candidate.z-player.position.z)>9){spot=candidate;break;}}
+                if(!spot)return false;const monster=new Pokemon('mewtwo',spot.x,spot.z);scene.add(monster.mesh);gameState.pokemons.push(monster);return true;
+            };
+            window.V5SpawnMewtwo=spawnV5Mewtwo;
+            window.V5Cards.init({state:gameState,save:saveGameData,onWin:()=>{gameState.cardWins=(gameState.cardWins||0)+1;gameState.worldFlags.mewtwoAwaiting=true;spawnV5Mewtwo();showNotification('卡牌勝利！超夢在真新鎮現身。');}});
             const floor = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ color: 0x91b971, roughness: 0.8 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
             const snowGeo = new THREE.BufferGeometry(); const posArray = new Float32Array(4500); for(let i=0; i<4500; i+=3) { posArray[i]=(Math.random()-0.5)*80; posArray[i+1]=Math.random()*40; posArray[i+2]=(Math.random()-0.5)*80; } snowGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3)); gameState.snowflakes = null;
 
-            const v5Zoom=e=>{if(e.target.closest('canvas')){e.preventDefault();v5Camera.zoom(e.deltaY*.004);}};window.addEventListener('wheel',v5Zoom,{passive:false});window.__v5Camera=v5Camera;buildEnvironment();const cameraOccluders=[];scene.traverse(o=>{if(o.userData.occlusionGroup)cameraOccluders.push(o)});v5Camera.setOccluders(cameraOccluders);buildPlayerAndModels();v5Ecology=new V5Ecology.Ecology({state:gameState,player});window.__v5Ecology=v5Ecology; player.position.set(0,0,23);v5CaptureVFX=new V5CaptureVFX();window.__v5CaptureVFX=v5CaptureVFX;v5Items=new Item3DSystem({loader:gltfLoader,clone:cloneRuntimeGLBScene,scene,player,state:gameState});v5Items.preload().then(()=>{for(const b of gameState.berries){const visual=v5Items.item('berry');if(visual){b.mesh.clear();b.mesh.add(visual);}}});window.__v5Items=v5Items;const bagButton=document.createElement('button');bagButton.textContent='🎒 道具';bagButton.id='v5-open-items';bagButton.style.cssText='min-height:44px;background:#234b5d;color:white;padding:8px 13px;border-radius:12px';bagButton.onclick=()=>v5Items.openInventory();document.getElementById("main-menu-panel").append(bagButton);v5Npcs=new V5NpcSystem({scene,state:gameState,player,loader:gltfLoader,clone:cloneRuntimeGLBScene,obstacles:gameState.obstacles,save:saveGameData,inventory:updateInventoryUI,showItem:id=>v5Items.showReward(id),visual:()=>v5PlayerVisual});v5Npcs.load();window.__v5Npcs=v5Npcs; gameState.camAngle=Math.PI; camera.position.set(0,6,31);
+            const v5Zoom=e=>{if(e.target.closest('canvas')){e.preventDefault();v5Camera.zoom(e.deltaY*.004);}};window.addEventListener('wheel',v5Zoom,{passive:false});window.__v5Camera=v5Camera;buildEnvironment();const cameraOccluders=[];scene.traverse(o=>{if(o.userData.occlusionGroup)cameraOccluders.push(o)});v5Camera.setOccluders(cameraOccluders);buildPlayerAndModels();v5Ecology=new V5Ecology.Ecology({state:gameState,player});window.__v5Ecology=v5Ecology; player.position.set(0,0,23);v5CaptureVFX=new V5CaptureVFX();window.__v5CaptureVFX=v5CaptureVFX;v5Items=new Item3DSystem({loader:gltfLoader,clone:cloneRuntimeGLBScene,scene,player,state:gameState});v5Items.preload().then(()=>{for(const b of gameState.berries){const visual=v5Items.item('berry');if(visual){b.mesh.clear();b.mesh.add(visual);}}});window.__v5Items=v5Items;const bagButton=document.createElement('button');bagButton.textContent='🎒 道具';bagButton.id='v5-open-items';bagButton.style.cssText='min-height:44px;background:#234b5d;color:white;padding:8px 13px;border-radius:12px';bagButton.onclick=()=>v5Items.openInventory();document.getElementById("main-menu-panel").append(bagButton);const cardButton=document.createElement('button');cardButton.id='v5-open-cards';cardButton.textContent='🃏 卡冊／牌組';cardButton.style.cssText='min-height:44px;background:#664b86;color:white;padding:8px 13px;border-radius:12px';cardButton.onclick=()=>{document.getElementById('main-menu-panel').classList.remove('active');window.V5Cards.open(false);};document.getElementById('main-menu-panel').append(cardButton);v5Npcs=new V5NpcSystem({scene,state:gameState,player,camera:()=>camera,loader:gltfLoader,clone:cloneRuntimeGLBScene,obstacles:gameState.obstacles,save:saveGameData,inventory:updateInventoryUI,showItem:id=>v5Items.showReward(id),visual:()=>v5PlayerVisual});v5Npcs.load();window.__v5Npcs=v5Npcs; gameState.camAngle=Math.PI; camera.position.set(0,6,31);
             
             let i = 0; while(i < 5) { const angle = Math.random() * Math.PI * 2; const r = 12 + Math.random() * 15; spawnBerryItem(Math.cos(angle)*r, Math.sin(angle)*r); i++; }
 
@@ -2311,7 +2318,7 @@
                 }
             };
 
-            bindTouch('btn-throw', () => { if (gameState.isCharging || gameState.isShowingCapture) return; gameState.isCharging = true; gameState.chargePower = 0.05; gameState.chargeDirection = 1; document.getElementById('power-bar-container').classList.remove('opacity-0'); }, releaseAndThrow);
+            bindTouch('btn-throw', () => { if (gameState.isCharging || gameState.isShowingCapture || gameState.interactionOpen) return; gameState.isCharging = true; gameState.chargePower = 0.05; gameState.chargeDirection = 1; document.getElementById('power-bar-container').classList.remove('opacity-0'); }, releaseAndThrow);
             
             bindTouch('btn-use-berry', useBerry);
             
@@ -2372,7 +2379,7 @@
                 const k = e.key.toLowerCase(); if(keys.hasOwnProperty(k)) keys[k] = true; 
                 if(e.key === ' ' && !keys.space) { 
                     keys.space = true; 
-                    if (!gameState.isCharging && !gameState.isShowingCapture) { 
+                    if (!gameState.isCharging && !gameState.isShowingCapture && !gameState.interactionOpen) {
                         gameState.isCharging = true; 
                         gameState.chargePower = 0.05; 
                         gameState.chargeDirection = 1; 
@@ -2460,9 +2467,10 @@
             showNotification("正在載入真新鎮本機存檔...");
 
             window.applyLoadedData = (data) => {
-                if(!data || typeof data !== 'object') return;data=V5Progress.migrate(data);gameState.v5Preserved=data;gameState.items=data.items;gameState.worldFlags=data.worldFlags;gameState.npcRewards=data.npcRewards;gameState.quests=data.quests;
+                if(!data || typeof data !== 'object') return;data=V5Progress.migrate(data);gameState.v5Preserved=data;gameState.items=data.items;gameState.worldFlags=data.worldFlags;gameState.npcRewards=data.npcRewards;gameState.quests=data.quests;gameState.cardCollection={...(data.cardCollection||{})};gameState.cardDeck=Array.isArray(data.cardDeck)?data.cardDeck.slice():[];gameState.cardDeckActive=!!data.cardDeckActive;gameState.cardStarterReceived=!!data.cardStarterReceived;gameState.cardWins=Number(data.cardWins)||0;
                 const mergeMaps = ['pokedexUnlocks','captureCounts','hasReachedLimit','legendarySpawned','gymRewardCaptured','specialPokemonCaptured','equip'];
-                mergeMaps.forEach(key => { if(data[key]) gameState[key] = { ...gameState[key], ...data[key] }; });
+                mergeMaps.forEach(key => { if(!data[key])return;const activeOnly=['pokedexUnlocks','captureCounts','hasReachedLimit','legendarySpawned','gymRewardCaptured','specialPokemonCaptured'].includes(key);const values=activeOnly?Object.fromEntries(Object.entries(data[key]).filter(([id])=>id in POKEDEX_DATA)):data[key];gameState[key]={...gameState[key],...values}; });
+                if(!('cardCollection' in data))for(const card of V5CardCatalog){const n=Number(gameState.captureCounts[card.id])||0;if(n>0)gameState.cardCollection[card.id]=n;}
                 if (data.gyms) Object.keys(gameState.gyms).forEach(key => {
                     if (data.gyms[key] && 'cleared' in data.gyms[key]) gameState.gyms[key].cleared = Boolean(data.gyms[key].cleared);
                 });
@@ -2499,7 +2507,7 @@
                 if(mewCompanionGroup) mewCompanionGroup.visible = gameState.equip.mewCompanion; 
                 if(playerBackpack) playerBackpack.visible = !gameState.equip.mewCompanion; 
                 updateOutfitUI();
-                initSpawns(); 
+                initSpawns();if(gameState.worldFlags.mewtwoAwaiting)window.V5SpawnMewtwo?.();
                 updatePokedexUI(); 
                 updateInventoryUI(); 
                 animate(); 

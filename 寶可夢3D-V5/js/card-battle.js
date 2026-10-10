@@ -1,0 +1,72 @@
+/* Original V5 mobile card rules inspired by the pacing of PTCG Pocket.
+   This is a two-dimensional, single-player rule set, not official Pokémon TCG. */
+(function(g){'use strict';
+ const RULES=Object.freeze({deckSize:20,initialHand:5,benchLimit:3,minBasics:6,winPoints:3,legendaryLimit:1,duplicateLimit:2});
+ const esc=s=>String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
+ const count=ids=>ids.reduce((m,id)=>(m[id]=(m[id]||0)+1,m),{});
+ function validate(deck,owned,catalog,options={}){
+  const errors=[],byId=Object.fromEntries(catalog.map(c=>[c.id,c])),copies=count(deck||[]),have=Object.values(owned||{}).reduce((n,v)=>n+Math.max(0,Number(v)||0),0);
+  if(have<RULES.deckSize)errors.push(`目前僅有 ${have} / 20 張可用卡`);
+  if(!Array.isArray(deck)||deck.length!==20)errors.push(`目前牌組 ${deck?.length||0} / 20 張`);
+  let basics=0,legends=0;
+  for(const [id,n] of Object.entries(copies)){
+   const c=byId[id];if(!c){errors.push(`${id} 沒有 V5 新模型卡片`);continue;}
+   if(n>Number(owned?.[id]||0))errors.push(`${c.name}放入 ${n} 張，但只持有 ${Number(owned?.[id]||0)} 張`);
+   if(n>2)errors.push(`${c.name}超過同名上限 2 張`);
+   if(c.legendary)legends+=n;
+   if(!c.evolvesFrom||c.legendary)basics+=n;
+   if(c.evolvesFrom&&!copies[c.evolvesFrom])errors.push(`${c.name}缺少前階${byId[c.evolvesFrom]?.name||c.evolvesFrom}`);
+  }
+  if(basics<6)errors.push(`基礎型寶可夢不足 6 張（目前 ${basics} 張）`);
+  if(legends>1)errors.push('傳說級卡片至多 1 張');
+  if(options.active===false)errors.push('尚未選擇牌組');
+  if(options.npcUnlocked===false)errors.push('尚未達成卡牌訓練家的挑戰條件');
+  if(options.resourcesReady===false)errors.push('目前無法啟動 2D 卡牌對戰');
+  return {ok:errors.length===0,errors,basics,legends,copies,ownedTotal:have};
+ }
+ const starterPack=['bulbasaur','charmander','squirtle','chikorita','cyndaquil','totodile','treecko','torchic','mudkip','turtwig'].flatMap(id=>[id,id]);
+ function shuffle(a,r=Math.random){for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+ class Battle{
+  constructor(playerDeck,opponentDeck,catalog,{random=Math.random,onWin=()=>{}}={}){this.cards=Object.fromEntries(catalog.map(c=>[c.id,c]));this.random=random;this.onWin=onWin;this.finished=false;this.winner=null;this.turn=0;this.round=1;this.log=['對戰開始。每回合可附加 1 點能量。'];this.sides=[this.makeSide(playerDeck),this.makeSide(opponentDeck)];}
+  makeSide(ids){const cards=shuffle(ids.map(id=>this.cards[id]),this.random),basic=cards.findIndex(c=>c&&!c.evolvesFrom);if(basic<0)throw Error('起手缺少基礎型寶可夢');const starter=cards.splice(basic,1)[0],hand=cards.splice(0,4);return {deck:cards,hand,active:this.creature(starter),bench:[],discard:[],points:0,attached:false,retreated:false};}
+  creature(card){return {card,hp:card.hp,energy:0,entered:this.round};}
+  note(msg){this.log.push(msg);this.log=this.log.slice(-5);}
+  valid(side){return !this.finished&&this.turn===side;}
+  play(i,side=0){const s=this.sides[side],card=s.hand[i];if(!this.valid(side)||!card)return false;
+   if(!card.evolvesFrom){if(s.bench.length>=3)return false;s.bench.push(this.creature(card));s.hand.splice(i,1);return true;}
+   const target=[s.active,...s.bench].find(p=>p.card.id===card.evolvesFrom&&p.entered<this.round);if(!target)return false;
+   target.hp+=card.hp-target.card.hp;target.card=card;target.entered=this.round;s.hand.splice(i,1);this.note(`${card.name}完成進化。`);return true;
+  }
+  attach(index=-1,side=0){const s=this.sides[side],p=index<0?s.active:s.bench[index];if(!this.valid(side)||s.attached||!p)return false;p.energy++;s.attached=true;this.note(`${p.card.name}獲得 1 點能量。`);return true;}
+  retreat(index,side=0){const s=this.sides[side];if(!this.valid(side)||s.retreated||!s.bench[index]||s.active.energy<1)return false;s.active.energy--;[s.active,s.bench[index]]=[s.bench[index],s.active];s.retreated=true;return true;}
+  attack(side=0,skillIndex=1){const s=this.sides[side],other=this.sides[1-side],skill=s.active.card.skills?.[skillIndex]||{name:s.active.card.attack,energy:s.active.card.energy,damage:s.active.card.damage};if(!this.valid(side)||s.active.energy<skill.energy)return false;
+   const damage=skill.damage;other.active.hp=Math.max(0,other.active.hp-damage);this.note(`${s.active.card.name}使用${skill.name}，造成 ${damage} 傷害。`);
+   if(other.active.hp===0){const points=other.active.card.legendary?2:1;s.points+=points;other.discard.push(other.active);this.note(`${side?'對手':'你'}獲得 ${points} 分。`);if(s.points>=3)return this.finish(side,'先取得 3 分');if(!other.bench.length)return this.finish(side,'對方場上沒有可戰鬥寶可夢');other.active=other.bench.shift();}
+   this.end(side);return true;
+  }
+  end(side=0){if(!this.valid(side))return false;this.turn=1-side;this.round++;const s=this.sides[this.turn];s.attached=false;s.retreated=false;if(s.deck.length)s.hand.push(s.deck.pop());return true;}
+  ai(){if(!this.valid(1))return;const s=this.sides[1];for(let i=s.hand.length-1;i>=0;i--)if(!s.hand[i].evolvesFrom&&s.bench.length<3)this.play(i,1);this.attach(-1,1);if(!this.attack(1,s.active.energy>=s.active.card.energy?1:0))this.end(1);}
+  finish(winner,reason){if(this.finished)return;this.finished=true;this.winner=winner;this.reason=reason;this.note(`${winner===0?'你獲勝':'對手獲勝'}：${reason}`);if(winner===0)this.onWin();return true;}
+  forfeit(){if(!this.finished)this.finish(1,'玩家離開對戰');}
+ }
+ const api={RULES,validate,Battle,starterPack,isOpen:false,ctx:null,session:null,screen:'menu',
+  init(ctx){this.ctx=ctx;return this;},catalog(){return g.V5CardCatalog||[];},owned(){return this.ctx.state.cardCollection||{};},deck(){return this.ctx.state.cardDeck||[];},
+  gift(){const s=this.ctx.state;if(s.cardStarterReceived)return false;const available=new Set(this.catalog().map(c=>c.id));if(starterPack.some(id=>!available.has(id)))return false;s.cardCollection||={};for(const id of starterPack)s.cardCollection[id]=(s.cardCollection[id]||0)+1;s.cardStarterReceived=true;this.ctx.save();this.render();return true;},
+  selectStarter(){const s=this.ctx.state;if(!s.cardStarterReceived)return false;s.cardDeck=starterPack.slice();s.cardDeckActive=true;this.ctx.save();this.render();return true;},
+  ensure(){const s=this.ctx.state;s.cardCollection||={};s.cardDeck||=[];},
+  open(fromNpc=false){if(this.isOpen||!this.ctx)return false;this.ensure();this.isOpen=true;this.atNpc=!!fromNpc;this.screen='menu';this.ctx.state.interactionOpen=true;this.mount();this.render();return true;},
+  close(){if(!this.isOpen)return;clearTimeout(this.timer);if(this.session&&!this.session.finished)this.session.forfeit();this.session=null;this.isOpen=false;this.ctx.state.interactionOpen=false;this.root.remove();},
+  status(atNpc=this.atNpc){this.ensure();return validate(this.deck(),this.owned(),this.catalog(),{active:!!this.ctx.state.cardDeckActive,npcUnlocked:!!atNpc,resourcesReady:!!this.catalog().length});},
+  change(id,d){const s=this.ctx.state,deck=this.deck().slice();if(d>0){if(deck.length>=20||deck.filter(x=>x===id).length>=2||deck.filter(x=>x===id).length>=Number(this.owned()[id]||0))return;deck.push(id);}else{const i=deck.indexOf(id);if(i<0)return;deck.splice(i,1);}s.cardDeck=deck;s.cardDeckActive=true;this.ctx.save();this.render();},
+  challenge(){const check=this.status();if(!check.ok){this.render();return false;}this.screen='confirm';this.render();return true;},
+  start(){const check=this.status();if(!check.ok){this.screen='menu';this.render();return false;}const catalog=this.catalog(),opponent=starterPack.slice();this.session=new Battle(this.deck().slice(),opponent,catalog,{onWin:()=>{this.ctx.onWin?.();this.ctx.save();}});this.screen='battle';this.render();return true;},
+  mount(){const style=document.createElement('style');style.textContent='#v5-card-ui{position:fixed;inset:0;z-index:10000;overflow:auto;background:#10243dee;color:#fff;padding:env(safe-area-inset-top) 9px env(safe-area-inset-bottom);font:14px/1.4 system-ui}#v5-card-ui .inner{max-width:640px;margin:auto;padding-bottom:25px}#v5-card-ui header{display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:3;background:#10243d;padding:9px 0}#v5-card-ui h2{font-size:18px;font-weight:800}#v5-card-ui button{background:#276278;border:1px solid #90d7da;color:white;padding:7px 10px;border-radius:9px;min-height:42px}#v5-card-ui button:disabled{opacity:.43}#v5-card-ui .panel{background:#1b3850;border-radius:12px;padding:10px;margin:9px 0}#v5-card-ui .error{color:#ffe794}#v5-card-ui .row{display:flex;gap:7px;overflow-x:auto;padding:6px 0}#v5-card-ui .mini{flex:0 0 104px;background:#254c5e;border-radius:9px;padding:6px;font-size:11px}#v5-card-ui .mini img{width:100%;aspect-ratio:4/3;object-fit:cover}#v5-card-ui .mini button{font-size:11px;width:100%}#v5-card-ui .active{display:flex;gap:10px;align-items:center}#v5-card-ui .active img{width:39%;max-width:170px;aspect-ratio:4/3;object-fit:cover;border-radius:8px}#v5-card-ui .hp{height:8px;background:#081b2a;border-radius:9px;overflow:hidden}#v5-card-ui .hp b{display:block;height:100%;background:#66e4a5}#v5-card-ui .decklist{max-height:43vh;overflow:auto}#v5-card-ui .deckitem{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:6px;border-bottom:1px solid #ffffff30}#v5-card-ui .deckitem span{flex:1}#v5-card-ui .deckitem button{min-width:38px}';document.head.append(style);this.root=document.createElement('section');this.root.id='v5-card-ui';this.root.role='dialog';this.root.setAttribute('aria-modal','true');this.root.innerHTML='<div class="inner"><header><h2>V5 特別版・2D 卡牌</h2><button data-act="close">返回探索</button></header><main></main></div>';document.body.append(this.root);this.root.onclick=e=>{const b=e.target.closest('button[data-act]');if(!b)return;const a=b.dataset.act,id=b.dataset.id,i=Number(b.dataset.i);if(a==='close')return this.close();if(a==='gift')this.gift();if(a==='starter')this.selectStarter();if(a==='plus')this.change(id,1);if(a==='minus')this.change(id,-1);if(a==='challenge')this.challenge();if(a==='start')this.start();if(a==='menu'){this.screen='menu';this.render();}if(a==='play')this.session.play(i);if(a==='attach')this.session.attach(i);if(a==='retreat')this.session.retreat(i);if(a==='attack')this.session.attack(0,i);if(a==='end')this.session.end();if(this.screen==='battle'){this.render();if(!this.session.finished&&this.session.turn===1)this.timer=setTimeout(()=>{if(this.isOpen&&this.session?.turn===1){this.session.ai();this.render();}},500);}};this.root.onkeydown=e=>{e.stopPropagation();if(e.key==='Escape')this.close();};for(const n of ['pointerdown','pointerup','touchstart','touchend','keyup'])this.root.addEventListener(n,e=>e.stopPropagation());},
+  render(){if(!this.isOpen)return;const main=this.root.querySelector('main'),s=this.ctx.state,owned=this.owned(),deck=this.deck(),catalog=this.catalog();
+   if(this.screen==='menu'){const status=this.status();main.innerHTML=`<div class="panel"><strong>收藏 ${status.ownedTotal} 張｜牌組 ${deck.length}/20｜基礎型 ${status.basics}/6</strong><p>本遊戲採 20 張牌、獨立能量區、3 分勝利的原創簡化規則。卡牌訓練家需由你主動確認挑戰。</p>${!s.cardStarterReceived?'<button data-act="gift">領取永久 20 張入門卡牌</button>':'<button data-act="starter">選用入門牌組</button>'}</div><div class="panel"><h3>牌組檢查</h3>${status.errors.length?status.errors.map(x=>`<p class="error">• ${esc(x)}</p>`).join(''):'<p>牌組合法，可以挑戰。</p>'}<button data-act="challenge" ${status.ok?'':'disabled'}>挑戰卡牌訓練家</button></div><div class="panel decklist"><h3>編輯牌組</h3>${catalog.filter(c=>owned[c.id]).map(c=>`<div class="deckitem"><span>${esc(c.name)} ${c.legendary?'★':c.evolvesFrom?'進化':'基礎'} · 持有 ${owned[c.id]} · 已放 ${status.copies[c.id]||0}</span><button data-act="minus" data-id="${c.id}">−</button><button data-act="plus" data-id="${c.id}">＋</button></div>`).join('')||'<p>前往地圖捕捉寶可夢，或領取入門卡牌。</p>'}</div>`;return;}
+   if(this.screen==='confirm'){main.innerHTML='<div class="panel"><h3>開始 2D 卡牌對戰？</h3><p>再次檢查牌組後才會進入對戰。勝利時超夢會在真新鎮隨機現身。</p><button data-act="start">確認開始</button><button data-act="menu">返回整理牌組</button></div>';return;}
+   const b=this.session,[p,ai]=b.sides,lock=b.finished||b.turn!==0,art=c=>c.art||`cards/model-thumbs/${c.id}.webp`,active=o=>`<div class="panel active"><img src="${esc(art(o.card))}" alt="${esc(o.card.name)}卡牌"><div><strong>${esc(o.card.name)} HP ${o.hp}/${o.card.hp}</strong><div class="hp"><b style="width:${Math.max(0,o.hp/o.card.hp*100)}%"></b></div><p>能量 ${o.energy}/${o.card.energy}</p><p>${esc(o.card.attack)} · ${o.card.damage} 傷害</p></div></div>`;
+   main.innerHTML=`<div class="panel">對手 ${ai.points}/3 分 · 後備 ${ai.bench.length}/3</div>${active(ai.active)}<div class="panel">第 ${b.round} 回合 · ${b.finished?'已結束':b.turn?'對手行動中':'輪到你'}</div>${b.finished?`<div class="panel">${b.winner===0?'獲勝！超夢已在地圖現身。':'未獲勝。'} ${esc(b.reason)}<br><button data-act="close">返回真新鎮</button></div>`:''}${active(p.active)}<div class="panel">你 ${p.points}/3 分 · 後備 ${p.bench.length}/3 · 牌庫 ${p.deck.length}<div class="row"><button data-act="attach" data-i="-1" ${lock||p.attached?'disabled':''}>附加能量</button>${(p.active.card.skills||[{name:p.active.card.attack,energy:p.active.card.energy,damage:p.active.card.damage}]).map((sk,i)=>`<button data-act="attack" data-i="${i}" ${lock||p.active.energy<sk.energy?'disabled':''}>${esc(sk.name)} ${sk.damage}</button>`).join('')}<button data-act="end" ${lock?'disabled':''}>結束回合</button></div></div><div class="panel">備戰區<div class="row">${p.bench.map((x,i)=>`<div class="mini">${esc(x.card.name)}<br>HP ${x.hp} · 能量 ${x.energy}<button data-act="attach" data-i="${i}" ${lock||p.attached?'disabled':''}>附能</button><button data-act="retreat" data-i="${i}" ${lock||p.retreated||p.active.energy<1?'disabled':''}>換上</button></div>`).join('')||'尚無後備'}</div></div><div class="panel">手牌 ${p.hand.length} 張<div class="row">${p.hand.map((c,i)=>`<div class="mini"><img src="${esc(art(c))}" alt=""><strong>${esc(c.name)}</strong><br>HP ${c.hp}<button data-act="play" data-i="${i}" ${lock?'disabled':''}>${c.evolvesFrom?'進化':'上場'}</button></div>`).join('')}</div></div><div class="panel" aria-live="polite">${b.log.map(esc).join('<br>')}</div>`;
+  }
+ };
+ g.V5Cards=api;if(typeof module!=='undefined')module.exports={RULES,validate,Battle,starterPack};
+})(typeof window!=='undefined'?window:globalThis);

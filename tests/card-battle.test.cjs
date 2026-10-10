@@ -1,0 +1,13 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const {validate,Battle,starterPack}=require('../寶可夢3D-V5/js/card-battle.js');
+const base=['bulbasaur','charmander','squirtle','chikorita','cyndaquil','totodile','treecko','torchic','mudkip','turtwig'];
+const catalog=base.map(id=>({id,name:id,hp:70,damage:25,energy:1,attack:'跳躍',stage:1,evolvesFrom:null,legendary:false}));
+catalog.push({id:'ivysaur',name:'妙蛙草',hp:100,damage:45,energy:2,attack:'藤鞭',stage:2,evolvesFrom:'bulbasaur',legendary:false});
+catalog.push({id:'mewtwo',name:'超夢',hp:170,damage:80,energy:3,attack:'念力',stage:1,evolvesFrom:null,legendary:true});
+const owned=Object.fromEntries(base.map(id=>[id,2]));
+function rng(seed){return()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296)}
+test('Word rules: 19 owned cards cannot start',()=>{const d=starterPack.slice(0,19),o={...owned,[base[9]]:1};const v=validate(d,o,catalog,{active:true,npcUnlocked:true});assert.equal(v.ok,false);assert.match(v.errors.join(' '),/19 \/ 20/)});
+test('Word rules: owned starter deck is legal and opening hand has basic creature',()=>{const v=validate(starterPack,owned,catalog,{active:true,npcUnlocked:true});assert.equal(v.ok,true);const b=new Battle(starterPack,starterPack,catalog,{random:rng(3)});assert.equal(b.sides[0].active.card.stage,1);assert.equal(b.sides[0].hand.length,4);assert.equal(b.sides[0].deck.length,15)});
+test('Word rules: copy, ownership, evolution and legendary restrictions',()=>{let d=starterPack.slice();d[0]='mewtwo';d[1]='mewtwo';assert.match(validate(d,{...owned,mewtwo:2},catalog,{active:true,npcUnlocked:true}).errors.join(' '),/傳說/);d=starterPack.slice();d[0]='ivysaur';d[1]='ivysaur';assert.match(validate(d,{...owned,ivysaur:2},catalog,{active:true,npcUnlocked:true}).errors.join(' '),/前階/);d=starterPack.slice();d[2]=base[0];assert.match(validate(d,owned,catalog,{active:true,npcUnlocked:true}).errors.join(' '),/上限|持有/)});
+test('Word rules: NPC gate and active deck gate are enforced at validation time',()=>{assert.match(validate(starterPack,owned,catalog,{active:true,npcUnlocked:false}).errors.join(' '),/挑戰/);assert.match(validate(starterPack,owned,catalog,{active:false,npcUnlocked:true}).errors.join(' '),/選擇牌組/)});
+test('battle uses independent energy and victory callback fires once',()=>{let wins=0;const b=new Battle(starterPack,starterPack,catalog,{random:rng(7),onWin:()=>wins++});assert.equal(b.attack(),false);assert.equal(b.attach(),true);assert.equal(b.attach(),false);assert.equal(b.attack(),true);assert.equal(b.turn,1);b.finish(0,'qa');b.finish(0,'again');assert.equal(wins,1);const other=new Battle(starterPack,starterPack,catalog,{random:rng(9),onWin:()=>wins++});other.forfeit();assert.equal(wins,1)});

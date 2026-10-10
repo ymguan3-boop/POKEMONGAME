@@ -5,4 +5,6 @@
 /寶可夢3D-V5/qa/*.png
 /寶可夢3D-V5/qa/*.webm
 /寶可夢3D-V5/qa/*.mp4
+/寶可夢3D-V5/cards/references3d/
+/寶可夢3D-V5/cards/model-thumbs/*.png
 node_modules/

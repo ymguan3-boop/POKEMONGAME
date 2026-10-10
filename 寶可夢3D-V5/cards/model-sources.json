@@ -1,0 +1,923 @@
+[
+  {
+    "id": "bulbasaur",
+    "name": "妙蛙種子",
+    "modelPath": "models/bulbasaur.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/bulbasaur.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "41d96deb571363159807cbb5f43d5240f5d5e0ab5a2bf836d234ac111c7a3f5c"
+  },
+  {
+    "id": "ivysaur",
+    "name": "妙蛙草",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/ivysaur.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "venusaur",
+    "name": "妙蛙花",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/venusaur.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "charmander",
+    "name": "小火龍",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/charmander.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "charmeleon",
+    "name": "火恐龍",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/charmeleon.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "charizard",
+    "name": "噴火龍",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/charizard.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "squirtle",
+    "name": "傑尼龜",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/squirtle.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "wartortle",
+    "name": "卡咪龜",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/wartortle.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "blastoise",
+    "name": "水箭龜",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/blastoise.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "chikorita",
+    "name": "菊草葉",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/chikorita.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "bayleef",
+    "name": "月桂葉",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/bayleef.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "meganium",
+    "name": "大竺葵",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/meganium.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "cyndaquil",
+    "name": "火球鼠",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/cyndaquil.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "quilava",
+    "name": "火岩鼠",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/quilava.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "typhlosion",
+    "name": "火爆獸",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/typhlosion.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "totodile",
+    "name": "小鋸鱷",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/totodile.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "croconaw",
+    "name": "藍鱷",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/croconaw.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "feraligatr",
+    "name": "大力鱷",
+    "modelPath": "js/models-v2/gen12.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/feraligatr.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "452ef9b6e21f10192c954a4d892bde4230bf9775ee32d847a3c5990bea34052d"
+  },
+  {
+    "id": "treecko",
+    "name": "木守宮",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/treecko.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "grovyle",
+    "name": "森林蜥蜴",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/grovyle.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "sceptile",
+    "name": "蜥蜴王",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/sceptile.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "torchic",
+    "name": "火稚雞",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/torchic.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "combusken",
+    "name": "力壯雞",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/combusken.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "blaziken",
+    "name": "火焰雞",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/blaziken.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "mudkip",
+    "name": "水躍魚",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/mudkip.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "marshtomp",
+    "name": "沼躍魚",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/marshtomp.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "swampert",
+    "name": "巨沼怪",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/swampert.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "turtwig",
+    "name": "草苗龜",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/turtwig.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "grotle",
+    "name": "樹林龜",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/grotle.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "torterra",
+    "name": "土台龜",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/torterra.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "chimchar",
+    "name": "小火焰猴",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/chimchar.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "monferno",
+    "name": "猛火猴",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/monferno.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "infernape",
+    "name": "烈焰猴",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/infernape.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "piplup",
+    "name": "波加曼",
+    "modelPath": "models/piplup.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/piplup.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "cc04b31330b5220b76a405ebdcbee0933050b8e5656370d31b5820f73d0df8cc"
+  },
+  {
+    "id": "prinplup",
+    "name": "波皇子",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/prinplup.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "empoleon",
+    "name": "帝王拿波",
+    "modelPath": "js/models-v2/gen34.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/empoleon.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a9a11afccfb872bfd7f2c1bcf20cc1dcf75920a34f97e2f275e65f5ba9a09b2b"
+  },
+  {
+    "id": "articuno",
+    "name": "急凍鳥",
+    "modelPath": "models/articuno.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Fly",
+      "Glide",
+      "Land",
+      "Takeoff",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/articuno.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "9280f87ecb958b141e074b9d7b604d6f56cdf406acf2de0df881660f6fcff8e2"
+  },
+  {
+    "id": "zapdos",
+    "name": "閃電鳥",
+    "modelPath": "models/zapdos.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Fly",
+      "Glide",
+      "Land",
+      "Takeoff",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/zapdos.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "51dcd48f31c3f7eab09cf03d7d549da9ca00f56d7093b03fea62f194a4760793"
+  },
+  {
+    "id": "moltres",
+    "name": "火焰鳥",
+    "modelPath": "models/moltres.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Fly",
+      "Glide",
+      "Land",
+      "Takeoff",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/moltres.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "40c508a86552cf98f2ab3d9e5007158dd1c57193fb912ab9c0b6fb54e8cdedf8"
+  },
+  {
+    "id": "raikou",
+    "name": "雷公",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/raikou.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "entei",
+    "name": "炎帝",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/entei.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "suicune",
+    "name": "水君",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/suicune.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "kyogre",
+    "name": "蓋歐卡",
+    "modelPath": "models/kyogre.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Swim",
+      "LookAround",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/kyogre.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "f372f777e41e9082b95afc2cc489b875bd4eead968f0ea177f53cd3f3bed8d44"
+  },
+  {
+    "id": "groudon",
+    "name": "固拉多",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/groudon.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "rayquaza",
+    "name": "烈空坐",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/rayquaza.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "dialga",
+    "name": "帝牙盧卡",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/dialga.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "palkia",
+    "name": "帕路奇亞",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/palkia.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "giratina",
+    "name": "騎拉帝納",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/giratina.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "pikachu",
+    "name": "皮卡丘",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": null,
+    "cardArtStatus": "blocked-by-image-service",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "mew",
+    "name": "夢幻",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": null,
+    "cardArtStatus": "blocked-by-image-service",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "wigglytuff",
+    "name": "胖可丁",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": null,
+    "cardArtStatus": "blocked-by-image-service",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "blissey",
+    "name": "幸福蛋",
+    "modelPath": "js/models-v2/special.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": null,
+    "cardArtStatus": "blocked-by-image-service",
+    "modelSha256": "a0bedfadd110de3c8fa87ad03898056500044d05ecd88f799b9b8723ea7d0868"
+  },
+  {
+    "id": "mewtwo",
+    "name": "超夢",
+    "modelPath": "js/models-v2/mewtwo.js",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Attack",
+      "Hurt"
+    ],
+    "cardArt": "cards/art/mewtwo.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "106bdfe2d614d3bc54d8343c17569d7c9cd6f7a3a24b5eff06239ba8de06e18a"
+  },
+  {
+    "id": "raichu",
+    "name": "雷丘",
+    "modelPath": "models/raichu.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/raichu.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "7103c8961c83ac409203eaf728d53a7557ae9ff5c999ac6c1d5e9859c3a75ea1"
+  },
+  {
+    "id": "caterpie",
+    "name": "綠毛蟲",
+    "modelPath": "models/caterpie.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/caterpie.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "154961ea769d5069e0e0bbf2b2de27467ab95102505f7d027495aa55fff45cbd"
+  },
+  {
+    "id": "metapod",
+    "name": "鐵甲蛹",
+    "modelPath": "models/metapod.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Sway",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/metapod.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "fb953c90aebc9aea264f6ce0f302767fba071a18fee286929d17f9fb9efabc49"
+  },
+  {
+    "id": "butterfree",
+    "name": "巴大蝶",
+    "modelPath": "models/butterfree.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Fly",
+      "Glide",
+      "Land",
+      "Takeoff",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/butterfree.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "999abe9a2cdfabbb1a7c2d18d48ff75f59f000d77399b200757d36d7bc654545"
+  },
+  {
+    "id": "weedle",
+    "name": "獨角蟲",
+    "modelPath": "models/weedle.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Walk",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/weedle.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "2cdef8b664c507bbda423f3b52088c094776c80d0d93804bbdcc6e3dfb1f08ac"
+  },
+  {
+    "id": "kakuna",
+    "name": "鐵殼蛹",
+    "modelPath": "models/kakuna.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Sway",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/kakuna.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "15a33e3d2902a052d26727e6b27525ea1a48661b50c0e4093fd939c043860a77"
+  },
+  {
+    "id": "beedrill",
+    "name": "大針蜂",
+    "modelPath": "models/beedrill.glb",
+    "modelValidated": true,
+    "animationClips": [
+      "Idle",
+      "Fly",
+      "Glide",
+      "Land",
+      "Takeoff",
+      "Hurt",
+      "Attack"
+    ],
+    "cardArt": "cards/art/beedrill.webp",
+    "cardArtStatus": "generated",
+    "modelSha256": "2c3e4f90812368db1bd9fb4e7dc3d9ac755d625ea37b11740d3b2434b1be9338"
+  }
+]

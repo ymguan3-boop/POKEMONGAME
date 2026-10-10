@@ -1,0 +1,39 @@
+{
+  "checks": [
+    [
+      "V5 catalog model roster and 56 generated card artworks",
+      {
+        "total": 60,
+        "art": 56,
+        "legacy": 0,
+        "viewerModel": true
+      }
+    ],
+    [
+      "3D viewer opens only on card button",
+      true
+    ],
+    [
+      "permanent 20-card starter pack; challenge disabled away from NPC",
+      true
+    ],
+    [
+      "card NPC requires explicit talk, valid deck and confirm; mobile 2D battle opens",
+      true
+    ],
+    [
+      "legitimate 2D win spawns one catchable Mewtwo in world",
+      {
+        "winner": 0,
+        "steps": 17,
+        "wins": 1,
+        "mewtwo": true
+      }
+    ],
+    [
+      "Mewtwo 3D model loads",
+      true
+    ]
+  ],
+  "errors": []
+}
