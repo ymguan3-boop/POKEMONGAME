@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
     <title>寶可夢 3D-V5 特別版・真新鎮</title>
-    <link rel="stylesheet" href="css/pokedex-cards.css?v=20261010-shadow">
+    <link rel="stylesheet" href="css/pokedex-cards.css?v=20261010-opaque"><link rel="stylesheet" href="css/battle3d.css?v=20261010">
     <script src="vendor/tailwind.js"></script>
     <script src="vendor/three.min.js"></script>
     <script src="vendor/GLTFLoader.js"></script>
@@ -19,7 +19,7 @@
 <script src="js/models-v2/sizing.js"></script>
     <script src="js/articulated-models.js"></script><script src="js/gym-presentation.js"></script><script src="js/town.js"></script>
     <script src="js/game-runtime-state.js"></script>
-    <script src="js/card-art.js"></script><script src="js/card-catalog.js?v=20261010-shadow"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script>
+    <script src="js/card-art.js"></script><script src="js/card-catalog.js?v=20261010-shadow"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-core.js"></script><script src="js/battle-data.js"></script><script src="js/battle-arena.js"></script><script src="js/battle-ui.js"></script><script src="js/battle-controller.js"></script>
     
     <style>
         body { margin: 0; padding: 0; overflow: hidden; user-select: none; -webkit-user-select: none; background-color: #000; font-family: -apple-system, BlinkMacSystemFont, sans-serif; touch-action: none; height: 100dvh; width: 100dvw; }
@@ -40,7 +40,7 @@
     <style>
       body{background:#73c9ef!important}
     </style><link rel="stylesheet" href="mobile.css"><link rel="icon" href="icon.svg"></head>
-<body data-game-version="20261010-pallet-dex-shadow">
+<body data-game-version="20261010-v5-3d-turn-battle">
 
     <div id="v5-loading" role="status" style="position:fixed;inset:0;z-index:200;background:#dfeeda;display:grid;place-content:center;text-align:center;color:#234b50;padding:25px"><h1 style="font-size:25px;font-weight:bold">真新鎮旅程</h1><p id="v5-loading-text">正在準備新主角與場景…</p><small>V5 特別版 3D 冒險與 2D 卡牌</small></div><div id="canvas-container"></div>
 
@@ -397,7 +397,7 @@
             pokemons: [], activeBalls: [], particles: [], respawnQueue: [],
             berries: [], activeOakDrop: null, oakDropTimer: 0, nextOakDropTime: 50,
             isTimeStopped: false, timeStopTimer: 0,
-            pokedexUnlocks: {}, captureCounts: {}, hasReachedLimit: {},cardCollection:{},cardDeck:[],cardDeckActive:false,cardStarterReceived:false,cardWins:0,interactionOpen:false,
+            pokedexUnlocks: {}, captureCounts: {}, hasReachedLimit: {},cardCollection:{},cardDeck:[],cardDeckActive:false,cardStarterReceived:false,cardWins:0,battle3d:{version:1,party:[],leader:null,stats:{wins:0,losses:0,draws:0,forfeits:0},rewards:{specialDuoUnlocked:false}},interactionOpen:false,
             legendarySpawned: Object.fromEntries(PalletRoster.legends.map(t=>[t,false])),
             gymRewardCaptured: { pikachu: false, mew: false, wigglytuff: false, blissey: false },
             specialPokemonCaptured: Object.fromEntries(SPECIAL_POKEMON_TYPES.map(type => [type, false])),
@@ -965,7 +965,7 @@
         // 本機立即保存；雲端採 450ms 尾端合併，避免連續投球產生大量同步工作。
         const saveGameData = () => { 
             refreshSpecialCaptureState();
-            const dataToSave = { ...gameState.v5Preserved, schemaVersion:5,items:gameState.items,worldFlags:gameState.worldFlags,npcRewards:gameState.npcRewards,quests:gameState.quests,cardCollection:gameState.cardCollection||{},cardDeck:gameState.cardDeck||[],cardDeckActive:!!gameState.cardDeckActive,cardStarterReceived:!!gameState.cardStarterReceived,cardWins:gameState.cardWins||0,
+            const dataToSave = { ...gameState.v5Preserved, schemaVersion:5,items:gameState.items,worldFlags:gameState.worldFlags,npcRewards:gameState.npcRewards,quests:gameState.quests,cardCollection:gameState.cardCollection||{},cardDeck:gameState.cardDeck||[],cardDeckActive:!!gameState.cardDeckActive,cardStarterReceived:!!gameState.cardStarterReceived,cardWins:gameState.cardWins||0,battle3d:V5Progress.normalizeBattle(gameState.battle3d,gameState),
                 captureCounts: {...(gameState.v5Preserved?.captureCounts||{}),...gameState.captureCounts},
                 pokedexUnlocks: {...(gameState.v5Preserved?.pokedexUnlocks||{}),...gameState.pokedexUnlocks},
                 legendarySpawned: {...(gameState.v5Preserved?.legendarySpawned||{}),...gameState.legendarySpawned},
@@ -1894,6 +1894,7 @@
         const animate = () => {
             requestAnimationFrame(animate); if (!scene || !camera || !renderer) return;
             const delta = Math.min(0.1, clock.getDelta()); const time = clock.getElapsedTime();
+            if (window.V5Battle?.isInBattle()) { window.V5Battle.frame(delta); return; }
             performanceFrameAccumulator += delta;
             performanceFrameCount++;
             if (performanceFrameAccumulator >= 1) {
@@ -2274,11 +2275,18 @@
                 if(!spot)return false;const monster=new Pokemon(type,spot.x,spot.z);scene.add(monster.mesh);gameState.pokemons.push(monster);return true;
             };
             window.V5SpawnCardReward=spawnCardReward;
+            window.V5RetryBattleRewards=()=>{if(gameState.currentMode!=='world')return;for(const id of ['mewtwo','jigglypuff'])if(gameState.worldFlags[id+'Awaiting']&&!gameState.specialPokemonCaptured[id])spawnCardReward(id);};
+            setInterval(()=>window.V5RetryBattleRewards?.(),15000);
             window.V5Cards.init({state:gameState,save:saveGameData,onWin:()=>{gameState.cardWins=(gameState.cardWins||0)+1;gameState.worldFlags.mewtwoAwaiting=true;gameState.worldFlags.jigglypuffAwaiting=true;spawnCardReward('mewtwo');spawnCardReward('jigglypuff');showNotification('卡牌勝利！超夢與胖丁在真新鎮現身。');}});
             const floor = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ color: 0x91b971, roughness: 0.8 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
             const snowGeo = new THREE.BufferGeometry(); const posArray = new Float32Array(4500); for(let i=0; i<4500; i+=3) { posArray[i]=(Math.random()-0.5)*80; posArray[i+1]=Math.random()*40; posArray[i+2]=(Math.random()-0.5)*80; } snowGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3)); gameState.snowflakes = null;
 
-            const v5Zoom=e=>{if(e.target.closest('canvas')){e.preventDefault();v5Camera.zoom(e.deltaY*.004);}};window.addEventListener('wheel',v5Zoom,{passive:false});window.__v5Camera=v5Camera;buildEnvironment();const cameraOccluders=[];scene.traverse(o=>{if(o.userData.occlusionGroup)cameraOccluders.push(o)});v5Camera.setOccluders(cameraOccluders);buildPlayerAndModels();v5Ecology=new V5Ecology.Ecology({state:gameState,player});window.__v5Ecology=v5Ecology; player.position.set(0,0,23);v5CaptureVFX=new V5CaptureVFX();window.__v5CaptureVFX=v5CaptureVFX;v5Items=new Item3DSystem({loader:gltfLoader,clone:cloneRuntimeGLBScene,scene,player,state:gameState});v5Items.preload().then(()=>{for(const b of gameState.berries){const visual=v5Items.item('berry');if(visual){b.mesh.clear();b.mesh.add(visual);}}});window.__v5Items=v5Items;const bagButton=document.createElement('button');bagButton.textContent='🎒 道具';bagButton.id='v5-open-items';bagButton.style.cssText='min-height:44px;background:#234b5d;color:white;padding:8px 13px;border-radius:12px';bagButton.onclick=()=>v5Items.openInventory();document.getElementById("main-menu-panel").append(bagButton);const cardButton=document.createElement('button');cardButton.id='v5-open-cards';cardButton.textContent='🃏 卡冊／牌組';cardButton.style.cssText='min-height:44px;background:#664b86;color:white;padding:8px 13px;border-radius:12px';cardButton.onclick=()=>{document.getElementById('main-menu-panel').classList.remove('active');window.V5Cards.open(false);};document.getElementById('main-menu-panel').append(cardButton);v5Npcs=new V5NpcSystem({scene,state:gameState,player,camera:()=>camera,loader:gltfLoader,clone:cloneRuntimeGLBScene,obstacles:gameState.obstacles,save:saveGameData,inventory:updateInventoryUI,showItem:id=>v5Items.showReward(id),visual:()=>v5PlayerVisual});v5Npcs.load();window.__v5Npcs=v5Npcs; gameState.camAngle=Math.PI; camera.position.set(0,6,31);
+            const v5Zoom=e=>{if(e.target.closest('canvas')){e.preventDefault();v5Camera.zoom(e.deltaY*.004);}};window.addEventListener('wheel',v5Zoom,{passive:false});window.__v5Camera=v5Camera;buildEnvironment();const cameraOccluders=[];scene.traverse(o=>{if(o.userData.occlusionGroup)cameraOccluders.push(o)});v5Camera.setOccluders(cameraOccluders);buildPlayerAndModels();v5Ecology=new V5Ecology.Ecology({state:gameState,player});window.__v5Ecology=v5Ecology; player.position.set(0,0,23);v5CaptureVFX=new V5CaptureVFX();window.__v5CaptureVFX=v5CaptureVFX;v5Items=new Item3DSystem({loader:gltfLoader,clone:cloneRuntimeGLBScene,scene,player,state:gameState});v5Items.preload().then(()=>{for(const b of gameState.berries){const visual=v5Items.item('berry');if(visual){b.mesh.clear();b.mesh.add(visual);}}});window.__v5Items=v5Items;const bagButton=document.createElement('button');bagButton.textContent='🎒 道具';bagButton.id='v5-open-items';bagButton.style.cssText='min-height:44px;background:#234b5d;color:white;padding:8px 13px;border-radius:12px';bagButton.onclick=()=>v5Items.openInventory();document.getElementById("main-menu-panel").append(bagButton);window.V5Battle=new V5BattleController({state:gameState,save:saveGameData,player,camera,renderer,
+                onFirstWin:()=>{gameState.worldFlags.mewtwoAwaiting=!gameState.specialPokemonCaptured.mewtwo;
+                    gameState.worldFlags.jigglypuffAwaiting=!gameState.specialPokemonCaptured.jigglypuff;
+                    spawnCardReward('mewtwo');spawnCardReward('jigglypuff');
+                    showNotification('3D 擂台首勝！超夢與胖丁已在真新鎮解鎖，請親自捕捉。');}});
+            const cardButton=document.createElement('button');cardButton.id='v5-open-cards';cardButton.textContent='⚔️ 寶可夢隊伍';cardButton.style.cssText='min-height:44px;background:#664b86;color:white;padding:8px 13px;border-radius:12px';cardButton.onclick=()=>{document.getElementById('main-menu-panel').classList.remove('active');window.V5Battle?.openTeam(false);};document.getElementById('main-menu-panel').append(cardButton);v5Npcs=new V5NpcSystem({scene,state:gameState,player,camera:()=>camera,loader:gltfLoader,clone:cloneRuntimeGLBScene,obstacles:gameState.obstacles,save:saveGameData,inventory:updateInventoryUI,showItem:id=>v5Items.showReward(id),visual:()=>v5PlayerVisual});v5Npcs.load();window.__v5Npcs=v5Npcs; gameState.camAngle=Math.PI; camera.position.set(0,6,31);
             
             let i = 0; while(i < 5) { const angle = Math.random() * Math.PI * 2; const r = 12 + Math.random() * 15; spawnBerryItem(Math.cos(angle)*r, Math.sin(angle)*r); i++; }
 
@@ -2496,6 +2504,8 @@
                 if(!data || typeof data !== 'object') return;data=V5Progress.migrate(data);gameState.v5Preserved=data;gameState.items=data.items;gameState.worldFlags=data.worldFlags;gameState.npcRewards=data.npcRewards;gameState.quests=data.quests;gameState.cardCollection={...(data.cardCollection||{})};gameState.cardDeck=Array.isArray(data.cardDeck)?data.cardDeck.slice():[];gameState.cardDeckActive=!!data.cardDeckActive;gameState.cardStarterReceived=!!data.cardStarterReceived;gameState.cardWins=Number(data.cardWins)||0;
                 const mergeMaps = ['pokedexUnlocks','captureCounts','hasReachedLimit','legendarySpawned','gymRewardCaptured','specialPokemonCaptured','equip'];
                 mergeMaps.forEach(key => { if(!data[key])return;const activeOnly=['pokedexUnlocks','captureCounts','hasReachedLimit','legendarySpawned','gymRewardCaptured','specialPokemonCaptured'].includes(key);const values=activeOnly?Object.fromEntries(Object.entries(data[key]).filter(([id])=>id in POKEDEX_DATA)):data[key];gameState[key]={...gameState[key],...values}; });
+                gameState.battle3d=V5Progress.normalizeBattle(data.battle3d,data);
+                gameState.battle3d.party=V5BattleData.normalizeParty(gameState.battle3d.party,gameState);
                 if(!('cardCollection' in data))for(const card of V5CardCatalog){const n=Number(gameState.captureCounts[card.id])||0;if(n>0)gameState.cardCollection[card.id]=n;}
                 if (data.gyms) Object.keys(gameState.gyms).forEach(key => {
                     if (data.gyms[key] && 'cleared' in data.gyms[key]) gameState.gyms[key].cleared = Boolean(data.gyms[key].cleared);
