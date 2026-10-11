@@ -28,11 +28,11 @@ test('每個玩家回合只做一個行動，AI 再回應',()=>{
  assert.equal(s.turn,1);assert.equal(core.applyAction(s,0,{type:'normal'}).ok,false);
  opponentTurn(s);assert.equal(s.turn,0);assert.equal(s.round,2);
 });
-test('同屬性招式 1.25 倍、命中弱點 1.5 倍且防禦減半',()=>{
+test('相剋招式 1.5 倍，防禦仍減半，與施放者屬性是否相同無關',()=>{
  const s=create(),a=core.actor(s,0),b=core.actor(s,1);
- a.element='火';a.types=['火'];b.weakness='火';
- assert.equal(core.damage(a,b,{damage:45,element:'火'}),84);
- b.defending=true;assert.equal(core.damage(a,b,{damage:45,element:'火'}),42);
+ a.element='火';a.types=['火'];b.element='草';b.types=['草'];
+ assert.equal(core.damage(a,b,{damage:45,element:'火'}),68);
+ b.defending=true;assert.equal(core.damage(a,b,{damage:45,element:'火'}),34);
  const defense=create();core.applyAction(defense,0,{type:'defend'});
  const hit=core.applyAction(defense,1,{type:'normal'});
  assert.equal(hit.events[0].damage,8);
@@ -83,25 +83,51 @@ test('沒有活著的換人對象不可切換',()=>{
  assert.equal(core.applyAction(s,0,{type:'switch',index:1}).ok,false);
 });
 
-test('招式依實際屬性加成，普通攻擊不可借用火系弱點',()=>{
+test('相剋看目標屬性而非招式與自己同屬性，普通攻擊中立',()=>{
  const s=create(),a=core.actor(s,0),b=core.actor(s,1);
- a.element='火';a.types=['火','飛行'];b.weakness='火';
+ a.element='火';a.types=['火','飛行'];b.element='水';b.types=['水'];
  assert.equal(core.damage(a,b,{damage:20,element:'一般'}),20);
- assert.equal(core.damage(a,b,{damage:20,element:'火'}),38);
- assert.equal(core.damage(a,b,{damage:20,element:'飛行'}),25);
+ assert.equal(core.damage(a,b,{damage:20,element:'火'}),15);
+ assert.equal(core.damage(a,b,{damage:20,element:'飛行'}),20);
  assert.equal(core.damage(a,b,{damage:20,element:'水'}),20);
+ assert.equal(core.damage(a,b,{damage:20,element:'電'}),30);
  const normal=core.applyAction(s,0,{type:'normal'});
  assert.equal(normal.events[0].element,'一般');
- assert.equal(normal.events[0].sameType,false);
+ assert.equal(normal.events[0].effective,false);
 });
-test('攻擊事件回傳攻擊屬性、受擊資訊與加成標記',()=>{
+test('攻擊事件顯示屬性剋制狀態，沒有同屬性額外加成',()=>{
  const s=create(),me=core.actor(s,0),enemy=core.actor(s,1);
- me.element='草';me.types=['草'];enemy.weakness='草';
+ me.element='草';me.types=['草'];enemy.element='水';enemy.types=['水'];
  const result=core.applyAction(s,0,{type:'special'});
  assert.equal(result.ok,true);
  assert.equal(result.events[0].type,'attack');
  assert.equal(result.events[0].element,'草');
- assert.equal(result.events[0].sameType,true);
  assert.equal(result.events[0].effective,true);
- assert.match(s.history.at(-1),/同屬性強化/);
+ assert.equal(result.events[0].damage,38);
+ assert.match(s.history.at(-1),/屬性剋制/);
+});
+
+test('屬性相剋環：水剋火、火剋草、草剋水，反向則抵抗',()=>{
+ const d=element=>({element,types:[element],defending:false});
+ const a=d('一般');
+ for(const [attack,target] of [['水','火'],['火','草'],['草','水']]){
+  assert.equal(core.damage(a,d(target),{damage:40,element:attack}),60);
+  const reverse=core.damage(a,d(attack),{damage:40,element:target});
+  assert.equal(reverse,30);
+ }
+ assert.equal(core.damage(a,d('一般'),{damage:40,element:'一般'}),40);
+});
+test('任一被剋制的雙屬性都有效，額外相同屬性不疊乘',()=>{
+ const defender={element:'火',types:['火','飛行']};
+ const attacker={element:'水',types:['水']};
+ assert.equal(core.damage(attacker,defender,{damage:40,element:'水'}),60);
+ assert.equal(core.damage(attacker,defender,{damage:40,element:'電'}),60);
+ assert.equal(core.damage(attacker,defender,{damage:40,element:'一般'}),40);
+ const match=core.typeMatch('水',defender);
+ assert.equal(match.effective,true);assert.equal(match.ratio,1.5);
+});
+test('與自身屬性相同但沒有剋制目標時，不再增加傷害',()=>{
+ const attacker={element:'火',types:['火']},target={element:'一般',types:['一般']};
+ assert.equal(core.damage(attacker,target,{damage:40,element:'火'}),40);
+ assert.equal(core.damage(attacker,target,{damage:40,element:'一般'}),40);
 });
