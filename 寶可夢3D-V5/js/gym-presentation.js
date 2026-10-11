@@ -70,6 +70,7 @@ function attack(type,radius){
    egg.scale.y=1.45;layers.shells.push(egg);
   }
  }
+ layers.shells.forEach(m=>{m.userData.baseY=m.position.y;});
  g.userData.layers=layers;
  g.userData.animate=time=>{
   const t=Number.isFinite(time)?time:0;
@@ -91,7 +92,7 @@ function attack(type,radius){
   for(let i=0;i<layers.shells.length;i++){
    const m=layers.shells[i];
    if(m.geometry?.type==='TorusGeometry')m.rotation.z=t*(i%2?-.6:.6)+i*.2;
-   else if(!m.userData.noteStem)m.position.y+=Math.sin(t*5+i)*.004;
+   else if(!m.userData.noteStem)m.position.y=m.userData.baseY+Math.sin(t*5+i)*.11;
    m.material.opacity=.48+Math.abs(Math.sin(t*3.5+i*.5))*.30;
   }
  };
