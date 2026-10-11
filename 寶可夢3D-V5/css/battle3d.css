@@ -80,3 +80,7 @@ body.v5-battle-active #time-stop-overlay{display:none!important;visibility:hidde
 .v5-battle-hp{width:min(57vw,238px)}
 .v5-battle-overlay .v5-battle-actions button:focus-visible{outline:3px solid #ffd36c;outline-offset:1px}
 body.v5-battle-active #btn-nav-trainer{visibility:hidden!important;pointer-events:none!important}
+
+/* Status badges remain attached to HP bars and do not cover the combat stage. */
+.v5-battle-hp .v5-battle-condition{display:block;font-size:11px;font-weight:800;color:#fee9a9;line-height:1.25;padding-top:3px}
+.v5-battle-actions button small{max-width:100%;overflow-wrap:anywhere}

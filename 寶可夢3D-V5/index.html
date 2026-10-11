@@ -19,7 +19,7 @@
 <script src="js/models-v2/sizing.js"></script>
     <script src="js/articulated-models.js"></script><script src="js/gym-presentation.js"></script><script src="js/town.js"></script>
     <script src="js/game-runtime-state.js"></script>
-    <script src="js/card-art.js"></script><script src="js/card-catalog.js?v=20261011-type"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-core.js?v=20261011-chart"></script><script src="js/battle-data.js?v=20261011-fx2"></script><script src="js/battle-arena.js?v=20261011-fit"></script><script src="js/battle-ui.js?v=20261011-fx2"></script><script src="js/battle-controller.js?v=20261011-fx2"></script>
+    <script src="js/card-art.js"></script><script src="js/battle-signatures.js?v=20261011-a"></script><script src="js/card-catalog.js?v=20261011-signature"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-core.js?v=20261011-status"></script><script src="js/battle-data.js?v=20261011-fx2"></script><script src="js/battle-arena.js?v=20261011-signature"></script><script src="js/battle-ui.js?v=20261011-status"></script><script src="js/battle-controller.js?v=20261011-fx2"></script>
     
     <style>
         body { margin: 0; padding: 0; overflow: hidden; user-select: none; -webkit-user-select: none; background-color: #000; font-family: -apple-system, BlinkMacSystemFont, sans-serif; touch-action: none; height: 100dvh; width: 100dvw; }
@@ -37,8 +37,8 @@
         }
         #main-menu-panel.active { transform: scale(1); opacity: 1; pointer-events: auto; }
         /* Two compact navigation buttons replace one full-width button. */
-        .v5-nav-pair{display:flex;justify-content:flex-end;align-items:center;gap:6px;width:124px;max-width:calc(100vw - 16px)}
-        .v5-nav-pair button{flex:1 1 0;min-width:0;min-height:44px;padding:6px 2px;font-size:11px;line-height:1.15;white-space:nowrap}
+        .v5-nav-pair{display:flex;justify-content:flex-end;align-items:center;gap:6px;width:94px;max-width:calc(100vw - 16px)}
+        .v5-nav-pair button{flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;font-size:19px;line-height:1;white-space:nowrap}
     </style>
     <style>
       body{background:#73c9ef!important}
@@ -206,8 +206,8 @@
                 <canvas id="radar-canvas" width="110" height="110" class="rounded-full"></canvas>
             </div>
             <div class="v5-nav-pair">
-                <button id="btn-auto-nav" title="自動導航至寶可夢中心" aria-label="自動導航至寶可夢中心" class="bg-white/90 hover:bg-white text-red-600 font-bold rounded-full shadow-lg border-2 border-red-500 flex items-center active:scale-95 touch-element justify-center pointer-events-auto cursor-pointer">🏥 中心</button>
-                <button id="btn-nav-trainer" title="自動導航至3D對戰訓練家" aria-label="自動導航至3D對戰訓練家" class="bg-white/90 hover:bg-white text-indigo-800 font-bold rounded-full shadow-lg border-2 border-indigo-600 flex items-center active:scale-95 touch-element justify-center pointer-events-auto cursor-pointer">⚔️ 對戰</button>
+                <button id="btn-auto-nav" title="自動導航至寶可夢中心" aria-label="自動導航至寶可夢中心" class="bg-white/90 hover:bg-white text-red-600 font-bold rounded-full shadow-lg border-2 border-red-500 flex items-center active:scale-95 touch-element justify-center pointer-events-auto cursor-pointer">🏥</button>
+                <button id="btn-nav-trainer" title="自動導航至3D對戰訓練家" aria-label="自動導航至3D對戰訓練家" class="bg-white/90 hover:bg-white text-indigo-800 font-bold rounded-full shadow-lg border-2 border-indigo-600 flex items-center active:scale-95 touch-element justify-center pointer-events-auto cursor-pointer">⚔️</button>
             </div>
         </div>
     </div>

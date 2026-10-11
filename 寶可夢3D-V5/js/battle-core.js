@@ -25,7 +25,7 @@
    const types=Array.isArray(card.types)&&card.types.length?card.types:[card.element||'一般'];
    return {id:card.id,name:card.name,element:card.element || '一般',types,weakness:card.weakness || '一般',
      hp,maxHp:hp,skills:[{name:normal.name,element:normal.element||'一般',damage:Math.max(1,Number(normal.damage)||15)},
-     {name:special.name,element:special.element||card.element||'一般',damage:Math.max(1,Number(special.damage)||30)}],defending:false,specialWait:0};
+     {name:special.name,element:special.element||card.element||'一般',damage:Math.max(1,Number(special.damage)||30),ability:special.ability||'none',chance:Number(special.chance)||0,fxVariant:special.fxVariant||'burst',fxSeed:special.fxSeed||0}],defending:false,specialWait:0,status:null};
  }
  function createBattle(config) {
    const {playerParty,opponentParty,catalog} = config || {};
@@ -95,12 +95,50 @@
      }
    }
  }
- function applyAction(battle,side,action) {
+ function applyAction(battle,side,action,random=Math.random) {
    if (!battle || battle.status!=='playing'||battle.turn!==side || !action || typeof action.type!=='string')
      return {ok:false,reason:'目前不能操作',events:[]};
    if (battle.requiresSwitch && (side!==0 || action.type!=='switch'))
      return {ok:false,reason:'請先更換尚能戰鬥的夥伴',events:[]};
    const me=actor(battle,side),op=actor(battle,1-side),events=[];
+   if(!['switch','defend','normal','special'].includes(action.type))return {ok:false,reason:'未知行動',events:[]};
+   if(action.type==='special'&&me.specialWait>0)return {ok:false,reason:'特殊技能尚在冷卻',events:[]};
+   if(action.type==='switch'&&!available(battle,side).some(f=>f.i===action.index))return {ok:false,reason:'無法選擇該夥伴',events:[]};
+   // Status conditions trigger only when the affected fighter receives an action opportunity.
+   // Forced replacement always takes priority over a condition on the fallen fighter.
+   let skip=false;
+   if(me.status && action.type!=='switch'){
+     const effect=me.status.type;
+     if(effect==='poison'){
+       const loss=Math.max(1,Math.ceil(me.maxHp*.08));
+       me.hp=Math.max(0,me.hp-loss);events.push({type:'statusTick',side,id:me.id,status:'poison',damage:loss});
+     }else if(effect==='freeze'){
+       skip=true;events.push({type:'statusSkip',side,id:me.id,status:'freeze'});
+     }else if(effect==='paralysis'&&random()<.45){
+       skip=true;events.push({type:'statusSkip',side,id:me.id,status:'paralysis'});
+     }
+     me.status.turns--;
+     if(me.status.turns<=0)me.status=null;
+     if(me.hp<=0){
+       events.push({type:'faint',side,id:me.id});me.status=null;
+       if(!alive(battle,side))finish(battle,1-side,'狀態傷害擊倒最後一隻寶可夢');
+       else if(side===0)battle.requiresSwitch=true;
+       else {const next=available(battle,1)[0];switchTo(battle,1,next.i);events.push({type:'switch',side:1,id:actor(battle,1).id});}
+       battle.actions++;battle.nonce++;
+       if(battle.status==='playing'&&!battle.requiresSwitch)nextTurn(battle,side);
+       battle.history.push(me.name+' 因中毒而失去戰鬥能力。');
+       battle.history=battle.history.slice(-8);
+       return {ok:true,events,outcome:getOutcome(battle),needsSwitch:battle.requiresSwitch};
+     }
+     if(skip){
+       me.defending=false;
+       if(me.specialWait>0)me.specialWait--;
+       battle.history.push(me.name+(effect==='freeze'?' 被冰凍，這回合無法行動。':' 麻痺發作，這回合無法行動。'));
+       battle.actions++;battle.nonce++;nextTurn(battle,side);
+       battle.history=battle.history.slice(-8);
+       return {ok:true,events,outcome:getOutcome(battle),needsSwitch:battle.requiresSwitch};
+     }
+   }
    if (action.type==='switch') {
      if (!switchTo(battle,side,action.index)) return {ok:false,reason:'無法選擇該夥伴',events:[]};
      events.push({type:'switch',side,id:actor(battle,side).id});
@@ -118,8 +156,22 @@
      op.defending=false;
      const messages=[detail.effective?'屬性剋制！':detail.resisted?'屬性抵抗！':'',detail.defended?'防禦減傷':''].filter(Boolean);
      battle.history.push(me.name+' 使用 '+skill.name+'，造成 '+dealt+' 點傷害'+(messages.length?'（'+messages.join('、')+'）':'')+'。');
-     events.push({type:'attack',side,skill:skill.name,damage:dealt,special,target:op.id,element:detail.element,effective:detail.effective,resisted:detail.resisted,defended:detail.defended});
-     if (special) me.specialWait=3; // Current opportunity + two following own command opportunities.
+     events.push({type:'attack',side,source:me.id,skill:skill.name,damage:dealt,special,target:op.id,element:detail.element,effective:detail.effective,resisted:detail.resisted,defended:detail.defended,fxVariant:skill.fxVariant,fxSeed:skill.fxSeed});
+     if(special){
+       me.specialWait=3;
+       const ability=skill.ability||'none';
+       if((ability==='poison'||ability==='freeze'||ability==='paralysis')&&op.hp>0&&!op.status&&random()<(skill.chance||0)){
+         const turns=ability==='poison'?3:ability==='freeze'?1:2;
+         op.status={type:ability,turns};
+         events.push({type:'statusApply',side:1-side,id:op.id,status:ability});
+         battle.history.push(op.name+' 陷入'+({poison:'中毒',freeze:'冰凍',paralysis:'麻痺'}[ability])+'狀態！');
+       }else if(ability==='heal'){
+         const restored=Math.min(me.maxHp-me.hp,Math.max(1,Math.ceil(dealt*.3)));
+         if(restored>0){me.hp+=restored;events.push({type:'heal',side,id:me.id,amount:restored});}
+       }else if(ability==='shield'){
+         me.defending=true;events.push({type:'shield',side,id:me.id});
+       }
+     } // Current opportunity + two following own command opportunities.
      if (op.hp===0) {
        events.push({type:'faint',side:1-side,id:op.id});
        if (!alive(battle,1-side)) finish(battle,side,'對手全部三隻失去戰鬥能力');

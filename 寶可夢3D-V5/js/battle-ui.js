@@ -86,7 +86,8 @@
    const turn=session.turn===0&&!loading;
    const forced=session.requiresSwitch;
    const hp=f=>Math.max(0,Math.round(f.hp/f.maxHp*100));
-   const hpBox=(f,side)=>'<div class="v5-battle-hp '+side+'"><div><strong>'+esc(f.name)+'</strong><span>HP '+f.hp+'/'+f.maxHp+'</span></div><div class="v5-battle-track"><i style="width:'+hp(f)+'%"></i></div></div>';
+   const statusLabel={poison:'☠️ 中毒',freeze:'❄️ 冰凍',paralysis:'⚡ 麻痺'};
+   const hpBox=(f,side)=>'<div class="v5-battle-hp '+side+'"><div><strong>'+esc(f.name)+'</strong><span>HP '+f.hp+'/'+f.maxHp+'</span></div><div class="v5-battle-track"><i style="width:'+hp(f)+'%"></i></div>'+(f.status?'<small class="v5-battle-condition">'+statusLabel[f.status.type]+' '+f.status.turns+'回合</small>':'')+'</div>';
    const states=side=>session.teams[side].map((f,i)=>'<span title="'+esc(f.name)+'" class="'+(f.hp>0?'alive':'faint')+'">'+(i===session.active[side]?'●':'○')+'</span>').join('');
    const canAct=turn&&!forced;
    const available=C.available(session,0);
@@ -103,7 +104,7 @@
      '<div class="v5-battle-bottom"><div class="v5-battle-message" aria-live="polite">'+esc(message||session.history[session.history.length-1]||'')+'</div>'+
      (end?'':choices+'<div class="v5-battle-actions">'+
        '<button data-action="normal" '+(canAct?'':'disabled')+'>⚔️ 普通攻擊<small>〔'+esc(me.skills[0].element)+'〕 '+esc(me.skills[0].name)+' · '+me.skills[0].damage+'</small></button>'+
-       '<button data-action="special" '+(canAct&&me.specialWait===0?'':'disabled')+'>✨ 特殊技能<small>〔'+esc(me.skills[1].element)+'〕 '+esc(me.skills[1].name)+(me.specialWait?' · 冷卻 '+me.specialWait:'')+'</small></button>'+
+       '<button data-action="special" '+(canAct&&me.specialWait===0?'':'disabled')+'>✨ 特殊技能<small>〔'+esc(me.skills[1].element)+'〕 '+esc(me.skills[1].name)+(me.skills[1].ability&&me.skills[1].ability!=='none'?' · '+({poison:'中毒',freeze:'冰凍1回合',paralysis:'麻痺',heal:'吸血回復',shield:'護盾'}[me.skills[1].ability]||''):'')+(me.specialWait?' · 冷卻 '+me.specialWait:'')+'</small></button>'+
        '<button data-action="defend" '+(canAct?'':'disabled')+'>🛡️ 防禦<small>減少下次傷害 50%</small></button>'+
        '<button data-action="switch-menu" '+(canAct&&!forced&&available.length?'':'disabled')+'>🔄 更換夥伴<small>剩餘 '+available.length+' 隻可換</small></button>'+
        '</div>')+'</div>'+summary;
