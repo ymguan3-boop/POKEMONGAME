@@ -8,7 +8,7 @@
     <script src="vendor/tailwind.js"></script>
     <script src="vendor/three.min.js"></script>
     <script src="vendor/GLTFLoader.js"></script>
-    <script src="js/roster.js"></script><script src="js/legacy-roster.js"></script><script src="js/new-roster.js"></script><script src="js/v5-special.js"></script>
+    <script src="js/roster.js"></script><script src="js/legacy-roster.js"></script><script src="js/new-roster.js"></script><script src="js/spawn-priority.js?v=20261011"></script><script src="js/v5-special.js"></script>
     <script src="js/models-v2/kit.js"></script>
 <script src="js/models-v2/gen12.js"></script>
 <script src="js/models-v2/gen34.js"></script>
@@ -1104,8 +1104,9 @@
             
             pool=pool.filter(id=>V5_AVAILABLE_TYPES.has(id)&&V5Progress.eligible(gameState,id));
             if(gameState.worldFlags?.raichuSpawnUnlocked&&!pool.includes('raichu'))pool.push('raichu');
-            const weights=pool.map(id=>V5SpawnWeights[id]||1);let pick=Math.random()*weights.reduce((a,b)=>a+b,0);
-            for(let i=0;i<pool.length;i++){pick-=weights[i];if(pick<0)return pool[i];}return pool[pool.length-1];
+            // Apply collection-aware priorities only AFTER the existing model, story and evolution unlock filters.
+            // Never-caught species get 8x; 1-2 captured get 2x; 3+ captured get 0.2x.
+            return V5SpawnPriority.choose(pool, gameState, V5SpawnWeights, MAX_CAPTURE_LIMIT);
         };
 
         const purgeCapturedSpecialPokemon = (type) => {
