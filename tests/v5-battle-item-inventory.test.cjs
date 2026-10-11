@@ -11,7 +11,7 @@ const root={V5BattleUI:UI,V5BattleArena:Arena,V5BattleCore:core,V5BattleData:{
  normalizeParty:party=>party,catalog:()=>catalog,npcParty:()=>ids.slice(3)}};
 const doc={hidden:false,body:{classList:{add(){},remove(){}}}};
 const src=require('fs').readFileSync(require('path').join(__dirname,'../寶可夢3D-V5/js/battle-controller.js'),'utf8');
-new Function('window','document','setTimeout','console',src)(root,doc,fn=>{fn();return 0},console);
+new Function('window','document','setTimeout','console',src)(root,doc,fn=>{fn();return 0},{error(){},warn(){}});
 const Controller=root.V5BattleController;
 const vec={clone(){return this;},copy(){return this;}};
 function make(berry=2,great=2,master=2){
