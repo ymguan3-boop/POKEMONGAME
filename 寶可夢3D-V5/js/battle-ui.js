@@ -86,8 +86,21 @@
    const turn=session.turn===0&&!loading;
    const forced=session.requiresSwitch;
    const hp=f=>Math.max(0,Math.round(f.hp/f.maxHp*100));
-   const statusLabel={poison:'☠️ 中毒',freeze:'❄️ 冰凍',paralysis:'⚡ 麻痺'};
-   const hpBox=(f,side)=>'<div class="v5-battle-hp '+side+'"><div><strong>'+esc(f.name)+'</strong><span>HP '+f.hp+'/'+f.maxHp+'</span></div><div class="v5-battle-track"><i style="width:'+hp(f)+'%"></i></div>'+(f.status?'<small class="v5-battle-condition">'+statusLabel[f.status.type]+' '+f.status.turns+'回合</small>':'')+'</div>';
+   const statusLabel={poison:'☠️ 中毒',freeze:'❄️ 冰凍',paralysis:'⚡ 麻痺',sleep:'💤 睡眠'};
+   const firstRound=session.round===1 && session.status==='playing';
+   const openingMessage=session.openingSuit==='wigglytuff'
+     ?'💤 胖可丁套裝：首回合讓對手睡眠，NPC 本回合不能行動。'
+     :session.openingSuit==='blissey'
+       ?'🛡️ 幸福蛋套裝：首回合所有 NPC 攻擊無效。'
+       :'';
+   const hpBox=(f,side)=>{
+     const outfitLabel=firstRound&&side==='enemy'&&session.openingSuit==='wigglytuff'
+        ?'💤 睡眠 · 第1回合'
+        :firstRound&&side==='player'&&session.openingSuit==='blissey'?'🛡️ 首回合免疫':'';
+     const currentStatus=f.status ? (statusLabel[f.status.type]||'異常狀態')+' '+f.status.turns+'回合' : '';
+     const stateText=outfitLabel||currentStatus;
+     return '<div class="v5-battle-hp '+side+'"><div><strong>'+esc(f.name)+'</strong><span>HP '+f.hp+'/'+f.maxHp+'</span></div><div class="v5-battle-track"><i style="width:'+hp(f)+'%"></i></div>'+(stateText?'<small class="v5-battle-condition">'+esc(stateText)+'</small>':'')+'</div>';
+   };
    const states=side=>session.teams[side].map((f,i)=>'<span title="'+esc(f.name)+'" class="'+(f.hp>0?'alive':'faint')+'">'+(i===session.active[side]?'●':'○')+'</span>').join('');
    const canAct=turn&&!forced;
    const available=C.available(session,0);
@@ -101,7 +114,7 @@
      '<header class="v5-battle-top"><strong>⚔️ 真新鎮 3D 對戰擂台</strong><span>回合 '+session.round+'</span><button data-action="exit" aria-label="離開對戰">離開</button></header>'+
      hpBox(enemy,'enemy')+'<div class="v5-battle-teamdots npc">'+states(1)+'</div>'+
      hpBox(me,'player')+'<div class="v5-battle-teamdots player">'+states(0)+'</div>'+
-     '<div class="v5-battle-bottom"><div class="v5-battle-message" aria-live="polite">'+esc(message||session.history[session.history.length-1]||'')+'</div>'+
+     '<div class="v5-battle-bottom"><div class="v5-battle-message" aria-live="polite">'+esc(firstRound&&openingMessage?openingMessage:message||session.history[session.history.length-1]||'')+'</div>'+
      (end?'':choices+'<div class="v5-battle-actions">'+
        '<button data-action="normal" '+(canAct?'':'disabled')+'>⚔️ 普通攻擊<small>〔'+esc(me.skills[0].element)+'〕 '+esc(me.skills[0].name)+' · '+me.skills[0].damage+'</small></button>'+
        '<button data-action="special" '+(canAct&&me.specialWait===0?'':'disabled')+'>✨ 特殊技能<small>〔'+esc(me.skills[1].element)+'〕 '+esc(me.skills[1].name)+(me.skills[1].ability&&me.skills[1].ability!=='none'?' · '+({poison:'中毒',freeze:'冰凍1回合',paralysis:'麻痺',heal:'吸血回復',shield:'護盾'}[me.skills[1].ability]||''):'')+(me.specialWait?' · 冷卻 '+me.specialWait:'')+'</small></button>'+

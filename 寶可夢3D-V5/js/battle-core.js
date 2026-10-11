@@ -28,12 +28,15 @@
      {name:special.name,element:special.element||card.element||'一般',damage:Math.max(1,Number(special.damage)||30),ability:special.ability||'none',chance:Number(special.chance)||0,fxVariant:special.fxVariant||'burst',fxSeed:special.fxSeed||0}],defending:false,specialWait:0,status:null};
  }
  function createBattle(config) {
-   const {playerParty,opponentParty,catalog} = config || {};
+   const {playerParty,opponentParty,catalog,openingSuit} = config || {};
    if (!Array.isArray(playerParty) || playerParty.length !== 3 || new Set(playerParty).size !== 3 ||
        !Array.isArray(opponentParty) || opponentParty.length !== 3) throw new Error('3v3 隊伍資料無效');
-   return {teams:[playerParty.map(id=>toFighter(id,catalog)),opponentParty.map(id=>toFighter(id,catalog))],
+   const battle={teams:[playerParty.map(id=>toFighter(id,catalog)),opponentParty.map(id=>toFighter(id,catalog))],
      active:[0,0],turn:0,round:1,requiresSwitch:false,status:'playing',winner:null,reason:'',
-     history:['3D 對戰開始！'],actions:0,nonce:0};
+     history:['3D 對戰開始！'],actions:0,nonce:0,
+     openingSuit:['wigglytuff','blissey'].includes(openingSuit)?openingSuit:null,openingResolved:false};
+   if(battle.openingSuit==='wigglytuff')battle.teams[1][0].status={type:'sleep',turns:1,source:'suit'};
+   return battle;
  }
  const actor = (battle,side) => battle.teams[side][battle.active[side]];
  const alive = (battle,side) => battle.teams[side].some(f => f.hp > 0);
@@ -101,6 +104,19 @@
    if (battle.requiresSwitch && (side!==0 || action.type!=='switch'))
      return {ok:false,reason:'請先更換尚能戰鬥的夥伴',events:[]};
    const me=actor(battle,side),op=actor(battle,1-side),events=[];
+   // Wigglytuff suit is a battle-wide opening spell: even a forced NPC replacement
+   // cannot avoid the first-turn sleep. It applies once, never on round two.
+   if(side===1 && battle.round===1 && battle.openingSuit==='wigglytuff' && !battle.openingResolved){
+     battle.openingResolved=true;
+     for(const member of battle.teams[1])if(member.status?.source==='suit')member.status=null;
+     me.defending=false;
+     if(me.specialWait>0)me.specialWait--;
+     events.push({type:'statusSkip',side:1,id:me.id,status:'sleep',source:'wigglytuffSuit'});
+     battle.history.push('💤 胖可丁套裝：NPC 首回合睡眠，無法行動！第二回合恢復正常。');
+     battle.actions++;battle.nonce++;nextTurn(battle,side);
+     battle.history=battle.history.slice(-8);
+     return {ok:true,events,outcome:getOutcome(battle),needsSwitch:battle.requiresSwitch};
+   }
    if(!['switch','defend','normal','special'].includes(action.type))return {ok:false,reason:'未知行動',events:[]};
    if(action.type==='special'&&me.specialWait>0)return {ok:false,reason:'特殊技能尚在冷卻',events:[]};
    if(action.type==='switch'&&!available(battle,side).some(f=>f.i===action.index))return {ok:false,reason:'無法選擇該夥伴',events:[]};
@@ -112,8 +128,8 @@
      if(effect==='poison'){
        const loss=Math.max(1,Math.ceil(me.maxHp*.08));
        me.hp=Math.max(0,me.hp-loss);events.push({type:'statusTick',side,id:me.id,status:'poison',damage:loss});
-     }else if(effect==='freeze'){
-       skip=true;events.push({type:'statusSkip',side,id:me.id,status:'freeze'});
+     }else if(effect==='freeze'||effect==='sleep'){
+       skip=true;events.push({type:'statusSkip',side,id:me.id,status:effect});
      }else if(effect==='paralysis'&&random()<.45){
        skip=true;events.push({type:'statusSkip',side,id:me.id,status:'paralysis'});
      }
@@ -133,7 +149,7 @@
      if(skip){
        me.defending=false;
        if(me.specialWait>0)me.specialWait--;
-       battle.history.push(me.name+(effect==='freeze'?' 被冰凍，這回合無法行動。':' 麻痺發作，這回合無法行動。'));
+       battle.history.push(me.name+(effect==='freeze'?' 被冰凍，這回合無法行動。':effect==='sleep'?' 陷入睡眠，這回合無法行動。':' 麻痺發作，這回合無法行動。'));
        battle.actions++;battle.nonce++;nextTurn(battle,side);
        battle.history=battle.history.slice(-8);
        return {ok:true,events,outcome:getOutcome(battle),needsSwitch:battle.requiresSwitch};
@@ -151,24 +167,26 @@
      const special=action.type==='special';
      if (special && me.specialWait>0) return {ok:false,reason:'特殊技能尚在冷卻',events:[]};
      const skill=me.skills[special?1:0];
-     const detail=damageDetails(me,op,skill),dealt=detail.amount;
+     const detail=damageDetails(me,op,skill);
+     const suitImmune=side===1 && battle.round===1 && battle.openingSuit==='blissey';
+     const dealt=suitImmune?0:detail.amount;
      op.hp=max(op.hp-dealt,0,op.maxHp);
      op.defending=false;
      const messages=[detail.effective?'屬性剋制！':detail.resisted?'屬性抵抗！':'',detail.defended?'防禦減傷':''].filter(Boolean);
-     battle.history.push(me.name+' 使用 '+skill.name+'，造成 '+dealt+' 點傷害'+(messages.length?'（'+messages.join('、')+'）':'')+'。');
-     events.push({type:'attack',side,source:me.id,skill:skill.name,damage:dealt,special,target:op.id,element:detail.element,effective:detail.effective,resisted:detail.resisted,defended:detail.defended,fxVariant:skill.fxVariant,fxSeed:skill.fxSeed});
+     battle.history.push(suitImmune?'🛡️ 幸福蛋套裝：NPC 首回合攻擊無效，傷害 0！':me.name+' 使用 '+skill.name+'，造成 '+dealt+' 點傷害'+(messages.length?'（'+messages.join('、')+'）':'')+'。');
+     events.push({type:'attack',side,source:me.id,skill:skill.name,damage:dealt,special,target:op.id,element:detail.element,effective:detail.effective,resisted:detail.resisted,defended:detail.defended,immune:suitImmune,fxVariant:skill.fxVariant,fxSeed:skill.fxSeed});
      if(special){
        me.specialWait=3;
        const ability=skill.ability||'none';
-       if((ability==='poison'||ability==='freeze'||ability==='paralysis')&&op.hp>0&&!op.status&&random()<(skill.chance||0)){
+       if(!suitImmune&&(ability==='poison'||ability==='freeze'||ability==='paralysis')&&op.hp>0&&!op.status&&random()<(skill.chance||0)){
          const turns=ability==='poison'?3:ability==='freeze'?1:2;
          op.status={type:ability,turns};
          events.push({type:'statusApply',side:1-side,id:op.id,status:ability});
          battle.history.push(op.name+' 陷入'+({poison:'中毒',freeze:'冰凍',paralysis:'麻痺'}[ability])+'狀態！');
-       }else if(ability==='heal'){
+       }else if(!suitImmune&&ability==='heal'){
          const restored=Math.min(me.maxHp-me.hp,Math.max(1,Math.ceil(dealt*.3)));
          if(restored>0){me.hp+=restored;events.push({type:'heal',side,id:me.id,amount:restored});}
-       }else if(ability==='shield'){
+       }else if(!suitImmune&&ability==='shield'){
          me.defending=true;events.push({type:'shield',side,id:me.id});
        }
      } // Current opportunity + two following own command opportunities.

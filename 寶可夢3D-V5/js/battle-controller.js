@@ -61,17 +61,33 @@
    this.state.currentMode='battle3d';
    this.state.interactionOpen=true;
    document.body.classList.add('v5-battle-active');
+   try{this.ctx.onBattleMusicStart?.();}catch(error){console.warn('[v5-battle] battle BGM unavailable',error);}
    this.ui.loading();
    try{
     const npcParty=root.V5BattleData.npcParty(this.state);
     this.opponentPrizeId=npcParty.rewardId||null;
+    // Check the outfit currently worn at entry, not whether a suit was ever unlocked.
+    const suit=this.state.equip?.activeSuit;
+    const openingSuit=(suit==='wigglytuff'&&this.state.equip?.wigglytuffSuit)||
+      (suit==='blissey'&&this.state.equip?.blisseySuit)?suit:null;
     this.session=root.V5BattleCore.createBattle({playerParty:allowed.party,
-      opponentParty:npcParty,catalog:root.V5BattleData.catalog()});
+      opponentParty:npcParty,catalog:root.V5BattleData.catalog(),openingSuit});
     this.arena=new root.V5BattleArena();
     await this.arena.showBoth(root.V5BattleCore.actor(this.session,0).id,root.V5BattleCore.actor(this.session,1).id);
     if(id!==this.sequence||!this.active)return false;
     this.loading=false;this.busy=false;this.persist();
-    this.ui.renderBattle('訓練家挑戰開始，請選擇招式！');
+    const announcement=this.session.openingSuit==='wigglytuff'
+      ?'💤 胖可丁套裝啟動！對方寶可夢首回合睡眠，不能行動；第二回合恢復。'
+      :this.session.openingSuit==='blissey'
+        ?'🛡️ 幸福蛋套裝啟動！首回合 NPC 攻擊完全無效，第二回合恢復正常。'
+        :'訓練家挑戰開始，請選擇招式！';
+    this.ui.renderBattle(announcement);
+    if(this.session.openingSuit==='wigglytuff'){
+      this.arena.statusBurst(this.arena.fighters[1],'sleep');this.arena.showOpeningIcon(1,'sleep');
+    }
+    if(this.session.openingSuit==='blissey'){
+      this.arena.statusBurst(this.arena.fighters[0],'shield');this.arena.showOpeningIcon(0,'shield');
+    }
     return true;
    }catch(error){
     console.error('[v5-battle] start failed',error);
@@ -109,6 +125,7 @@
      if(enemy.ok)await this.runEvents(enemy.events,token);
     }
     if(token!==this.sequence||!this.active)return false;
+    if(s.round>1||s.status==='finished')this.arena?.clearOpeningIcon();
     if(s.status==='finished')this.recordOutcome();
     this.busy=false;this.ui.renderBattle();
     return true;
@@ -164,6 +181,7 @@
     this.state.isCharging=false;
     this.state.autoNavigateCenter=false;
    }else this.state.currentMode='world';
+   try{this.ctx.onBattleMusicStop?.();}catch(error){console.warn('[v5-battle] world BGM restore unavailable',error);}
    this.state.interactionOpen=false;this.snapshot=null;this.rewardAfterExit=false;this.opponentPrizeId=null;
    if(shouldReward&&this.ctx.onVictory){
     try{this.ctx.onVictory();}catch(error){console.error('[v5-battle] encounter reward deferred',error);}
