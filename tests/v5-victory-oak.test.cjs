@@ -38,3 +38,28 @@ test('legacy Thunder Stone does not bypass Oak conversation',()=>{
  const s=P.migrate({items:{thunderStone:2},captureCounts:{pikachu:0},worldFlags:{raichuSpawnUnlocked:true}});
  assert.equal(P.eligible(s,'raichu'),false);
 });
+
+test('3D trainer records one pending prize per win, none for a loss, and survives saves',()=>{
+ const originalUI=globalThis.V5BattleUI,originalCore=globalThis.V5BattleCore;
+ const existingController=globalThis.V5BattleController;
+ try{
+  globalThis.V5BattleUI=class {constructor(){}};
+  globalThis.V5BattleCore={getOutcome:session=>({finished:true,winner:session.winner})};
+  // Module initialization only attaches the controller class; it does not start a scene.
+  delete require.cache[require.resolve('../寶可夢3D-V5/js/battle-controller.js')];
+  require('../寶可夢3D-V5/js/battle-controller.js');
+  const s={worldFlags:{},specialPokemonCaptured:{},captureCounts:{},
+   battle3d:P.normalizeBattle({})},saved=[];
+  const controller=new globalThis.V5BattleController({state:s,save:()=>saved.push(P.normalizeBattle(s.battle3d,s))});
+  controller.session={winner:0};controller.recordOutcome();controller.recordOutcome();
+  assert.equal(s.battle3d.stats.wins,1);assert.equal(s.battle3d.pendingWins,1);
+  assert.equal(controller.rewardAfterExit,true);assert.equal(!!s.worldFlags.mewtwoAwaiting,false);
+  controller.recorded=false;controller.session={winner:1};controller.recordOutcome();
+  assert.equal(s.battle3d.stats.losses,1);assert.equal(s.battle3d.pendingWins,1);
+  assert.equal(P.migrate({battle3d:s.battle3d}).battle3d.pendingWins,1);
+  assert.equal(saved.length,2);
+ }finally{
+  globalThis.V5BattleUI=originalUI;globalThis.V5BattleCore=originalCore;
+  globalThis.V5BattleController=existingController;
+ }
+});
