@@ -53,22 +53,22 @@
    visual.position.y-=new T.Box3().setFromObject(visual).min.y;
    const clips=Array.isArray(asset.animations)?asset.animations:[];
    let controller=null;
+   const idleClip=clips.find(c=>/idle|hover|fly|flap|walk|float/i.test(c.name))?.name||null;
    if(clips.length&&root.V5AnimationController){
     controller=new root.V5AnimationController(visual,clips);
-    const clip=clips.find(c=>/^(idle|hover|fly|flap|walk)$/i.test(c.name))||clips[0];
-    controller.play(clip.name);
+    if(idleClip)controller.play(idleClip);
    }
    const flying=/butterfree|beedrill|articuno|zapdos|moltres|rayquaza|pidge|wing|dragonite/i.test(id);
    const wings=[];
    // Procedural fallback on models with no usable idle clip; animated GLBs retain their own tracks.
-   if(!controller&&flying){
+   if(!idleClip&&flying){
      visual.traverse(node=>{
        if(wings.length<6&&node!==visual&&/(^|[-_ ])wing([-_ ]|$)/i.test(node.name||'')){
          wings.push({node,angle:node.rotation.z,side:node.position.x<0?-1:1});
        }
      });
    }
-   this.fighters[side]={id,holder,visual,controller,baseX:holder.position.x,baseZ:holder.position.z,hurt:0,flying,wings};
+   this.fighters[side]={id,holder,visual,controller,idleClip,baseX:holder.position.x,baseZ:holder.position.z,hurt:0,flying,wings};
    this.fitCombatants();
   }
   // Portrait view: fit the full silhouettes horizontally instead of cropping both fighters.
@@ -132,7 +132,20 @@
     const material=new T.MeshBasicMaterial({color,transparent:true,opacity:.84,side:T.DoubleSide,depthWrite:false});
     const sparkle=new T.Mesh(geometry,material);
     const width=/spiral|rings|wave/.test(variant)?1.1:.62;
-    sparkle.position.copy(from).add(new T.Vector3(Math.cos(theta)*width,Math.sin(theta)*.34,Math.sin(theta)*width*.5));
+    // Each named formation traces a recognizably different attack silhouette.
+    const offset={
+     spiral:()=>new T.Vector3(Math.cos(theta)*width,Math.sin(theta*2)*.44,Math.sin(theta)*.52),
+     burst:()=>new T.Vector3(Math.cos(theta)*.9,Math.sin(theta)*.7,Math.sin(theta*1.8)*.7),
+     star:()=>new T.Vector3(Math.cos(theta)*(i%2?.38:1.1),Math.sin(theta)*(i%2?.38:1.1),0),
+     wave:()=>new T.Vector3((i-3.5)*.22,Math.sin(i*1.4)*.5,Math.cos(i*.75)*.36),
+     shards:()=>new T.Vector3(Math.cos(theta)*1.1,Math.cos(theta*3)*.58,Math.sin(theta)*.8),
+     rings:()=>new T.Vector3(Math.cos(theta)*.95,Math.sin(theta)*.95,Math.sin(theta*3)*.14),
+     lance:()=>new T.Vector3((i-3.5)*.12,(i-3.5)*.16,Math.sin(theta)*.16),
+     petals:()=>new T.Vector3(Math.cos(theta)*.75,Math.sin(theta)*.44,Math.cos(theta*2)*.55),
+     comet:()=>new T.Vector3(-i*.21,Math.sin(theta)*.25,i*.10),
+     flurry:()=>new T.Vector3(Math.cos(theta*3)*.9,Math.sin(theta*2)*.6,Math.cos(theta)*.75)
+    }[variant]||(()=>new T.Vector3(Math.cos(theta)*width,Math.sin(theta)*.34,0));
+    sparkle.position.copy(from).add(offset());
     sparkle.rotation.set(theta,theta*.6,theta*.8);
     this.addEffect(sparkle,.32+(.02*i),'signature',sparkle.position.clone(),to.clone().add(new T.Vector3(Math.sin(theta)*.45,Math.cos(theta)*.45,0)));
    }
@@ -175,8 +188,11 @@
     }
     await wait(560);
     if(this.disposed)return;
-    if(fighter.controller)fighter.controller.play('Idle');
-    if(opponent&&opponent.controller)opponent.controller.play('Idle');
+    for(const unit of [fighter,opponent]){
+     if(!unit?.controller)continue;
+     if(unit.idleClip)unit.controller.play(unit.idleClip);
+     else unit.controller.mixer?.stopAllAction();
+    }
    }else if(event.type==='statusApply'||event.type==='statusTick'||event.type==='statusSkip'
       ||event.type==='heal'||event.type==='shield'){
     const target=this.fighters[event.side];
