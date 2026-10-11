@@ -101,6 +101,9 @@
    if (battle.requiresSwitch && (side!==0 || action.type!=='switch'))
      return {ok:false,reason:'請先更換尚能戰鬥的夥伴',events:[]};
    const me=actor(battle,side),op=actor(battle,1-side),events=[];
+   if(!['switch','defend','normal','special'].includes(action.type))return {ok:false,reason:'未知行動',events:[]};
+   if(action.type==='special'&&me.specialWait>0)return {ok:false,reason:'特殊技能尚在冷卻',events:[]};
+   if(action.type==='switch'&&!available(battle,side).some(f=>f.i===action.index))return {ok:false,reason:'無法選擇該夥伴',events:[]};
    // Status conditions trigger only when the affected fighter receives an action opportunity.
    // Forced replacement always takes priority over a condition on the fallen fighter.
    let skip=false;
