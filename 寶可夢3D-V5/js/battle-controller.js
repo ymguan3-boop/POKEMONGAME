@@ -124,11 +124,10 @@
    if(forfeited){d.stats.forfeits=(d.stats.forfeits||0)+1;d.stats.losses=(d.stats.losses||0)+1;}
    else if(out.winner===0){
     d.stats.wins=(d.stats.wins||0)+1;
-    if(!d.rewards.specialDuoUnlocked){
-     d.rewards.specialDuoUnlocked=true;this.rewardAfterExit=true;
-     this.state.worldFlags.mewtwoAwaiting=!this.state.specialPokemonCaptured.mewtwo;
-     this.state.worldFlags.jigglypuffAwaiting=!this.state.specialPokemonCaptured.jigglypuff;
-    }
+    // Every completed victory earns exactly one encounter (or a choice when collected).
+    // Persist the pending win before leaving the arena so a reload cannot lose the reward.
+    d.pendingWins=(d.pendingWins||0)+1;
+    this.rewardAfterExit=true;
    }else if(out.winner===null)d.stats.draws=(d.stats.draws||0)+1;
    else d.stats.losses=(d.stats.losses||0)+1;
    this.persist();
@@ -162,8 +161,8 @@
     this.state.autoNavigateCenter=false;
    }else this.state.currentMode='world';
    this.state.interactionOpen=false;this.snapshot=null;this.rewardAfterExit=false;
-   if(shouldReward&&this.ctx.onFirstWin){
-    try{this.ctx.onFirstWin();}catch(error){console.error('[v5-battle] reward spawn deferred',error);}
+   if(shouldReward&&this.ctx.onVictory){
+    try{this.ctx.onVictory();}catch(error){console.error('[v5-battle] encounter reward deferred',error);}
     this.persist();
    }
   }
