@@ -12,7 +12,7 @@
   const family=info.family||id;const chain=PalletRoster.families.find(row=>row.slice(2).some(p=>p[0]===id));
   const evolvesFrom=chain&&stage>1?chain[stage][0]:id==='raichu'?'pikachu':id==='metapod'?'caterpie':id==='butterfree'?'metapod':id==='kakuna'?'weedle':id==='beedrill'?'kakuna':null;
   const element=elementOf(info),hp=legendary?170:stage===3?140:stage===2?100:70,energy=stage===3||legendary?3:stage===2?2:1,damage=legendary?80:stage===3?65:stage===2?45:25,attack=attacks[element]||'閃耀衝擊';
-  return Object.freeze({id,speciesId:id,name:info.name,nameZh:info.name,element,stage,evolvesFrom,family,legendary,hp,energy,attack,damage,skills:Object.freeze([{name:'靈巧一擊',energy:1,damage:Math.max(15,Math.round(damage*.55/5)*5),effect:'輕快出招'},{name:attack,energy,damage,effect:'完成主要屬性攻勢'}]),weakness:weakness[element]||'一般',retreatCost:legendary?2:1,description:info.desc||`${info.name}在真新鎮展開冒險。`,art:V5CardArt?.[id]||null,modelPath:modelSource(id),modelVersion:'V5',cardNumber:index+1});
+  return Object.freeze({id,speciesId:id,name:info.name,nameZh:info.name,element,types:Object.freeze((info.type||'一般').split('／')),stage,evolvesFrom,family,legendary,hp,energy,attack,damage,skills:Object.freeze([{name:'靈巧一擊',energy:1,damage:Math.max(15,Math.round(damage*.55/5)*5),effect:'輕快出招'},{name:attack,energy,damage,effect:'完成主要屬性攻勢'}]),weakness:weakness[element]||'一般',retreatCost:legendary?2:1,description:info.desc||`${info.name}在真新鎮展開冒險。`,art:V5CardArt?.[id]||null,modelPath:modelSource(id),modelVersion:'V5',cardNumber:index+1});
  });
  window.V5CardCatalog=Object.freeze(entries);
  window.V5CardById=Object.freeze(Object.fromEntries(entries.map(c=>[c.id,c])));
