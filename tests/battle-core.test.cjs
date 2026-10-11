@@ -28,11 +28,11 @@ test('每個玩家回合只做一個行動，AI 再回應',()=>{
  assert.equal(s.turn,1);assert.equal(core.applyAction(s,0,{type:'normal'}).ok,false);
  opponentTurn(s);assert.equal(s.turn,0);assert.equal(s.round,2);
 });
-test('屬性加成採 1.5 倍且防禦只減半下一次傷害',()=>{
+test('同屬性招式 1.25 倍、命中弱點 1.5 倍且防禦減半',()=>{
  const s=create(),a=core.actor(s,0),b=core.actor(s,1);
- a.element='火';b.weakness='火';
- assert.equal(core.damage(a,b,{damage:45}),68);
- b.defending=true;assert.equal(core.damage(a,b,{damage:45}),34);
+ a.element='火';a.types=['火'];b.weakness='火';
+ assert.equal(core.damage(a,b,{damage:45,element:'火'}),84);
+ b.defending=true;assert.equal(core.damage(a,b,{damage:45,element:'火'}),42);
  const defense=create();core.applyAction(defense,0,{type:'defend'});
  const hit=core.applyAction(defense,1,{type:'normal'});
  assert.equal(hit.events[0].damage,8);
@@ -81,4 +81,27 @@ test('沒有活著的換人對象不可切換',()=>{
  const s=create();s.teams[0][1].hp=0;s.teams[0][2].hp=0;
  assert.equal(core.available(s,0).length,0);
  assert.equal(core.applyAction(s,0,{type:'switch',index:1}).ok,false);
+});
+
+test('招式依實際屬性加成，普通攻擊不可借用火系弱點',()=>{
+ const s=create(),a=core.actor(s,0),b=core.actor(s,1);
+ a.element='火';a.types=['火','飛行'];b.weakness='火';
+ assert.equal(core.damage(a,b,{damage:20,element:'一般'}),20);
+ assert.equal(core.damage(a,b,{damage:20,element:'火'}),38);
+ assert.equal(core.damage(a,b,{damage:20,element:'飛行'}),25);
+ assert.equal(core.damage(a,b,{damage:20,element:'水'}),20);
+ const normal=core.applyAction(s,0,{type:'normal'});
+ assert.equal(normal.events[0].element,'一般');
+ assert.equal(normal.events[0].sameType,false);
+});
+test('攻擊事件回傳攻擊屬性、受擊資訊與加成標記',()=>{
+ const s=create(),me=core.actor(s,0),enemy=core.actor(s,1);
+ me.element='草';me.types=['草'];enemy.weakness='草';
+ const result=core.applyAction(s,0,{type:'special'});
+ assert.equal(result.ok,true);
+ assert.equal(result.events[0].type,'attack');
+ assert.equal(result.events[0].element,'草');
+ assert.equal(result.events[0].sameType,true);
+ assert.equal(result.events[0].effective,true);
+ assert.match(s.history.at(-1),/同屬性強化/);
 });

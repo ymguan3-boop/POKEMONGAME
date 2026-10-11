@@ -22,9 +22,10 @@
    const normal = card.skills && card.skills[0] || {name:'普通攻擊',damage:Math.max(10,Math.round(card.damage / 2))};
    const special = card.skills && card.skills[1] || {name:card.attack || '特殊技能',damage:card.damage || 35};
    const hp = Math.max(1,Number(card.hp)||70);
-   return {id:card.id,name:card.name,element:card.element || '一般',weakness:card.weakness || '一般',
-     hp,maxHp:hp,skills:[{name:normal.name,damage:Math.max(1,Number(normal.damage)||15)},
-     {name:special.name,damage:Math.max(1,Number(special.damage)||30)}],defending:false,specialWait:0};
+   const types=Array.isArray(card.types)&&card.types.length?card.types:[card.element||'一般'];
+   return {id:card.id,name:card.name,element:card.element || '一般',types,weakness:card.weakness || '一般',
+     hp,maxHp:hp,skills:[{name:normal.name,element:normal.element||'一般',damage:Math.max(1,Number(normal.damage)||15)},
+     {name:special.name,element:special.element||card.element||'一般',damage:Math.max(1,Number(special.damage)||30)}],defending:false,specialWait:0};
  }
  function createBattle(config) {
    const {playerParty,opponentParty,catalog} = config || {};
@@ -39,10 +40,18 @@
  function available(battle,side) {
    return battle.teams[side].map((f,i)=>({i,id:f.id,hp:f.hp})).filter(a=>a.hp>0 && a.i!==battle.active[side]);
  }
- function damage(attacker,defender,skill) {
-   const multiplier = attacker.element === defender.weakness ? 1.5 : 1;
-   return Math.max(1,Math.round(skill.damage * multiplier * (defender.defending ? .5 : 1)));
+ // Original V5 rules: matching the move to the attacker's type earns a 25% STAB bonus.
+ // Hitting the defender's listed weakness earns another 50%; defending halves the final total.
+ function damageDetails(attacker,defender,skill) {
+   const element=skill.element||'一般';
+   const types=Array.isArray(attacker.types)&&attacker.types.length?attacker.types:[attacker.element||'一般'];
+   const sameType=types.includes(element);
+   const effective=element===defender.weakness;
+   const defended=Boolean(defender.defending);
+   const multiplier=(sameType?1.25:1)*(effective?1.5:1)*(defended?.5:1);
+   return {amount:Math.max(1,Math.round(skill.damage*multiplier)),element,sameType,effective,defended,multiplier};
  }
+ function damage(attacker,defender,skill){return damageDetails(attacker,defender,skill).amount;}
  function getOutcome(battle) {
    return {finished:battle.status==='finished',winner:battle.winner,reason:battle.reason};
  }
@@ -87,11 +96,12 @@
      const special=action.type==='special';
      if (special && me.specialWait>0) return {ok:false,reason:'特殊技能尚在冷卻',events:[]};
      const skill=me.skills[special?1:0];
-     const dealt=damage(me,op,skill);
+     const detail=damageDetails(me,op,skill),dealt=detail.amount;
      op.hp=max(op.hp-dealt,0,op.maxHp);
-     const guarded=op.defending;op.defending=false;
-     battle.history.push(me.name+' 使用 '+skill.name+'，造成 '+dealt+' 點傷害'+(guarded?'（防禦減傷）':'')+'。');
-     events.push({type:'attack',side,skill:skill.name,damage:dealt,special,target:op.id});
+     op.defending=false;
+     const messages=[detail.sameType?'同屬性強化！':'',detail.effective?'效果絕佳！':'',detail.defended?'防禦減傷':''].filter(Boolean);
+     battle.history.push(me.name+' 使用 '+skill.name+'，造成 '+dealt+' 點傷害'+(messages.length?'（'+messages.join('、')+'）':'')+'。');
+     events.push({type:'attack',side,skill:skill.name,damage:dealt,special,target:op.id,element:detail.element,sameType:detail.sameType,effective:detail.effective,defended:detail.defended});
      if (special) me.specialWait=3; // Current opportunity + two following own command opportunities.
      if (op.hp===0) {
        events.push({type:'faint',side:1-side,id:op.id});
@@ -126,6 +136,6 @@
    return {type:options[0].type};
  }
  function forfeit(battle) {if(battle.status==='playing')finish(battle,1,'玩家放棄對戰');return getOutcome(battle)}
- root.V5BattleCore={isCaught,validateParty,createBattle,applyAction,nextTurn,getOutcome,pickAIAction,forfeit,damage,available,actor};
+ root.V5BattleCore={isCaught,validateParty,createBattle,applyAction,nextTurn,getOutcome,pickAIAction,forfeit,damage,damageDetails,available,actor};
  if(typeof module!=='undefined'&&module.exports)module.exports=root.V5BattleCore;
 })(typeof window!=='undefined'?window:globalThis);

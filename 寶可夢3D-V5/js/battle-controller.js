@@ -9,7 +9,7 @@
    this.state.battle3d=this.state.battle3d || defaultBattle();
    this.ui=new root.V5BattleUI(this);this.session=null;this.arena=null;
    this.busy=false;this.active=false;this.sequence=0;this.recorded=false;
-   this.snapshot=null;this.rewardAfterExit=false;this.loading=false;
+   this.snapshot=null;this.rewardAfterExit=false;this.loading=false;this.opponentPrizeId=null;
   }
   data(){
    const state=this.state;
@@ -52,7 +52,7 @@
    if(!allowed.ok){this.ui.renderParty();return false;}
    const id=++this.sequence;
    this.active=true;this.loading=true;this.busy=true;this.recorded=false;
-   this.rewardAfterExit=false;this.session=null;
+   this.rewardAfterExit=false;this.session=null;this.opponentPrizeId=null;
    const player=this.ctx.player,camera=this.ctx.camera;
    this.snapshot={mode:this.state.currentMode,position:player.position.clone(),camAngle:this.state.camAngle,
      cameraPosition:camera.position.clone(),cameraQuaternion:camera.quaternion.clone(),isCharging:this.state.isCharging,
@@ -63,8 +63,10 @@
    document.body.classList.add('v5-battle-active');
    this.ui.loading();
    try{
+    const npcParty=root.V5BattleData.npcParty(this.state);
+    this.opponentPrizeId=npcParty.rewardId||null;
     this.session=root.V5BattleCore.createBattle({playerParty:allowed.party,
-      opponentParty:root.V5BattleData.npcParty(),catalog:root.V5BattleData.catalog()});
+      opponentParty:npcParty,catalog:root.V5BattleData.catalog()});
     this.arena=new root.V5BattleArena();
     await this.arena.showBoth(root.V5BattleCore.actor(this.session,0).id,root.V5BattleCore.actor(this.session,1).id);
     if(id!==this.sequence||!this.active)return false;
@@ -127,6 +129,8 @@
     // Every completed victory earns exactly one encounter (or a choice when collected).
     // Persist the pending win before leaving the arena so a reload cannot lose the reward.
     d.pendingWins=(d.pendingWins||0)+1;
+    d.pendingPreferredRewards=Array.isArray(d.pendingPreferredRewards)?d.pendingPreferredRewards:[];
+    d.pendingPreferredRewards.push(this.opponentPrizeId||'');
     this.rewardAfterExit=true;
    }else if(out.winner===null)d.stats.draws=(d.stats.draws||0)+1;
    else d.stats.losses=(d.stats.losses||0)+1;
@@ -160,7 +164,7 @@
     this.state.isCharging=false;
     this.state.autoNavigateCenter=false;
    }else this.state.currentMode='world';
-   this.state.interactionOpen=false;this.snapshot=null;this.rewardAfterExit=false;
+   this.state.interactionOpen=false;this.snapshot=null;this.rewardAfterExit=false;this.opponentPrizeId=null;
    if(shouldReward&&this.ctx.onVictory){
     try{this.ctx.onVictory();}catch(error){console.error('[v5-battle] encounter reward deferred',error);}
     this.persist();

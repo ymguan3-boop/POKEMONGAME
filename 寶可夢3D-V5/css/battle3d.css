@@ -68,3 +68,9 @@ body.v5-battle-active #berry-buff-indicator{
 
 .v5-battle-order{display:flex;justify-content:center;gap:4px;margin-top:4px}
 .v5-battle-order button{min-height:42px;min-width:36px;padding:5px;font-size:15px;line-height:1}
+
+/* 3D battle isolates exploration-only powers and emphasizes typed combat feedback. */
+body.v5-battle-active #time-stop-overlay{display:none!important;visibility:hidden!important;pointer-events:none!important}
+.v5-hit-float{animation:v5-hit-appear .18s ease-out both;filter:drop-shadow(0 1px 5px #000)}
+@keyframes v5-hit-appear{from{scale:.65}to{scale:1}}
+.v5-battle-overlay .v5-battle-message{border:1px solid #9bcbdb;font-size:clamp(12px,3.2vw,15px);font-weight:650}

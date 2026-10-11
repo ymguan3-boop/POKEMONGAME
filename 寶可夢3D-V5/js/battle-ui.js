@@ -102,8 +102,8 @@
      hpBox(me,'player')+'<div class="v5-battle-teamdots player">'+states(0)+'</div>'+
      '<div class="v5-battle-bottom"><div class="v5-battle-message" aria-live="polite">'+esc(message||session.history[session.history.length-1]||'')+'</div>'+
      (end?'':choices+'<div class="v5-battle-actions">'+
-       '<button data-action="normal" '+(canAct?'':'disabled')+'>⚔️ 普通攻擊<small>'+esc(me.skills[0].name)+' · '+me.skills[0].damage+'</small></button>'+
-       '<button data-action="special" '+(canAct&&me.specialWait===0?'':'disabled')+'>✨ 特殊技能<small>'+esc(me.skills[1].name)+(me.specialWait?' · 冷卻 '+me.specialWait:'')+'</small></button>'+
+       '<button data-action="normal" '+(canAct?'':'disabled')+'>⚔️ 普通攻擊<small>〔'+esc(me.skills[0].element)+'〕 '+esc(me.skills[0].name)+' · '+me.skills[0].damage+'</small></button>'+
+       '<button data-action="special" '+(canAct&&me.specialWait===0?'':'disabled')+'>✨ 特殊技能<small>〔'+esc(me.skills[1].element)+'〕 '+esc(me.skills[1].name)+(me.specialWait?' · 冷卻 '+me.specialWait:'')+'</small></button>'+
        '<button data-action="defend" '+(canAct?'':'disabled')+'>🛡️ 防禦<small>減少下次傷害 50%</small></button>'+
        '<button data-action="switch-menu" '+(canAct&&!forced&&available.length?'':'disabled')+'>🔄 更換夥伴<small>剩餘 '+available.length+' 隻可換</small></button>'+
        '</div>')+'</div>'+summary;

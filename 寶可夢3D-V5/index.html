@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
     <title>寶可夢 3D-V5 特別版・真新鎮</title>
-    <link rel="stylesheet" href="css/pokedex-cards.css?v=20261010-opaque"><link rel="stylesheet" href="css/battle3d.css?v=20261010">
+    <link rel="stylesheet" href="css/pokedex-cards.css?v=20261010-opaque"><link rel="stylesheet" href="css/battle3d.css?v=20261011-fx2">
     <script src="vendor/tailwind.js"></script>
     <script src="vendor/three.min.js"></script>
     <script src="vendor/GLTFLoader.js"></script>
@@ -19,7 +19,7 @@
 <script src="js/models-v2/sizing.js"></script>
     <script src="js/articulated-models.js"></script><script src="js/gym-presentation.js"></script><script src="js/town.js"></script>
     <script src="js/game-runtime-state.js"></script>
-    <script src="js/card-art.js"></script><script src="js/card-catalog.js?v=20261010-shadow"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-core.js"></script><script src="js/battle-data.js"></script><script src="js/battle-arena.js"></script><script src="js/battle-ui.js"></script><script src="js/battle-controller.js"></script>
+    <script src="js/card-art.js"></script><script src="js/card-catalog.js?v=20261011-type"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-core.js?v=20261011-fx2"></script><script src="js/battle-data.js?v=20261011-fx2"></script><script src="js/battle-arena.js?v=20261011-fx2"></script><script src="js/battle-ui.js?v=20261011-fx2"></script><script src="js/battle-controller.js?v=20261011-fx2"></script>
     
     <style>
         body { margin: 0; padding: 0; overflow: hidden; user-select: none; -webkit-user-select: none; background-color: #000; font-family: -apple-system, BlinkMacSystemFont, sans-serif; touch-action: none; height: 100dvh; width: 100dvw; }
@@ -1926,7 +1926,7 @@
 
             if (gameState.snowflakes && gameState.currentMode === 'world') { const positions = gameState.snowflakes.geometry.attributes.position.array; for(let i=1; i<positions.length; i+=3) { positions[i] -= 3 * delta; positions[i-1] += Math.sin(time + i)*0.01; if(positions[i] < 0) positions[i] = 40; } gameState.snowflakes.geometry.attributes.position.needsUpdate = true; gameState.snowflakes.position.x = player.position.x; gameState.snowflakes.position.z = player.position.z; }
 
-            if (hasPikachuPower() && !gameState.isTimeStopped && !gameState.currentMode.startsWith('gym')) { gameState.pikachuTimer -= delta; if (gameState.pikachuTimer <= 0) { gameState.pikachuTimer = 120.0; gameState.isTimeStopped = true; gameState.timeStopTimer = 15.0; document.getElementById('time-stop-overlay').classList.remove('hidden'); showNotification("⚡ 皮卡丘頭套發動：全域時間停止 15 秒！"); } }
+            if (gameState.currentMode === 'world' && hasPikachuPower() && !gameState.isTimeStopped) { gameState.pikachuTimer -= delta; if (gameState.pikachuTimer <= 0) { gameState.pikachuTimer = 120.0; gameState.isTimeStopped = true; gameState.timeStopTimer = 15.0; document.getElementById('time-stop-overlay').classList.remove('hidden'); showNotification("⚡ 皮卡丘頭套發動：全域時間停止 15 秒！"); } }
             if (gameState.isTimeStopped && Math.random() < 0.12) { const startX = player.position.x + (Math.random() - 0.5) * 45; const startZ = player.position.z + (Math.random() - 0.5) * 45; const points = []; let lastY = 25; points.push(new THREE.Vector3(startX, lastY, startZ)); while (lastY > 0.1) { lastY -= 1.5 + Math.random()*2.0; points.push(new THREE.Vector3(startX + (Math.random()-0.5)*1.8, lastY, startZ + (Math.random()-0.5)*1.8)); } const path = new THREE.CatmullRomCurve3(points); const boltMesh = new THREE.Mesh(new THREE.TubeGeometry(path, 16, 0.15, 6, false), new THREE.MeshBasicMaterial({ color: 0xffeb3b, transparent: true, opacity: 1.0 })); scene.add(boltMesh); gameState.particles.push({ mesh: boltMesh, life: 0.25, update(dt) { this.life -= dt; boltMesh.material.opacity = Math.max(0, this.life / 0.25); if (this.life <= 0) { scene.remove(boltMesh); return false; } return true; } }); const overlay = document.getElementById('time-stop-overlay'); overlay.style.backgroundColor = "rgba(253, 224, 71, 0.25)"; setTimeout(() => { overlay.style.backgroundColor = "rgba(59, 130, 246, 0.05)"; }, 50); }
 
             BGM.update();
@@ -2373,10 +2373,15 @@
                     const visible=gameState.pokemons.filter(p=>!p.isShowcase).map(p=>p.type);
                     const result=V5VictoryRewards.awardType(gameState,prizeRoster(),
                         id=>V5Progress.eligible(gameState,id),pending,visible);
-                    if(result.allCollected){choice=true;d.pendingWins--;continue;}
+                    if(result.allCollected){choice=true;d.pendingWins--;d.pendingPreferredRewards?.shift();continue;}
                     if(!result.id){blocked=true;break;}
-                    const entry={id:result.id,token:++d.rewardSerial};
-                    d.pendingEncounters.push(entry);d.pendingWins--;added.push(result.id);
+                    // A winning NPC may only reward a species from its own 3-Pokémon lineup.
+                    const preferred=d.pendingPreferredRewards?.[0];
+                    const target=preferred&&result.eligible.includes(preferred)&&
+                        !pending.includes(preferred)&&!V5VictoryRewards.caught(gameState,preferred)
+                        ?preferred:result.id;
+                    const entry={id:target,token:++d.rewardSerial};
+                    d.pendingEncounters.push(entry);d.pendingWins--;d.pendingPreferredRewards?.shift();added.push(target);
                 }
                 if(choice||added.length)saveGameData();
                 syncPrizeEntities();

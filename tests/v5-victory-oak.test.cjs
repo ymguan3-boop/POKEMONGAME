@@ -51,12 +51,14 @@ test('3D trainer records one pending prize per win, none for a loss, and survive
   const s={worldFlags:{},specialPokemonCaptured:{},captureCounts:{},
    battle3d:P.normalizeBattle({})},saved=[];
   const controller=new globalThis.V5BattleController({state:s,save:()=>saved.push(P.normalizeBattle(s.battle3d,s))});
-  controller.session={winner:0};controller.recordOutcome();controller.recordOutcome();
+  controller.opponentPrizeId='mewtwo';controller.session={winner:0};controller.recordOutcome();controller.recordOutcome();
   assert.equal(s.battle3d.stats.wins,1);assert.equal(s.battle3d.pendingWins,1);
+  assert.deepEqual(s.battle3d.pendingPreferredRewards,['mewtwo']);
   assert.equal(controller.rewardAfterExit,true);assert.equal(!!s.worldFlags.mewtwoAwaiting,false);
   controller.recorded=false;controller.session={winner:1};controller.recordOutcome();
   assert.equal(s.battle3d.stats.losses,1);assert.equal(s.battle3d.pendingWins,1);
   assert.equal(P.migrate({battle3d:s.battle3d}).battle3d.pendingWins,1);
+  assert.deepEqual(P.migrate({battle3d:s.battle3d}).battle3d.pendingPreferredRewards,['mewtwo']);
   assert.equal(saved.length,2);
  }finally{
   globalThis.V5BattleUI=originalUI;globalThis.V5BattleCore=originalCore;
