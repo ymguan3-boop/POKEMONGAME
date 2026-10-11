@@ -32,6 +32,8 @@
    stats:{wins:positive(previous.wins),losses:positive(previous.losses),draws:positive(previous.draws),forfeits:positive(previous.forfeits)},
    rewards:{specialDuoUnlocked:!!rewards.specialDuoUnlocked||legacyUnlocked},
    pendingWins:Math.min(100,positive(b.pendingWins)),
+   pendingPreferredRewards:Array.isArray(b.pendingPreferredRewards)
+    ?b.pendingPreferredRewards.filter(id=>typeof id==='string'&&id.length<60).slice(0,100):[],
    pendingEncounters:encounters,
    rewardSerial:Math.max(positive(b.rewardSerial),...encounters.map(e=>e.token),0),
    showcaseSpecies:typeof b.showcaseSpecies==='string'?b.showcaseSpecies:null};
