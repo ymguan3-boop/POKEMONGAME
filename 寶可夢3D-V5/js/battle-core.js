@@ -40,16 +40,33 @@
  function available(battle,side) {
    return battle.teams[side].map((f,i)=>({i,id:f.id,hp:f.hp})).filter(a=>a.hp>0 && a.i!==battle.active[side]);
  }
- // Original V5 rules: matching the move to the attacker's type earns a 25% STAB bonus.
- // Hitting the defender's listed weakness earns another 50%; defending halves the final total.
+ // V5 uses move-versus-defender type effectiveness, NOT same-type attack bonuses.
+ // One advantage always yields ×1.5, one resistance ×0.75. Dual-type targets
+ // get only the strongest applicable match; defending halves the result.
+ const TYPE_ADVANTAGES=Object.freeze({
+   '一般':[],'火':['草','冰','蟲','鋼'],'水':['火','地面','岩石'],
+   '草':['水','地面','岩石'],'電':['水','飛行'],
+   '冰':['草','地面','飛行','龍'],'格鬥':['一般','冰','岩石','惡','鋼'],
+   '毒':['草','妖精'],'地面':['火','電','毒','岩石','鋼'],
+   '飛行':['草','格鬥','蟲'],'超能力':['格鬥','毒'],
+   '蟲':['草','超能力','惡'],'岩石':['火','冰','飛行','蟲'],
+   '幽靈':['超能力','幽靈'],'龍':['龍'],'惡':['超能力','幽靈'],
+   '鋼':['冰','岩石','妖精'],'妖精':['格鬥','龍','惡']
+ });
+ function typeMatch(attackType,defender){
+   const defendingTypes=Array.isArray(defender.types)&&defender.types.length
+     ?defender.types:[defender.element||'一般'];
+   if(defendingTypes.some(type=>TYPE_ADVANTAGES[attackType]?.includes(type)))return {effective:true,resisted:false,ratio:1.5};
+   if(defendingTypes.some(type=>TYPE_ADVANTAGES[type]?.includes(attackType)))return {effective:false,resisted:true,ratio:.75};
+   return {effective:false,resisted:false,ratio:1};
+ }
  function damageDetails(attacker,defender,skill) {
    const element=skill.element||'一般';
-   const types=Array.isArray(attacker.types)&&attacker.types.length?attacker.types:[attacker.element||'一般'];
-   const sameType=types.includes(element);
-   const effective=element===defender.weakness;
+   const match=typeMatch(element,defender);
    const defended=Boolean(defender.defending);
-   const multiplier=(sameType?1.25:1)*(effective?1.5:1)*(defended?.5:1);
-   return {amount:Math.max(1,Math.round(skill.damage*multiplier)),element,sameType,effective,defended,multiplier};
+   const multiplier=match.ratio*(defended?.5:1);
+   return {amount:Math.max(1,Math.round(skill.damage*multiplier)),element,
+     effective:match.effective,resisted:match.resisted,defended,multiplier};
  }
  function damage(attacker,defender,skill){return damageDetails(attacker,defender,skill).amount;}
  function getOutcome(battle) {
@@ -99,9 +116,9 @@
      const detail=damageDetails(me,op,skill),dealt=detail.amount;
      op.hp=max(op.hp-dealt,0,op.maxHp);
      op.defending=false;
-     const messages=[detail.sameType?'同屬性強化！':'',detail.effective?'效果絕佳！':'',detail.defended?'防禦減傷':''].filter(Boolean);
+     const messages=[detail.effective?'屬性剋制！':detail.resisted?'屬性抵抗！':'',detail.defended?'防禦減傷':''].filter(Boolean);
      battle.history.push(me.name+' 使用 '+skill.name+'，造成 '+dealt+' 點傷害'+(messages.length?'（'+messages.join('、')+'）':'')+'。');
-     events.push({type:'attack',side,skill:skill.name,damage:dealt,special,target:op.id,element:detail.element,sameType:detail.sameType,effective:detail.effective,defended:detail.defended});
+     events.push({type:'attack',side,skill:skill.name,damage:dealt,special,target:op.id,element:detail.element,effective:detail.effective,resisted:detail.resisted,defended:detail.defended});
      if (special) me.specialWait=3; // Current opportunity + two following own command opportunities.
      if (op.hp===0) {
        events.push({type:'faint',side:1-side,id:op.id});
@@ -136,6 +153,6 @@
    return {type:options[0].type};
  }
  function forfeit(battle) {if(battle.status==='playing')finish(battle,1,'玩家放棄對戰');return getOutcome(battle)}
- root.V5BattleCore={isCaught,validateParty,createBattle,applyAction,nextTurn,getOutcome,pickAIAction,forfeit,damage,damageDetails,available,actor};
+ root.V5BattleCore={isCaught,validateParty,createBattle,applyAction,nextTurn,getOutcome,pickAIAction,forfeit,damage,damageDetails,typeMatch,TYPE_ADVANTAGES,available,actor};
  if(typeof module!=='undefined'&&module.exports)module.exports=root.V5BattleCore;
 })(typeof window!=='undefined'?window:globalThis);
