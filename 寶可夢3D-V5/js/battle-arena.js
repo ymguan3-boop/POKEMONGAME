@@ -233,6 +233,10 @@
    }else if(event.type==='faint'){
     const target=this.fighters[event.side];
     if(target){root.PokemonGameRuntime?.restoreTransientEmissive?.(target.visual);target.holder.visible=false;await wait(230);}
+   }else if(event.type==='item'){
+    const colors={berry:0x91e9a9,great:0x69b8ff,master:0xc9a4ff};
+    this.burst(fighter.holder.position.clone().add(new T.Vector3(0,1.2,0)),colors[event.item]||0xffffff,1.0);
+    await wait(260);
    }else if(event.type==='defend'){
     this.burst(fighter.holder.position.clone().add(new T.Vector3(0,1.2,0)),0x7ae8ff,.7);await wait(240);
    }

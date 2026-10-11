@@ -25,15 +25,16 @@
    const types=Array.isArray(card.types)&&card.types.length?card.types:[card.element||'一般'];
    return {id:card.id,name:card.name,element:card.element || '一般',types,weakness:card.weakness || '一般',
      hp,maxHp:hp,skills:[{name:normal.name,element:normal.element||'一般',damage:Math.max(1,Number(normal.damage)||15)},
-     {name:special.name,element:special.element||card.element||'一般',damage:Math.max(1,Number(special.damage)||30),ability:special.ability||'none',chance:Number(special.chance)||0,fxVariant:special.fxVariant||'burst',fxSeed:special.fxSeed||0}],defending:false,specialWait:0,status:null};
+     {name:special.name,element:special.element||card.element||'一般',damage:Math.max(1,Number(special.damage)||30),ability:special.ability||'none',chance:Number(special.chance)||0,fxVariant:special.fxVariant||'burst',fxSeed:special.fxSeed||0}],defending:false,specialWait:0,status:null,attackBoost:0};
  }
  function createBattle(config) {
-   const {playerParty,opponentParty,catalog,openingSuit} = config || {};
+   const {playerParty,opponentParty,catalog,openingSuit,itemStock} = config || {};
    if (!Array.isArray(playerParty) || playerParty.length !== 3 || new Set(playerParty).size !== 3 ||
        !Array.isArray(opponentParty) || opponentParty.length !== 3) throw new Error('3v3 隊伍資料無效');
    const battle={teams:[playerParty.map(id=>toFighter(id,catalog)),opponentParty.map(id=>toFighter(id,catalog))],
      active:[0,0],turn:0,round:1,requiresSwitch:false,status:'playing',winner:null,reason:'',
      history:['3D 對戰開始！'],actions:0,nonce:0,
+     itemStock:Object.fromEntries(['berry','great','master'].map(id=>[id,Math.floor(safeCount(itemStock?.[id]))])),
      openingSuit:['wigglytuff','blissey'].includes(openingSuit)?openingSuit:null,openingResolved:false};
    if(battle.openingSuit==='wigglytuff')battle.teams[1][0].status={type:'sleep',turns:1,source:'suit'};
    return battle;
@@ -67,9 +68,10 @@
    const element=skill.element||'一般';
    const match=typeMatch(element,defender);
    const defended=Boolean(defender.defending);
-   const multiplier=match.ratio*(defended?.5:1);
+   const boosted=Number(attacker.attackBoost)>0;
+   const multiplier=match.ratio*(defended?.5:1)*(boosted?2:1);
    return {amount:Math.max(1,Math.round(skill.damage*multiplier)),element,
-     effective:match.effective,resisted:match.resisted,defended,multiplier};
+     effective:match.effective,resisted:match.resisted,defended,boosted,multiplier};
  }
  function damage(attacker,defender,skill){return damageDetails(attacker,defender,skill).amount;}
  function getOutcome(battle) {
@@ -117,7 +119,15 @@
      battle.history=battle.history.slice(-8);
      return {ok:true,events,outcome:getOutcome(battle),needsSwitch:battle.requiresSwitch};
    }
-   if(!['switch','defend','normal','special'].includes(action.type))return {ok:false,reason:'未知行動',events:[]};
+   if(!['switch','defend','normal','special','item'].includes(action.type))return {ok:false,reason:'未知行動',events:[]};
+   if(action.type==='item'){
+     if(side!==0||!['berry','great','master'].includes(action.item))
+       return {ok:false,reason:'不能使用這項道具',events:[]};
+     if(!(battle.itemStock?.[action.item]>0))return {ok:false,reason:'道具庫存不足',events:[]};
+     if(action.item==='great'&&me.hp>=me.maxHp)return {ok:false,reason:'目前寶可夢已經滿血',events:[]};
+     if(action.item==='berry'&&me.defending)return {ok:false,reason:'目前已處於防禦狀態',events:[]};
+     if(action.item==='master'&&me.attackBoost)return {ok:false,reason:'攻擊加倍效果尚未使用',events:[]};
+   }
    if(action.type==='special'&&me.specialWait>0)return {ok:false,reason:'特殊技能尚在冷卻',events:[]};
    if(action.type==='switch'&&!available(battle,side).some(f=>f.i===action.index))return {ok:false,reason:'無法選擇該夥伴',events:[]};
    // Status conditions trigger only when the affected fighter receives an action opportunity.
@@ -163,6 +173,25 @@
      me.defending=true;
      battle.history.push(me.name+' 採取防禦姿勢。');
      events.push({type:'defend',side});
+   } else if (action.type==='item') {
+     const id=action.item;
+     // An item is one complete player turn. Inventory is deducted by the controller
+     // only when this event exists, so a poisoned/frozen skipped turn costs nothing.
+     if(id==='berry'){
+       me.defending=true;
+       battle.history.push('🍇 使用樹果：下一次受到攻擊傷害減半。');
+       events.push({type:'item',side,id:me.id,item:id,kind:'shield'});
+     }else if(id==='great'){
+       const healed=Math.min(me.maxHp-me.hp,Math.max(1,Math.ceil(me.maxHp*.2)));
+       me.hp+=healed;
+       battle.history.push('🔵 使用進階球：'+me.name+' 回復 '+healed+' HP。');
+       events.push({type:'item',side,id:me.id,item:id,kind:'heal',amount:healed});
+     }else if(id==='master'){
+       me.attackBoost=1;
+       battle.history.push('🟣 使用大師球：'+me.name+' 下一次攻擊傷害加倍。');
+       events.push({type:'item',side,id:me.id,item:id,kind:'boost'});
+     }
+     battle.itemStock[id]--;
    } else if (action.type==='normal'||action.type==='special') {
      const special=action.type==='special';
      if (special && me.specialWait>0) return {ok:false,reason:'特殊技能尚在冷卻',events:[]};
@@ -170,11 +199,12 @@
      const detail=damageDetails(me,op,skill);
      const suitImmune=side===1 && battle.round===1 && battle.openingSuit==='blissey';
      const dealt=suitImmune?0:detail.amount;
+     if(me.attackBoost)me.attackBoost=0; // Consume boost on the next executed hit.
      op.hp=max(op.hp-dealt,0,op.maxHp);
      op.defending=false;
-     const messages=[detail.effective?'屬性剋制！':detail.resisted?'屬性抵抗！':'',detail.defended?'防禦減傷':''].filter(Boolean);
+     const messages=[detail.effective?'屬性剋制！':detail.resisted?'屬性抵抗！':'',detail.defended?'防禦減傷':'',detail.boosted?'大師球傷害加倍！':''].filter(Boolean);
      battle.history.push(suitImmune?'🛡️ 幸福蛋套裝：NPC 首回合攻擊無效，傷害 0！':me.name+' 使用 '+skill.name+'，造成 '+dealt+' 點傷害'+(messages.length?'（'+messages.join('、')+'）':'')+'。');
-     events.push({type:'attack',side,source:me.id,skill:skill.name,damage:dealt,special,target:op.id,element:detail.element,effective:detail.effective,resisted:detail.resisted,defended:detail.defended,immune:suitImmune,fxVariant:skill.fxVariant,fxSeed:skill.fxSeed});
+     events.push({type:'attack',side,source:me.id,skill:skill.name,damage:dealt,special,target:op.id,element:detail.element,effective:detail.effective,resisted:detail.resisted,defended:detail.defended,boosted:detail.boosted,immune:suitImmune,fxVariant:skill.fxVariant,fxSeed:skill.fxSeed});
      if(special){
        me.specialWait=3;
        const ability=skill.ability||'none';

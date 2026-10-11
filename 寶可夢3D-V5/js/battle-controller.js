@@ -71,7 +71,8 @@
     const openingSuit=(suit==='wigglytuff'&&this.state.equip?.wigglytuffSuit)||
       (suit==='blissey'&&this.state.equip?.blisseySuit)?suit:null;
     this.session=root.V5BattleCore.createBattle({playerParty:allowed.party,
-      opponentParty:npcParty,catalog:root.V5BattleData.catalog(),openingSuit});
+      opponentParty:npcParty,catalog:root.V5BattleData.catalog(),openingSuit,
+      itemStock:{berry:this.state.berryCount,great:this.state.greatBallCount,master:this.state.masterBallCount}});
     this.arena=new root.V5BattleArena();
     await this.arena.showBoth(root.V5BattleCore.actor(this.session,0).id,root.V5BattleCore.actor(this.session,1).id);
     if(id!==this.sequence||!this.active)return false;
@@ -108,8 +109,22 @@
   async action(input){
    const s=this.session,C=root.V5BattleCore;
    if(!this.active||this.loading||this.busy||!s||s.status!=='playing'||s.turn!==0)return false;
+   // Both checks matter: the snapshot enforces battle limits, current inventory
+   // ensures overworld use cannot be duplicated or spent twice.
+   const itemKeys={berry:'berryCount',great:'greatBallCount',master:'masterBallCount'};
+   if(input?.type==='item'){
+     const key=itemKeys[input.item];
+     if(!key||!(Number(this.state[key])>0)){this.ui.renderBattle('道具庫存不足，請先取得道具。');return false;}
+   }
    const result=C.applyAction(s,0,input);
    if(!result.ok){this.ui.renderBattle(result.reason);return false;}
+   const used=result.events.find(e=>e.type==='item'&&e.side===0);
+   if(used){
+     const key=itemKeys[used.item];
+     this.state[key]=Math.max(0,Math.floor(Number(this.state[key])||0)-1);
+     this.persist(); // Commit the single use before animations / asynchronous enemy turn.
+     this.ctx.refreshInventory?.();
+   }
    const token=this.sequence;
    this.busy=true;this.ui.renderBattle();
    try{

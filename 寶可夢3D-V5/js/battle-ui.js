@@ -3,7 +3,7 @@
  'use strict';
  const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  class BattleUI {
-  constructor(controller){this.controller=controller;this.dialog=null;this.layer=null;this.challenge=false;this.swapping=false;}
+  constructor(controller){this.controller=controller;this.dialog=null;this.layer=null;this.challenge=false;this.swapping=false;this.itemMenu=false;}
   make(className){
    const div=document.createElement('section');div.className=className;div.setAttribute('role','dialog');
    div.setAttribute('aria-modal','true');document.body.appendChild(div);
@@ -65,7 +65,13 @@
     }
     if(a==='retry')return this.controller.retry();
     if(a==='normal'||a==='special'||a==='defend')return this.controller.action({type:a});
-    if(a==='switch-menu'){this.swapping=!this.swapping;return this.renderBattle();}
+    if(a==='items-menu'){this.itemMenu=true;this.swapping=false;return this.renderBattle();}
+    if(a==='items-cancel'){this.itemMenu=false;return this.renderBattle();}
+    if(a==='use-item'){
+      this.itemMenu=false;
+      return this.controller.action({type:'item',item:b.dataset.item});
+    }
+    if(a==='switch-menu'){this.itemMenu=false;this.swapping=!this.swapping;return this.renderBattle();}
     if(a==='switch'){
      this.swapping=false;return this.controller.action({type:'switch',index:Number(b.dataset.index)});
     }
@@ -104,6 +110,18 @@
    const states=side=>session.teams[side].map((f,i)=>'<span title="'+esc(f.name)+'" class="'+(f.hp>0?'alive':'faint')+'">'+(i===session.active[side]?'●':'○')+'</span>').join('');
    const canAct=turn&&!forced;
    const available=C.available(session,0);
+   const stock=this.controller.state;
+   const itemChoices=[
+     {id:'berry',icon:'🍇',name:'樹果',count:stock.berryCount,help:'下次受到傷害減半',blocked:me.defending},
+     {id:'great',icon:'🔵',name:'進階球',count:stock.greatBallCount,help:'回復最大 HP 的 20%',blocked:me.hp>=me.maxHp},
+     {id:'master',icon:'🟣',name:'大師球',count:stock.masterBallCount,help:'下一次攻擊傷害 ×2',blocked:me.attackBoost>0}
+   ];
+   const itemButtons='<div class="v5-battle-items" aria-label="選擇戰鬥道具">'+
+     itemChoices.map(item=>'<button data-action="use-item" data-item="'+item.id+'" '+
+       (!canAct||!(Number(item.count)>0)||item.blocked?'disabled':'')+'>'+
+       item.icon+' '+item.name+' <strong>×'+Math.max(0,Math.floor(Number(item.count)||0))+'</strong>'+
+       '<small>'+item.help+'</small></button>').join('')+
+     '<button data-action="items-cancel">↩ 返回招式</button></div>';
    const choices=forced||this.swapping?'<div class="v5-battle-switch"><strong>'+(forced?'請選擇還能戰鬥的夥伴':'選擇替換上場的夥伴')+'</strong>'+
      available.map(f=>'<button data-action="switch" data-index="'+f.i+'" '+(turn?'':'disabled')+'>'+esc(session.teams[0][f.i].name)+'　HP '+f.hp+'</button>').join('')+
      (forced?'':'<button data-action="switch-menu">取消</button>')+'</div>':'';
@@ -112,15 +130,15 @@
      '<p>'+(session.winner===0?'離開擂台後將出現 1 隻未捕捉、非道館寶可夢；全部收齊後可指定展示角色。':'')+'</p><button data-action="retry">再挑戰</button><button data-action="exit">返回真新鎮</button></div>':'';
    this.layer.innerHTML=
      '<header class="v5-battle-top"><strong>⚔️ 真新鎮 3D 對戰擂台</strong><span>回合 '+session.round+'</span><button data-action="exit" aria-label="離開對戰">離開</button></header>'+
-     hpBox(enemy,'enemy')+'<div class="v5-battle-teamdots npc">'+states(1)+'</div>'+
-     hpBox(me,'player')+'<div class="v5-battle-teamdots player">'+states(0)+'</div>'+
+     '<div class="v5-battle-side enemy">'+hpBox(enemy,'enemy')+'<div class="v5-battle-teamdots npc" aria-label="NPC 隊伍存活指示">'+states(1)+'</div></div>'+
+     '<div class="v5-battle-side player">'+hpBox(me,'player')+'<div class="v5-battle-teamdots player" aria-label="玩家隊伍存活指示">'+states(0)+'</div></div>'+
      '<div class="v5-battle-bottom"><div class="v5-battle-message" aria-live="polite">'+esc(firstRound&&openingMessage?openingMessage:message||session.history[session.history.length-1]||'')+'</div>'+
-     (end?'':choices+'<div class="v5-battle-actions">'+
+     (end?'':choices+(this.itemMenu&&!forced?itemButtons:'<div class="v5-battle-actions">'+
        '<button data-action="normal" '+(canAct?'':'disabled')+'>⚔️ 普通攻擊<small>〔'+esc(me.skills[0].element)+'〕 '+esc(me.skills[0].name)+' · '+me.skills[0].damage+'</small></button>'+
        '<button data-action="special" '+(canAct&&me.specialWait===0?'':'disabled')+'>✨ 特殊技能<small>〔'+esc(me.skills[1].element)+'〕 '+esc(me.skills[1].name)+(me.skills[1].ability&&me.skills[1].ability!=='none'?' · '+({poison:'中毒',freeze:'冰凍1回合',paralysis:'麻痺',heal:'吸血回復',shield:'護盾'}[me.skills[1].ability]||''):'')+(me.specialWait?' · 冷卻 '+me.specialWait:'')+'</small></button>'+
-       '<button data-action="defend" '+(canAct?'':'disabled')+'>🛡️ 防禦<small>減少下次傷害 50%</small></button>'+
+       '<button data-action="items-menu" '+(canAct?'':'disabled')+'>🎒 道具<small>樹果／進階球／大師球</small></button>'+
        '<button data-action="switch-menu" '+(canAct&&!forced&&available.length?'':'disabled')+'>🔄 更換夥伴<small>剩餘 '+available.length+' 隻可換</small></button>'+
-       '</div>')+'</div>'+summary;
+       '</div>'))+'</div>'+summary;
   }
   error(message){
    if(this.layer){this.layer.innerHTML='<div class="v5-battle-loading"><h2>無法開始 3D 對戰</h2><p>'+esc(message)+'</p><button data-action="abort">返回探索</button></div>';return;}
@@ -129,7 +147,7 @@
   close(){
    this.dialog?.remove();this.dialog=null;
    this.layer?.remove();this.layer=null;
-   this.swapping=false;
+   this.swapping=false;this.itemMenu=false;
    if(!this.controller.active)this.controller.state.interactionOpen=false;
   }
  }
