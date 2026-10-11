@@ -40,7 +40,7 @@
    }).join('');
    if(!grid)grid='<p class="v5-battle-empty">尚未捕捉任何 V5 寶可夢。請先在真新鎮探索。</p>';
    this.dialog.innerHTML='<div class="v5-battle-party-panel"><header><h2>⚔️ 寶可夢隊伍</h2><button data-action="close" aria-label="關閉">✕</button></header>'+
-     '<p>請選擇三隻<strong>已捕捉</strong>、不同種類的寶可夢，可用箭頭調整出場順序。'+(this.challenge?' NPC 難度：一般；首次勝利可解鎖超夢與胖丁。':'')+'</p>'+
+     '<p>請選擇三隻<strong>已捕捉</strong>、不同種類的寶可夢，可用箭頭調整出場順序。'+(this.challenge?' NPC 難度：一般；每次勝利獲得 1 隻未捕捉、非道館寶可夢的出現機會。':'')+'</p>'+
      '<div class="v5-battle-selected">'+[0,1,2].map(i=>'<div>'+(chosen[i]?(i+1)+'. '+esc(names[chosen[i]])+'<div class="v5-battle-order"><button data-action="move" data-index="'+i+'" data-delta="-1" '+(i===0?'disabled':'')+' aria-label="上移">↑</button><button data-action="move" data-index="'+i+'" data-delta="1" '+(i===chosen.length-1?'disabled':'')+' aria-label="下移">↓</button></div>':'＋ 等待選擇')+'</div>').join('')+'</div>'+
      '<p class="v5-battle-notice" aria-live="polite">'+(chosen.length<3?'目前已選 '+chosen.length+'/3 隻，請先捕捉更多不同寶可夢。':'已選 3/3 隻，可以開始挑戰。')+'</p>'+
      '<div class="v5-battle-grid">'+grid+'</div><footer>'+
