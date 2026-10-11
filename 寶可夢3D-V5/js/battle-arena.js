@@ -11,7 +11,7 @@
    this.scene=new T.Scene();this.scene.background=new T.Color(0x0e1526);
    this.camera=new T.PerspectiveCamera(48,1,.1,150);
    this.camera.position.set(0,8.5,24);this.camera.lookAt(0,-2.1,0);
-   this.fighters=[null,null];this.owned=[];this.fx=[];this.hitLabels=[];this.disposed=false;
+   this.fighters=[null,null];this.owned=[];this.fx=[];this.hitLabels=[];this.disposed=false;this.elapsed=0;
    this.generation=[0,0];this.makeStage();
   }
   makeStage(){
@@ -54,9 +54,21 @@
    const clips=Array.isArray(asset.animations)?asset.animations:[];
    let controller=null;
    if(clips.length&&root.V5AnimationController){
-    controller=new root.V5AnimationController(visual,clips);controller.play('Idle');
+    controller=new root.V5AnimationController(visual,clips);
+    const clip=clips.find(c=>/^(idle|hover|fly|flap|walk)$/i.test(c.name))||clips[0];
+    controller.play(clip.name);
    }
-   this.fighters[side]={id,holder,visual,controller,baseX:holder.position.x,baseZ:holder.position.z,hurt:0};
+   const flying=/butterfree|beedrill|articuno|zapdos|moltres|rayquaza|pidge|wing|dragonite/i.test(id);
+   const wings=[];
+   // Procedural fallback on models with no usable idle clip; animated GLBs retain their own tracks.
+   if(!controller&&flying){
+     visual.traverse(node=>{
+       if(wings.length<6&&node!==visual&&/(^|[-_ ])wing([-_ ]|$)/i.test(node.name||'')){
+         wings.push({node,angle:node.rotation.z,side:node.position.x<0?-1:1});
+       }
+     });
+   }
+   this.fighters[side]={id,holder,visual,controller,baseX:holder.position.x,baseZ:holder.position.z,hurt:0,flying,wings};
    this.fitCombatants();
   }
   // Portrait view: fit the full silhouettes horizontally instead of cropping both fighters.
@@ -105,6 +117,31 @@
     tail.position.copy(from);this.addEffect(tail,.4,'trail',from,to);this.fx[this.fx.length-1].offset=i*.14;
    }
   }
+  signatureVolley(event,from,to,color){
+   if(!event.special)return;
+   const seed=(event.fxSeed||37)>>>0,variant=event.fxVariant||'burst';
+   // Distinct seeded formations, shape and timing per species: bounded to eight particles.
+   const shape=seed%4;
+   for(let i=0;i<8;i++){
+    const t=i/8,theta=t*Math.PI*2+seed*.01;
+    let geometry;
+    if(shape===0)geometry=new T.OctahedronGeometry(.13,0);
+    else if(shape===1)geometry=new T.TetrahedronGeometry(.15,0);
+    else if(shape===2)geometry=new T.TorusGeometry(.12,.046,5,10);
+    else geometry=new T.ConeGeometry(.13,.3,6);
+    const material=new T.MeshBasicMaterial({color,transparent:true,opacity:.84,side:T.DoubleSide,depthWrite:false});
+    const sparkle=new T.Mesh(geometry,material);
+    const width=/spiral|rings|wave/.test(variant)?1.1:.62;
+    sparkle.position.copy(from).add(new T.Vector3(Math.cos(theta)*width,Math.sin(theta)*.34,Math.sin(theta)*width*.5));
+    sparkle.rotation.set(theta,theta*.6,theta*.8);
+    this.addEffect(sparkle,.32+(.02*i),'signature',sparkle.position.clone(),to.clone().add(new T.Vector3(Math.sin(theta)*.45,Math.cos(theta)*.45,0)));
+   }
+  }
+  statusBurst(target,status){
+   if(!target)return;
+   const color=({poison:0x9ae85e,freeze:0x8fe8ff,paralysis:0xffe25a,heal:0x83f5a4,shield:0x98ddfa})[status]||0xffffff;
+   this.burst(target.holder.position.clone().add(new T.Vector3(0,1.35,0)),color,1.1);
+  }
   showHit(target,event){
    if(!target)return;
    target.hurt=.6;
@@ -127,7 +164,8 @@
     const from=fighter.holder.position.clone().add(new T.Vector3(0,1.3,0));
     const to=(opponent?opponent.holder.position:fighter.holder.position).clone().add(new T.Vector3(0,1.25,0));
     const color=TYPE_COLORS[event.element]||TYPE_COLORS.一般;
-    this.projectile(from,to,color,event.special);await wait(410);
+    this.projectile(from,to,color,event.special);
+    this.signatureVolley(event,from,to,color);await wait(410);
     if(this.disposed)return;
     fighter.holder.position.z=fighter.baseZ;
     if(opponent){
@@ -139,6 +177,11 @@
     if(this.disposed)return;
     if(fighter.controller)fighter.controller.play('Idle');
     if(opponent&&opponent.controller)opponent.controller.play('Idle');
+   }else if(event.type==='statusApply'||event.type==='statusTick'||event.type==='statusSkip'
+      ||event.type==='heal'||event.type==='shield'){
+    const target=this.fighters[event.side];
+    if(target)this.statusBurst(target,event.status||(event.type==='heal'?'heal':event.type==='shield'?'shield':'poison'));
+    await wait(170);
    }else if(event.type==='faint'){
     const target=this.fighters[event.side];
     if(target){root.PokemonGameRuntime?.restoreTransientEmissive?.(target.visual);target.holder.visible=false;await wait(230);}
@@ -148,10 +191,14 @@
   }
   frame(dt){
    if(this.disposed)return;
-   const delta=Math.max(0,Math.min(.07,Number(dt)||0));
+   const delta=Math.max(0,Math.min(.07,Number(dt)||0));this.elapsed+=delta;
    for(const f of this.fighters){
     if(!f)continue;
     if(f.controller)f.controller.update(delta);
+    // Keep natural breathing/flight motion active for BOTH player and NPC between turns.
+    const idle= f.flying?.14:.045;
+    f.holder.position.y=Math.sin(this.elapsed*(f.flying?9:2.8)+(f.id.length%7)) * idle;
+    if(f.wings.length)for(const w of f.wings)w.node.rotation.z=w.angle+Math.sin(this.elapsed*19)*.32*w.side;
     if(f.hurt>0){
      f.hurt=Math.max(0,f.hurt-delta);
      const intensity=f.hurt/.6;f.holder.position.x=f.baseX+Math.sin(f.hurt*75)*.16*intensity;
@@ -160,7 +207,7 @@
    }
    this.fx=this.fx.filter(f=>{
     f.time+=delta;const progress=Math.min(1,f.time/f.duration);
-    if(f.kind==='projectile'||f.kind==='trail'){
+    if(f.kind==='projectile'||f.kind==='trail'||f.kind==='signature'){
      const t=Math.max(0,Math.min(1,progress-(f.offset||0)));
      f.mesh.position.copy(f.from).lerp(f.to,t);
     }else{
