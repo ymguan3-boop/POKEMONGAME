@@ -104,7 +104,7 @@
    // Status conditions trigger only when the affected fighter receives an action opportunity.
    // Forced replacement always takes priority over a condition on the fallen fighter.
    let skip=false;
-   if(me.status){
+   if(me.status && action.type!=='switch'){
      const effect=me.status.type;
      if(effect==='poison'){
        const loss=Math.max(1,Math.ceil(me.maxHp*.08));
