@@ -11,7 +11,7 @@
    this.scene=new T.Scene();this.scene.background=new T.Color(0x0e1526);
    this.camera=new T.PerspectiveCamera(48,1,.1,150);
    this.camera.position.set(0,8.5,24);this.camera.lookAt(0,-2.1,0);
-   this.fighters=[null,null];this.owned=[];this.fx=[];this.hitLabels=[];this.disposed=false;this.elapsed=0;
+   this.fighters=[null,null];this.owned=[];this.fx=[];this.hitLabels=[];this.openingIcon=null;this.disposed=false;this.elapsed=0;
    this.generation=[0,0];this.makeStage();
   }
   makeStage(){
@@ -152,9 +152,27 @@
   }
   statusBurst(target,status){
    if(!target)return;
-   const color=({poison:0x9ae85e,freeze:0x8fe8ff,paralysis:0xffe25a,heal:0x83f5a4,shield:0x98ddfa})[status]||0xffffff;
+   const color=({poison:0x9ae85e,freeze:0x8fe8ff,paralysis:0xffe25a,heal:0x83f5a4,shield:0x98ddfa,sleep:0xffb5e9})[status]||0xffffff;
    this.burst(target.holder.position.clone().add(new T.Vector3(0,1.35,0)),color,1.1);
   }
+  showImmune(target){
+   const el=document.createElement('div');
+   el.textContent='🛡️ 攻擊無效 · 0';
+   el.className='v5-hit-float';
+   el.style.cssText='position:fixed;z-index:10001;pointer-events:none;color:#eafaff;background:#285a7eee;border:2px solid #a7f3ff;border-radius:9px;padding:5px 9px;font-weight:900;transform:translate(-50%,-50%)';
+   document.body.append(el);
+   this.hitLabels.push({element:el,target,time:0,duration:1.1});
+  }
+  showOpeningIcon(side,kind){
+   this.clearOpeningIcon();
+   const el=document.createElement('div');
+   el.textContent=kind==='sleep'?'💤':'🛡️';
+   el.setAttribute('aria-hidden','true');
+   el.style.cssText='position:fixed;z-index:10001;pointer-events:none;font-size:clamp(22px,6vw,36px);filter:drop-shadow(0 2px 5px #000);transform:translate(-50%,-50%)';
+   document.body.append(el);
+   this.openingIcon={side,element:el,kind};
+  }
+  clearOpeningIcon(){this.openingIcon?.element.remove();this.openingIcon=null;}
   showHit(target,event){
    if(!target)return;
    target.hurt=.6;
@@ -182,9 +200,14 @@
     if(this.disposed)return;
     fighter.holder.position.z=fighter.baseZ;
     if(opponent){
-     if(opponent.controller)opponent.controller.play('Hurt',{once:true});
-     this.burst(to,color,event.special?1.3:1);
-     this.showHit(opponent,event);
+     if(event.immune){
+       this.statusBurst(opponent,'shield');
+       this.showImmune(opponent);
+     }else{
+       if(opponent.controller)opponent.controller.play('Hurt',{once:true});
+       this.burst(to,color,event.special?1.3:1);
+       this.showHit(opponent,event);
+     }
     }
     await wait(560);
     if(this.disposed)return;
@@ -233,6 +256,14 @@
     if(progress<1)return true;
     this.scene.remove(f.mesh);f.mesh.geometry.dispose();f.mesh.material.dispose();return false;
    });
+   if(this.openingIcon){
+    const target=this.fighters[this.openingIcon.side];
+    if(target){
+     const loc=target.holder.position.clone().add(new T.Vector3(0,3.35+Math.sin(this.elapsed*3)*.12,0)).project(this.camera);
+     this.openingIcon.element.style.left=((loc.x+1)*window.innerWidth/2)+'px';
+     this.openingIcon.element.style.top=((1-loc.y)*window.innerHeight/2)+'px';
+    }
+   }
    this.hitLabels=this.hitLabels.filter(label=>{
     label.time+=delta;
     const pt=label.target.holder.position.clone().add(new T.Vector3(0,2.6+label.time*1.1,0)).project(this.camera);
@@ -253,7 +284,7 @@
    if(this.disposed)return;
    this.disposed=true;this.generation=this.generation.map(n=>n+1);
    this.removeFighter(0);this.removeFighter(1);
-   this.hitLabels.forEach(x=>x.element.remove());this.hitLabels=[];
+   this.hitLabels.forEach(x=>x.element.remove());this.hitLabels=[];this.clearOpeningIcon();
    for(const f of this.fx){this.scene.remove(f.mesh);f.mesh.geometry.dispose();f.mesh.material.dispose();}
    this.fx=[];for(const o of this.owned)o.dispose();this.owned=[];this.scene.clear();
   }
