@@ -17,9 +17,9 @@
 <script src="js/models-v2/jigglypuff.js"></script>
 <script src="js/models-v2/measurements.js"></script>
 <script src="js/models-v2/sizing.js"></script>
-    <script src="js/articulated-models.js"></script><script src="js/gym-presentation.js"></script><script src="js/town.js"></script>
+    <script src="js/articulated-models.js"></script><script src="js/gym-presentation.js?v=20261012-layered"></script><script src="js/town.js"></script>
     <script src="js/game-runtime-state.js"></script>
-    <script src="js/card-art.js"></script><script src="js/battle-signatures.js?v=20261011-a"></script><script src="js/card-catalog.js?v=20261011-signature"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-core.js?v=20261012-suit"></script><script src="js/battle-data.js?v=20261011-fx2"></script><script src="js/battle-arena.js?v=20261011-signature"></script><script src="js/battle-ui.js?v=20261012-suit"></script><script src="js/battle-controller.js?v=20261012-bgm"></script>
+    <script src="js/card-art.js"></script><script src="js/battle-signatures.js?v=20261011-a"></script><script src="js/card-catalog.js?v=20261011-signature"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-visual-policy.js?v=20261012"></script><script src="js/battle-core.js?v=20261012-suit"></script><script src="js/battle-data.js?v=20261011-fx2"></script><script src="js/battle-arena.js?v=20261012-contrast"></script><script src="js/battle-ui.js?v=20261012-suit"></script><script src="js/battle-controller.js?v=20261012-bgm"></script>
     
     <style>
         body { margin: 0; padding: 0; overflow: hidden; user-select: none; -webkit-user-select: none; background-color: #000; font-family: -apple-system, BlinkMacSystemFont, sans-serif; touch-action: none; height: 100dvh; width: 100dvw; }
@@ -930,6 +930,9 @@
                 const spawnDist = dist * (0.3 + Math.random() * 0.4);
                 obsMesh.position.copy(this.mesh.position).add(dir.multiplyScalar(spawnDist)); obsMesh.position.x += (Math.random() - 0.5) * 5; obsMesh.position.z += (Math.random() - 0.5) * 5;
                 scene.add(obsMesh); gameState.gymObstacles.push({ mesh: obsMesh, radius: radius, life: 5.0 });
+                 V5GymPresentation.cast(scene,gameState.particles,this.type,
+                     this.mesh.position.clone().add(new THREE.Vector3(0,Math.max(1.8,Math.min(4.8,this.modelHeight||3.2)),0)),
+                     obsMesh.position.clone().add(new THREE.Vector3(0,.8,0)));
                 Sound.playObstacleSpawn();
             }
 
@@ -1294,7 +1297,7 @@
                 gameState.activeBoss.clearTransientState();
                 scene.remove(gameState.activeBoss.mesh);
             }
-            gameState.gymObstacles.forEach(o => scene.remove(o.mesh));
+            gameState.gymObstacles.forEach(o => { scene.remove(o.mesh);disposeTransientObject(o.mesh); });
             gameState.gymObstacles = [];
             clearActiveBalls();
             gameState.isCharging = false;
@@ -1323,7 +1326,7 @@
                 scene.remove(gameState.activeBoss.mesh);
                 gameState.activeBoss = null;
             }
-            gameState.gymObstacles.forEach(o => scene.remove(o.mesh));
+            gameState.gymObstacles.forEach(o => { scene.remove(o.mesh);disposeTransientObject(o.mesh); });
             gameState.gymObstacles = [];
             clearActiveBalls();
             gameState.isCharging = false;
@@ -2137,7 +2140,7 @@
                 }
                 if (gameState.currentMode.startsWith('gym') && gameState.activeBoss) {
                     gameState.activeBoss.update(time, delta);
-                    for (let i = gameState.gymObstacles.length - 1; i >= 0; i--) { const obs = gameState.gymObstacles[i]; obs.life -= delta;obs.mesh.userData.animate?.(time); if (obs.life <= 0) { scene.remove(obs.mesh); gameState.gymObstacles.splice(i, 1); } else { if (obs.life < 1.0) { obs.mesh.children.forEach(c => { if(c.material && c.material.transparent) c.material.opacity = obs.life * 0.8; }); } } }
+                    for (let i = gameState.gymObstacles.length - 1; i >= 0; i--) { const obs = gameState.gymObstacles[i]; obs.life -= delta;obs.mesh.userData.animate?.(time); if (obs.life <= 0) { scene.remove(obs.mesh);disposeTransientObject(obs.mesh);gameState.gymObstacles.splice(i, 1); } else { if (obs.life < 1.0) { obs.mesh.children.forEach(c => { if(c.material && c.material.transparent) c.material.opacity = obs.life * 0.8; }); } } }
                 }
             }
 
