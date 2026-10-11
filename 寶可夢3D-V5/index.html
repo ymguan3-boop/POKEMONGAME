@@ -8,7 +8,7 @@
     <script src="vendor/tailwind.js"></script>
     <script src="vendor/three.min.js"></script>
     <script src="vendor/GLTFLoader.js"></script>
-    <script src="js/roster.js"></script><script src="js/legacy-roster.js"></script><script src="js/new-roster.js"></script><script src="js/spawn-priority.js?v=20261011"></script><script src="js/v5-special.js"></script>
+    <script src="js/roster.js"></script><script src="js/legacy-roster.js"></script><script src="js/new-roster.js"></script><script src="js/spawn-priority.js?v=20261011"></script><script src="js/victory-rewards.js?v=20261011"></script><script src="js/v5-special.js"></script>
     <script src="js/models-v2/kit.js"></script>
 <script src="js/models-v2/gen12.js"></script>
 <script src="js/models-v2/gen34.js"></script>
@@ -397,7 +397,7 @@
             pokemons: [], activeBalls: [], particles: [], respawnQueue: [],
             berries: [], activeOakDrop: null, oakDropTimer: 0, nextOakDropTime: 50,
             isTimeStopped: false, timeStopTimer: 0,
-            pokedexUnlocks: {}, captureCounts: {}, hasReachedLimit: {},cardCollection:{},cardDeck:[],cardDeckActive:false,cardStarterReceived:false,cardWins:0,battle3d:{version:1,party:[],leader:null,stats:{wins:0,losses:0,draws:0,forfeits:0},rewards:{specialDuoUnlocked:false}},interactionOpen:false,
+            pokedexUnlocks: {}, captureCounts: {}, hasReachedLimit: {},cardCollection:{},cardDeck:[],cardDeckActive:false,cardStarterReceived:false,cardWins:0,battle3d:{version:1,party:[],leader:null,stats:{wins:0,losses:0,draws:0,forfeits:0},rewards:{specialDuoUnlocked:false},pendingWins:0,pendingEncounters:[],rewardSerial:0,showcaseSpecies:null},interactionOpen:false,
             legendarySpawned: Object.fromEntries(PalletRoster.legends.map(t=>[t,false])),
             gymRewardCaptured: { pikachu: false, mew: false, wigglytuff: false, blissey: false },
             specialPokemonCaptured: Object.fromEntries(SPECIAL_POKEMON_TYPES.map(type => [type, false])),
@@ -1103,7 +1103,7 @@
             let pool = unlockedBase >= EVOLUTION_THRESHOLD ? getAllNonLegendaryTypes() : [...BASE_SPAWN_TYPES];
             
             pool=pool.filter(id=>V5_AVAILABLE_TYPES.has(id)&&V5Progress.eligible(gameState,id));
-            if(gameState.worldFlags?.raichuSpawnUnlocked&&!pool.includes('raichu'))pool.push('raichu');
+            if(V5_AVAILABLE_TYPES.has('raichu')&&V5Progress.eligible(gameState,'raichu')&&!pool.includes('raichu'))pool.push('raichu');
             // Apply collection-aware priorities only AFTER the existing model, story and evolution unlock filters.
             // Never-caught species get 8x; 1-2 captured get 2x; 3+ captured get 0.2x.
             return V5SpawnPriority.choose(pool, gameState, V5SpawnWeights, MAX_CAPTURE_LIMIT);
@@ -1567,6 +1567,11 @@
             try { Sound.playSuccess(); } catch (error) { console.warn('[capture] success sound failed', error); }
             if (!popupShown) showNotification(`✅ 已捕捉${info.name}，圖鑑內容可從主選單查看。`);
 
+            if (Number.isSafeInteger(pokemon.rewardToken)) {
+                const pending=gameState.battle3d?.pendingEncounters;
+                const index=Array.isArray(pending)?pending.findIndex(entry=>entry.token===pokemon.rewardToken):-1;
+                if(index>=0){pending.splice(index,1);saveGameData();}
+            }
             if (captureOutcome.shouldRespawn) {
                 const nextType = getNextSpawnType();
                 gameState.respawnQueue.push({ type: nextType, x: pokemon.spawnX, z: pokemon.spawnZ, time: clock.getElapsedTime() + 5.0 });
@@ -2395,7 +2400,7 @@
                         if (resetResult === false) throw new Error('雲端拒絕重置');
                     }
                     // Keep a fresh V5 marker so the legacy V4 fallback does not revive erased progress.
-                    localStorage.setItem('pokemon3d_v5_preview', JSON.stringify({schemaVersion:5,worldFlags:{},captureCounts:{},pokedexUnlocks:{},battle3d:{version:1,party:[],leader:null,stats:{wins:0,losses:0,draws:0,forfeits:0},rewards:{specialDuoUnlocked:false}}}));
+                    localStorage.setItem('pokemon3d_v5_preview', JSON.stringify({schemaVersion:5,worldFlags:{},captureCounts:{},pokedexUnlocks:{},battle3d:{version:1,party:[],leader:null,stats:{wins:0,losses:0,draws:0,forfeits:0},rewards:{specialDuoUnlocked:false},pendingWins:0,pendingEncounters:[],rewardSerial:0,showcaseSpecies:null}}));
                     showNotification('已完成兩次確認，V5 進度已重置。');
                     location.reload();
                 } catch (error) {
