@@ -1,8 +1,8 @@
 # 寶可夢 3D-V5｜真新鎮與專屬 3D 回合制擂台
 
-[公開遊玩（目前正式站需待 PR 合併部署）](https://ymguan3-boop.github.io/POKEMONGAME/寶可夢3D-V5/)
+[公開遊玩](https://ymguan3-boop.github.io/POKEMONGAME/寶可夢3D-V5/)
 
-> 開發說明：本功能在 `feature/v5-3d-turn-battle` 分支實作。尚未合併 `main` 前，GitHub Pages 正式網址可能仍顯示原本的卡牌對戰；不要把 PR 完成誤認為正式站已更新。
+> 正式站從 `main` 經 GitHub Actions 發布；開發中的改動必須等合併並部署成功後才會顯示。
 
 ## 主要玩法
 
@@ -13,14 +13,16 @@
 - 3 對 3，雙方一次各上一隻；回合操作：**普通攻擊、特殊技能（冷卻兩次自身指令機會）、防禦（下次傷害減半）、更換夥伴**。三隻全部倒下即判負；被擊倒後可免費強制換人。
 - 擂台沿用原 V5 3D 模型（GLB 與程式關節建模混合）、動畫控制器與探索的同一個 WebGL renderer，沒有新增常駐 renderer。
 - 對戰時世界探索暫停，雷達、搖桿和投球等 UI 暫時隱藏；戰後回原本的真新鎮角色座標和相機角度。
-- 首次正式勝利解鎖超夢、胖丁於野外出現；**仍須自行捕捉**才會加入圖鑑/隊伍。舊卡牌勝利紀錄已存在者不會重複領首次獎勵。
+- 每次對戰訓練家**正式勝利**，會在世界場景隨機出現 **1 隻尚未捕捉的非道館寶可夢**（四座道館寶可夢排除）。有尚未完成的解鎖任務時獎勵保留，不會繞過前置條件。勝利獎勵具有存檔與重新載入後補生成功能，仍需自行捕捉。
+- **排除四座道館寶可夢的全部角色都已捕捉完成**時，系統祝賀玩家並提供下拉式選單，自行指定一隻已取得角色出現在真新鎮地圖供觀賞，選擇不會額外增加特殊寶可夢捕捉紀錄；之後可找對戰訓練家重新指定。
+- **大木博士任務**：必須先實際捕捉至少 1 隻皮卡丘，再與大木博士對話，雷丘才會在地圖出現並永久解鎖自然生成；尚未捕捉過皮卡丘時會要求先去捕捉。舊版「記錄 5 種給雷之石」條件不再解鎖雷丘。
 - 「重置進度」需要**連續兩次明確確認**；任一次取消不重置。
 
 ## 技術與存檔
 
 - 仍用 Three.js、既有 V5 模型載入器與 `V5AnimationController`，不要求付費 API。
 - 戰鬥模組：`js/battle-core.js`、`battle-data.js`、`battle-arena.js`、`battle-ui.js`、`battle-controller.js`、`css/battle3d.css`。
-- 新增 `battle3d` 儲存隊伍、首發、勝敗與首次解鎖旗標，`schemaVersion` 保持 5；舊 `captureCounts`、`pokedexUnlocks`、`gyms`、`cardDeck`、`cardCollection`、`cardWins`、`worldFlags` 等欄位不得刪除。
+- `battle3d` 儲存隊伍、首發、勝敗、待兌現勝場、待捕捉的獎勵生成項目與展示角色，`schemaVersion` 保持 5；舊 `captureCounts`、`pokedexUnlocks`、`gyms`、`cardDeck`、`cardCollection`、`cardWins`、`worldFlags` 等欄位不得刪除。
 - 舊 `js/card-battle.js` 保留供回退與資料相容，但正式選單與 NPC 均改走 3D 回合制。
 - 遇到模型載入失敗時應顯示可返回真新鎮的錯誤，而非黑屏；可取消載入，不算失敗場次。
 
@@ -30,7 +32,7 @@
 
 ```bash
 node tools/serve-v5.cjs
-node --test tests/battle-core.test.cjs tests/battle-save-migration.test.cjs
+node --test tests/battle-core.test.cjs tests/battle-save-migration.test.cjs tests/v5-progress.test.cjs tests/v5-victory-oak.test.cjs
 node tools/qa-v5-battle.cjs
 node tools/qa-v5-mobile.cjs
 node tools/qa-v5-remodel-ui.cjs
@@ -62,3 +64,11 @@ node tools/qa-v5-integration.cjs
 - **自然野外生成**：在既有模型可用性、進化解放、雷丘解鎖與基礎稀有度篩選後，依同物種累積捕捉數套用加權：尚未捕捉 **8 倍**；已捕捉 1～2 隻 **2 倍**；已達 3 隻上限 **0.2 倍**。同基礎權重下未捕捉相對已滿額為 **40 倍**，並非固定 40 倍「實際機率」。
 - **不受影響**：傳說寶可夢、道館獎勵、劇情指定出現與捕捉成功率；已存在場景中的個體不強制消失，權重作用於之後自然生成的選擇。
 - **測試**：於儲存庫根目錄執行 `node --test tests/v5-spawn-priority.test.cjs`，覆蓋相對權重、既有稀有度、隨機區間、極端資料與空候選池。
+
+## 本次任務的實作檔案
+
+- `js/victory-rewards.js`：純函式判斷非道館角色、已捕捉記錄、勝利抽選與全部完成狀態。
+- `js/battle-controller.js`：每次對戰訓練家勝利只記錄 1 次待兌現獎勵；返回真新鎮後兌現。
+- `index.html`：實際野外生成、存檔補生、全部收齊後的展示選擇介面。
+- `js/progress.js` 和 `js/npc-system.js`：大木博士檢查皮卡丘捕捉紀錄、對話解鎖雷丘；雷之石不再代替捕捉任務。
+- 遊戲內的 3D 回合制對戰、卡圖、地圖探索、道館規則與 V1～V4 均未重做。
