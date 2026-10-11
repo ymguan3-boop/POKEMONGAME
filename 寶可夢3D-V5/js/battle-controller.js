@@ -82,8 +82,12 @@
         ?'🛡️ 幸福蛋套裝啟動！首回合 NPC 攻擊完全無效，第二回合恢復正常。'
         :'訓練家挑戰開始，請選擇招式！';
     this.ui.renderBattle(announcement);
-    if(this.session.openingSuit==='wigglytuff')this.arena.statusBurst(this.arena.fighters[1],'sleep');
-    if(this.session.openingSuit==='blissey')this.arena.statusBurst(this.arena.fighters[0],'shield');
+    if(this.session.openingSuit==='wigglytuff'){
+      this.arena.statusBurst(this.arena.fighters[1],'sleep');this.arena.showOpeningIcon(1,'sleep');
+    }
+    if(this.session.openingSuit==='blissey'){
+      this.arena.statusBurst(this.arena.fighters[0],'shield');this.arena.showOpeningIcon(0,'shield');
+    }
     return true;
    }catch(error){
     console.error('[v5-battle] start failed',error);
@@ -121,6 +125,7 @@
      if(enemy.ok)await this.runEvents(enemy.events,token);
     }
     if(token!==this.sequence||!this.active)return false;
+    if(s.round>1||s.status==='finished')this.arena?.clearOpeningIcon();
     if(s.status==='finished')this.recordOutcome();
     this.busy=false;this.ui.renderBattle();
     return true;
