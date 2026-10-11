@@ -84,3 +84,28 @@ body.v5-battle-active #btn-nav-trainer{visibility:hidden!important;pointer-event
 /* Status badges remain attached to HP bars and do not cover the combat stage. */
 .v5-battle-hp .v5-battle-condition{display:block;font-size:11px;font-weight:800;color:#fee9a9;line-height:1.25;padding-top:3px}
 .v5-battle-actions button small{max-width:100%;overflow-wrap:anywhere}
+
+/* Keep each HP bar and its win/loss dots in the same responsive stack.
+   The player HP moves ~25px higher, while NPC dots close their previous large gap. */
+.v5-battle-side{position:absolute;display:flex;flex-direction:column;align-items:flex-start;gap:7px;z-index:1;pointer-events:none}
+.v5-battle-side.enemy{left:10px;top:calc(max(8px,env(safe-area-inset-top)) + 62px)}
+.v5-battle-side.player{right:10px;bottom:calc(var(--v5-controls-h) + 10px);align-items:flex-end}
+.v5-battle-side .v5-battle-hp,
+.v5-battle-side .v5-battle-teamdots{position:static;inset:auto}
+.v5-battle-side .v5-battle-hp{width:min(57vw,238px);box-sizing:border-box}
+.v5-battle-side .v5-battle-teamdots.npc{margin-left:5px}
+.v5-battle-side .v5-battle-teamdots.player{margin-right:5px}
+.v5-battle-side.enemy .v5-battle-track i{background:linear-gradient(90deg,#ff745d,#f1394f)}
+.v5-battle-side.player .v5-battle-track i{background:#4bdd94}
+/* Item menu uses the exact same action footprint: 3 real-stock items + cancel. */
+.v5-battle-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(44px,1fr));gap:6px;flex:1;min-height:0}
+.v5-battle-items button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:4px 5px;font-size:13px;line-height:1.2;min-height:44px;min-width:0;white-space:normal}
+.v5-battle-items button small{font-size:10px;font-weight:400;line-height:1.18}
+.v5-battle-items button strong{font-weight:900}
+.v5-battle-items button:nth-child(1){background:#485d44}
+.v5-battle-items button:nth-child(2){background:#285e8e}
+.v5-battle-items button:nth-child(3){background:#614687}
+.v5-battle-items button:nth-child(4){background:#4c6371}
+.v5-battle-items button:disabled{opacity:.35}
+.v5-battle-items button:focus-visible{outline:3px solid #ffd36c;outline-offset:1px}
+@media(max-width:375px){.v5-battle-side .v5-battle-hp{width:min(63vw,220px)}}
