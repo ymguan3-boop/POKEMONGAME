@@ -5,7 +5,8 @@
  const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
  class BattleArena {
   constructor(){
-   this.scene=new T.Scene();this.scene.background=new T.Color(0xb8e7e9);
+   // Deep indigo backdrop contrasts with the light neutral stage and both combatants.
+   this.scene=new T.Scene();this.scene.background=new T.Color(0x11162e);
    this.camera=new T.PerspectiveCamera(47,1,.1,150);
    this.camera.position.set(8,10,16);this.camera.lookAt(0,-1.8,0); // Frame both models above the portrait action panel.
    this.fighters=[null,null];this.owned=[];this.fx=[];this.disposed=false;this.generation=0;
@@ -14,13 +15,18 @@
   makeStage(){
    const mat=(color,roughness=.86)=>{const m=new T.MeshStandardMaterial({color,roughness});this.owned.push(m);return m;};
    const geo=(ctor,...args)=>{const g=new ctor(...args);this.owned.push(g);return g;};
-   const stage=new T.Mesh(geo(T.CylinderGeometry,7.8,8,0.36,64),mat(0x3a9b69));stage.position.y=-.2;this.scene.add(stage);
-   const edge=new T.Mesh(geo(T.TorusGeometry,7.1,.13,8,90),mat(0xffdd92));edge.rotation.x=Math.PI/2;edge.position.y=.025;this.scene.add(edge);
-   const center=new T.Mesh(geo(T.RingGeometry,.72,.93,48),mat(0xe9f8e8));center.rotation.x=-Math.PI/2;center.position.y=.025;this.scene.add(center);
-   const seam=new T.Mesh(geo(T.PlaneGeometry,13,.07),mat(0xd4f5e4));seam.rotation.x=-Math.PI/2;seam.position.y=.027;this.scene.add(seam);
-   const disc=new T.Mesh(geo(T.CircleGeometry,.25,32),mat(0xe6f5ee));disc.rotation.x=-Math.PI/2;disc.position.y=.03;this.scene.add(disc);
-   this.scene.add(new T.HemisphereLight(0xffffff,0x6baf76,1.25));
-   const sun=new T.DirectionalLight(0xffffff,1.6);sun.position.set(-5,12,8);this.scene.add(sun);
+   const stage=new T.Mesh(geo(T.CylinderGeometry,7.8,8,0.36,64),mat(0xd7e6ea));stage.position.y=-.2;this.scene.add(stage);
+   const edge=new T.Mesh(geo(T.TorusGeometry,7.1,.13,8,90),mat(0xf5b83b));edge.rotation.x=Math.PI/2;edge.position.y=.025;this.scene.add(edge);
+   // Cool cyan player zone and warm coral opponent zone are readable at a glance.
+   for(const [x,z,color] of [[-2.25,2,0x279db7],[2.25,-2,0xe97166]]){
+    const zone=new T.Mesh(geo(T.CircleGeometry,1.55,48),mat(color));
+    zone.rotation.x=-Math.PI/2;zone.position.set(x,.017,z);this.scene.add(zone);
+   }
+   const center=new T.Mesh(geo(T.RingGeometry,.72,.93,48),mat(0x27496a));center.rotation.x=-Math.PI/2;center.position.y=.025;this.scene.add(center);
+   const seam=new T.Mesh(geo(T.PlaneGeometry,13,.07),mat(0x27496a));seam.rotation.x=-Math.PI/2;seam.position.y=.027;this.scene.add(seam);
+   const disc=new T.Mesh(geo(T.CircleGeometry,.25,32),mat(0xf5b83b));disc.rotation.x=-Math.PI/2;disc.position.y=.03;this.scene.add(disc);
+   this.scene.add(new T.HemisphereLight(0xffffff,0x526b8e,1.35));
+   const sun=new T.DirectionalLight(0xffffff,1.75);sun.position.set(-5,12,8);this.scene.add(sun);
    const rail=new T.Mesh(geo(T.TorusGeometry,8,.035,6,80),mat(0xffffff));rail.rotation.x=Math.PI/2;rail.position.y=.22;this.scene.add(rail);
   }
   async setFighter(side,id){
