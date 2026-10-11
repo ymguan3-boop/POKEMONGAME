@@ -11,7 +11,7 @@
   buildUI(){const style=document.createElement('style');style.textContent='#v5-talk{position:fixed;bottom:170px;left:50%;transform:translateX(-50%);padding:10px 18px;border:2px solid #fff3cb;border-radius:22px;background:#234d58;color:white;z-index:60;cursor:pointer}#v5-dialogue{position:fixed;bottom:110px;left:50%;transform:translateX(-50%);width:min(520px,90vw);padding:22px;border:3px solid #e5c485;border-radius:18px;background:#fff9eb;color:#23434e;z-index:80;box-shadow:0 8px 28px #0004}#v5-dialogue button{margin-top:14px;background:#24576b;color:white;border-radius:8px;padding:8px 18px}';document.head.append(style);
    style.textContent+='.v5-npc-name{position:fixed;transform:translate(-50%,-100%);pointer-events:none;z-index:18;white-space:nowrap;max-width:110px;padding:2px 5px;border:1px solid #a6edf4;border-radius:6px;background:#174656db;color:#fff;font:600 10px/1.3 sans-serif;text-shadow:0 1px 2px #000}.v5-npc-name[hidden]{display:none}#v5-dialogue p{white-space:pre-line}';
    this.button=document.createElement('button');this.button.id='v5-talk';this.button.hidden=true;this.button.addEventListener('click',()=>this.interact());document.body.append(this.button);
-   this.panel=document.createElement('section');this.panel.id='v5-dialogue';this.panel.hidden=true;this.panel.setAttribute('role','dialog');this.panel.setAttribute('aria-label','NPC 對話');this.panel.innerHTML='<strong></strong><p style="margin-top:10px;line-height:1.7"></p><button class="v5-card-menu" hidden>選擇隊伍／3D 挑戰</button><button class="v5-close-talk">繼續冒險</button>';this.panel.querySelector('.v5-close-talk').onclick=()=>this.close();this.panel.querySelector('.v5-card-menu').onclick=()=>{this.close();window.V5Battle?.openTeam(true);};document.body.append(this.panel);
+   this.panel=document.createElement('section');this.panel.id='v5-dialogue';this.panel.hidden=true;this.panel.setAttribute('role','dialog');this.panel.setAttribute('aria-label','NPC 對話');this.panel.innerHTML='<strong></strong><p style="margin-top:10px;line-height:1.7"></p><button class="v5-card-menu" hidden>選擇隊伍／3D 挑戰</button><button class="v5-reward-choice" hidden>選擇展示的寶可夢</button><button class="v5-close-talk">繼續冒險</button>';this.panel.querySelector('.v5-close-talk').onclick=()=>this.close();this.panel.querySelector('.v5-card-menu').onclick=()=>{this.close();window.V5Battle?.openTeam(true);};this.panel.querySelector('.v5-reward-choice').onclick=()=>{this.close();this.ctx.openPrizePicker?.();};document.body.append(this.panel);
    window.addEventListener('keydown',e=>{if(e.code==='KeyE'&&!e.repeat){e.preventDefault();if(this.dialogue)this.close();else this.interact();}if(e.code==='Escape'&&this.dialogue)this.close();});
   }
   close(){this.dialogue=null;this.panel.hidden=true;this.ctx.state.interactionOpen=false;}
@@ -20,11 +20,31 @@
    if(npc.cardTrainer||npc.battleTrainer){state.interactionOpen=true;this.dialogue=npc;
     const count=window.V5BattleData?.caught?.(state)?.length||0;
     this.panel.querySelector('strong').textContent=npc.name;
-    this.panel.querySelector('p').textContent='準備用三隻已捕捉的寶可夢進行 3D 回合制挑戰嗎？\n目前可編隊種類：'+count+'。\n獲得首次勝利即可解鎖超夢及胖丁。';
-    this.panel.querySelector('.v5-card-menu').hidden=false;this.panel.hidden=false;return true;}
+    this.panel.querySelector('p').textContent='準備用三隻已捕捉的寶可夢進行 3D 回合制挑戰嗎？\n目前可編隊種類：'+count+'。\n每次獲勝都會隨機出現 1 隻未捕捉的非道館寶可夢；全部收齊後，可以自己選擇展示角色。';
+    this.panel.querySelector('.v5-card-menu').hidden=false;
+    this.panel.querySelector('.v5-reward-choice').hidden=!this.ctx.prizeStatus?.().allCollected;
+    this.panel.hidden=false;return true;}
    state.interactionOpen=true;this.dialogue=npc;
    this.panel.querySelector('.v5-card-menu').hidden=true;
+   this.panel.querySelector('.v5-reward-choice').hidden=true;
    if(npc.leader){const leader=this.actors.find(n=>n.id===npc.leader);this.panel.querySelector('strong').textContent=npc.name+' · NPC 夥伴';this.panel.querySelector('p').textContent=npc.name+'開心地向你打招呼！牠正在陪伴'+(leader?.name||'鎮上的朋友')+'，是鎮上的夥伴，不能捕捉。';this.panel.hidden=false;visual()?.action('Nod');this.panel.querySelector('button').focus();return true;}
+   if(npc.id==='oak'){
+    const result=V5Progress.oakRaichu(state);
+    let message;
+    if(result.status==='need-pikachu'){
+     message='我的雷丘研究需要真實的捕捉資料！請先去捕捉至少 1 隻皮卡丘，再回來找我對話。';
+    }else if(result.status==='unlocked'){
+     message='太好了！你已捕捉至少 1 隻皮卡丘。現在我已讓雷丘在真新鎮現身，快去尋找牠！';
+     this.ctx.spawnOakRaichu?.();this.ctx.onOakUnlocked?.();
+    }else{
+     message='你已完成皮卡丘研究，雷丘出現條件已永久解鎖。';
+     if(!V5VictoryRewards.caught(state,'raichu')){this.ctx.spawnOakRaichu?.();message+=' 還未捕捉到雷丘的話，就到真新鎮找找！';}
+    }
+    npc.animation.action(result.status==='unlocked'?'GiveItem':'Wave');visual()?.action('Nod');
+    this.panel.querySelector('strong').textContent=npc.name;
+    this.panel.querySelector('p').textContent=message;this.panel.hidden=false;save();
+    this.panel.querySelector('.v5-close-talk').focus();return true;
+   }
    let text=npc.dialogue;const quest=V5Progress.rewardQuest(state,npc.id);let reward=quest;
    if(!reward){const now=Date.now(),next=state.npcRewards[npc.id]||0;if(now>=next){state.npcRewards[npc.id]=now+(120+Math.random()*180)*1000;if(Math.random()<.45)reward=npc.supply;}}
    if(reward){if(!quest)V5Progress.award(state,reward.item,reward.amount);if(reward.item==='normal'){state.pokeballs=Math.min(state.maxPokeballs,state.pokeballs+reward.amount);state.items.normal=0;}if(reward.item==='berry'){state.berryCount+=reward.amount;state.items.berry=0;}text+='\n獲得 '+reward.amount+' 個'+(V5NpcData.itemNames[reward.item]||reward.item)+'！';npc.animation.action('GiveItem');visual()?.action('ReceiveItem',[{at:.55,fire:()=>this.ctx.showItem?.(reward.item)}]);this.ctx.inventory();}else{npc.animation.action('Wave');visual()?.action('Nod');}save();

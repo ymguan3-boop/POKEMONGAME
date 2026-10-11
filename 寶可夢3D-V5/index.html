@@ -8,7 +8,7 @@
     <script src="vendor/tailwind.js"></script>
     <script src="vendor/three.min.js"></script>
     <script src="vendor/GLTFLoader.js"></script>
-    <script src="js/roster.js"></script><script src="js/legacy-roster.js"></script><script src="js/new-roster.js"></script><script src="js/spawn-priority.js?v=20261011"></script><script src="js/v5-special.js"></script>
+    <script src="js/roster.js"></script><script src="js/legacy-roster.js"></script><script src="js/new-roster.js"></script><script src="js/spawn-priority.js?v=20261011"></script><script src="js/victory-rewards.js?v=20261011"></script><script src="js/v5-special.js"></script>
     <script src="js/models-v2/kit.js"></script>
 <script src="js/models-v2/gen12.js"></script>
 <script src="js/models-v2/gen34.js"></script>
@@ -397,7 +397,7 @@
             pokemons: [], activeBalls: [], particles: [], respawnQueue: [],
             berries: [], activeOakDrop: null, oakDropTimer: 0, nextOakDropTime: 50,
             isTimeStopped: false, timeStopTimer: 0,
-            pokedexUnlocks: {}, captureCounts: {}, hasReachedLimit: {},cardCollection:{},cardDeck:[],cardDeckActive:false,cardStarterReceived:false,cardWins:0,battle3d:{version:1,party:[],leader:null,stats:{wins:0,losses:0,draws:0,forfeits:0},rewards:{specialDuoUnlocked:false}},interactionOpen:false,
+            pokedexUnlocks: {}, captureCounts: {}, hasReachedLimit: {},cardCollection:{},cardDeck:[],cardDeckActive:false,cardStarterReceived:false,cardWins:0,battle3d:{version:1,party:[],leader:null,stats:{wins:0,losses:0,draws:0,forfeits:0},rewards:{specialDuoUnlocked:false},pendingWins:0,pendingEncounters:[],rewardSerial:0,showcaseSpecies:null},interactionOpen:false,
             legendarySpawned: Object.fromEntries(PalletRoster.legends.map(t=>[t,false])),
             gymRewardCaptured: { pikachu: false, mew: false, wigglytuff: false, blissey: false },
             specialPokemonCaptured: Object.fromEntries(SPECIAL_POKEMON_TYPES.map(type => [type, false])),
@@ -1103,7 +1103,7 @@
             let pool = unlockedBase >= EVOLUTION_THRESHOLD ? getAllNonLegendaryTypes() : [...BASE_SPAWN_TYPES];
             
             pool=pool.filter(id=>V5_AVAILABLE_TYPES.has(id)&&V5Progress.eligible(gameState,id));
-            if(gameState.worldFlags?.raichuSpawnUnlocked&&!pool.includes('raichu'))pool.push('raichu');
+            if(V5_AVAILABLE_TYPES.has('raichu')&&V5Progress.eligible(gameState,'raichu')&&!pool.includes('raichu'))pool.push('raichu');
             // Apply collection-aware priorities only AFTER the existing model, story and evolution unlock filters.
             // Never-caught species get 8x; 1-2 captured get 2x; 3+ captured get 0.2x.
             return V5SpawnPriority.choose(pool, gameState, V5SpawnWeights, MAX_CAPTURE_LIMIT);
@@ -1567,6 +1567,11 @@
             try { Sound.playSuccess(); } catch (error) { console.warn('[capture] success sound failed', error); }
             if (!popupShown) showNotification(`✅ 已捕捉${info.name}，圖鑑內容可從主選單查看。`);
 
+            if (Number.isSafeInteger(pokemon.rewardToken)) {
+                const pending=gameState.battle3d?.pendingEncounters;
+                const index=Array.isArray(pending)?pending.findIndex(entry=>entry.token===pokemon.rewardToken):-1;
+                if(index>=0){pending.splice(index,1);saveGameData();}
+            }
             if (captureOutcome.shouldRespawn) {
                 const nextType = getNextSpawnType();
                 gameState.respawnQueue.push({ type: nextType, x: pokemon.spawnX, z: pokemon.spawnZ, time: clock.getElapsedTime() + 5.0 });
@@ -2277,17 +2282,127 @@
             };
             window.V5SpawnCardReward=spawnCardReward;
             window.V5RetryBattleRewards=()=>{if(gameState.currentMode!=='world')return;for(const id of ['mewtwo','jigglypuff'])if(gameState.worldFlags[id+'Awaiting']&&!gameState.specialPokemonCaptured[id])spawnCardReward(id);};
-            setInterval(()=>window.V5RetryBattleRewards?.(),15000);
-            window.V5Cards.init({state:gameState,save:saveGameData,onWin:()=>{gameState.cardWins=(gameState.cardWins||0)+1;gameState.worldFlags.mewtwoAwaiting=true;gameState.worldFlags.jigglypuffAwaiting=true;spawnCardReward('mewtwo');spawnCardReward('jigglypuff');showNotification('卡牌勝利！超夢與胖丁在真新鎮現身。');}});
+            setInterval(()=>{window.V5RetryBattleRewards?.();window.V5ResumeVictoryRewards?.();},15000);
+            window.V5Cards.init({state:gameState,save:saveGameData,onWin:()=>{gameState.cardWins=(gameState.cardWins||0)+1;gameState.battle3d.pendingWins=(gameState.battle3d.pendingWins||0)+1;saveGameData();processVictoryRewards();}});
+            // Prize roster excludes only the four gym-owned species. Raichu stays Oak-gated.
+            const prizeRoster=()=>V5VictoryRewards.roster(POKEDEX_DATA,GYM_BOSS_TYPES,V5_AVAILABLE_TYPES);
+            const prizeStatus=()=>V5VictoryRewards.status(gameState,prizeRoster(),id=>V5Progress.eligible(gameState,id));
+            const spawnPrize=(id,{token=null,showcase=false}={})=>{
+                if(gameState.currentMode!=='world'||!V5_AVAILABLE_TYPES.has(id)||!POKEDEX_DATA[id])return null;
+                let spot=null;
+                for(let i=0;i<45;i++){
+                    const angle=Math.random()*Math.PI*2,dist=12+Math.random()*16;
+                    const x=Math.max(-MAP_BOUNDARY+3,Math.min(MAP_BOUNDARY-3,player.position.x+Math.cos(angle)*dist));
+                    const z=Math.max(-MAP_BOUNDARY+3,Math.min(MAP_BOUNDARY-3,player.position.z+Math.sin(angle)*dist));
+                    if(Math.hypot(x-player.position.x,z-player.position.z)<9)continue;
+                    if(gameState.obstacles.some(o=>Math.hypot(x-o.x,z-o.z)<(o.radius||0)+2))continue;
+                    spot={x,z};break;
+                }
+                if(!spot)return null;
+                const monster=new Pokemon(id,spot.x,spot.z);
+                monster.spawnX=spot.x;monster.spawnZ=spot.z;
+                if(Number.isSafeInteger(token)){monster.rewardToken=token;monster.lockPriority=210;}
+                if(showcase){
+                    monster.isShowcase=true;monster.isCatchable=false;monster.isTargetable=false;monster.isBattleTarget=false;
+                    monster.isSpecialTarget=false;
+                }
+                resolveCollision(monster.mesh.position,.35);
+                monster.spawnX=monster.mesh.position.x;monster.spawnZ=monster.mesh.position.z;
+                scene.add(monster.mesh);gameState.pokemons.push(monster);
+                if(!showcase)prioritizeLockTarget(monster);
+                return monster;
+            };
+            const syncPrizeEntities=()=>{
+                if(gameState.currentMode!=='world')return;
+                const d=gameState.battle3d;
+                let changed=false;
+                d.pendingEncounters=d.pendingEncounters.filter(entry=>{
+                    const valid=prizeRoster().includes(entry.id)&&!V5VictoryRewards.caught(gameState,entry.id);
+                    if(!valid)changed=true;
+                    return valid;
+                });
+                for(const entry of d.pendingEncounters){
+                    if(gameState.pokemons.some(p=>p.rewardToken===entry.token))continue;
+                    spawnPrize(entry.id,{token:entry.token});
+                }
+                gameState.pokemons=gameState.pokemons.filter(p=>{
+                    if(!p.isShowcase)return true;
+                    if(p.type===d.showcaseSpecies&&prizeStatus().allCollected)return true;
+                    scene.remove(p.mesh);return false;
+                });
+                if(d.showcaseSpecies&&prizeRoster().includes(d.showcaseSpecies)&&prizeStatus().allCollected&&
+                    !gameState.pokemons.some(p=>p.isShowcase)){
+                    spawnPrize(d.showcaseSpecies,{showcase:true});
+                }
+                if(changed)saveGameData();
+            };
+            const openPrizePicker=()=>{
+                if(gameState.currentMode!=='world'||!prizeStatus().allCollected)return false;
+                if(document.getElementById('v5-prize-picker'))return true;
+                const overlay=document.createElement('section');
+                overlay.id='v5-prize-picker';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');
+                overlay.setAttribute('aria-label','選擇出現在地圖上的寶可夢');
+                overlay.style.cssText='position:fixed;inset:0;background:#09172be9;z-index:10010;display:grid;place-items:center;padding:16px;box-sizing:border-box;color:#f8fbff;font:15px/1.6 system-ui';
+                const panel=document.createElement('div');panel.style.cssText='width:min(460px,100%);background:#193750;border:2px solid #f7d38c;border-radius:18px;padding:19px;box-sizing:border-box;box-shadow:0 12px 35px #0008';
+                const heading=document.createElement('h2');heading.textContent='🎉 非道館寶可夢已全部捕捉完成！';heading.style.cssText='font-size:19px;margin:0 0 10px';panel.append(heading);
+                const caption=document.createElement('p');caption.textContent='恭喜完成收集！現在可以指定一隻寶可夢出現在真新鎮地圖供觀賞。此展示不會重複增加捕捉紀錄，也不會解除道館規則。';panel.append(caption);
+                const select=document.createElement('select');select.setAttribute('aria-label','選擇寶可夢');select.style.cssText='width:100%;font-size:16px;min-height:48px;padding:8px;background:#fff;color:#152f42;border-radius:10px;margin:7px 0 16px';
+                for(const id of prizeRoster()){const option=document.createElement('option');option.value=id;option.textContent=getPokedexInfo(id).name;select.append(option);}
+                if(gameState.battle3d.showcaseSpecies)select.value=gameState.battle3d.showcaseSpecies;
+                const actions=document.createElement('div');actions.style.cssText='display:flex;gap:9px;flex-wrap:wrap';
+                const makeButton=(text,background)=>{const button=document.createElement('button');button.textContent=text;button.style.cssText='flex:1;min-width:125px;min-height:46px;padding:8px;color:white;font-size:15px;font-weight:700;border:0;border-radius:10px;background:'+background;return button;};
+                const submit=makeButton('讓牠出現在地圖','#13778c'),cancel=makeButton('稍後再選','#526477');
+                const close=()=>{overlay.remove();gameState.interactionOpen=false;};
+                submit.onclick=()=>{
+                    const id=select.value;if(!prizeRoster().includes(id)||!prizeStatus().allCollected)return;
+                    for(const entity of gameState.pokemons.filter(p=>p.isShowcase)){scene.remove(entity.mesh);}
+                    gameState.pokemons=gameState.pokemons.filter(p=>!p.isShowcase);
+                    gameState.battle3d.showcaseSpecies=id;saveGameData();close();
+                    const monster=spawnPrize(id,{showcase:true});
+                    showNotification(monster?'✨ '+getPokedexInfo(id).name+'已出現在真新鎮！':'已儲存選擇，返回地圖後將再次嘗試載入。');
+                };
+                cancel.onclick=close;
+                actions.append(submit,cancel);panel.append(select,actions);overlay.append(panel);document.body.append(overlay);
+                gameState.interactionOpen=true;select.focus();return true;
+            };
+            const processVictoryRewards=({notify=true,openChoice=true}={})=>{
+                if(gameState.currentMode!=='world')return;
+                const d=gameState.battle3d;let choice=false,blocked=false,added=[];
+                while(d.pendingWins>0){
+                    const pending=d.pendingEncounters.map(e=>e.id);
+                    const visible=gameState.pokemons.filter(p=>!p.isShowcase).map(p=>p.type);
+                    const result=V5VictoryRewards.awardType(gameState,prizeRoster(),
+                        id=>V5Progress.eligible(gameState,id),pending,visible);
+                    if(result.allCollected){choice=true;d.pendingWins--;continue;}
+                    if(!result.id){blocked=true;break;}
+                    const entry={id:result.id,token:++d.rewardSerial};
+                    d.pendingEncounters.push(entry);d.pendingWins--;added.push(result.id);
+                }
+                if(choice||added.length)saveGameData();
+                syncPrizeEntities();
+                if(notify&&added.length)showNotification('🏆 訓練家對戰獎勵：'+added.map(id=>getPokedexInfo(id).name).join('、')+'已隨機出現在真新鎮，請親自捕捉！');
+                if(notify&&blocked)showNotification('尚有未捕捉的寶可夢需要先完成解鎖任務，獲勝獎勵已保留。請找大木博士確認雷丘任務。');
+                if(choice&&notify){showNotification('🎉 除道館寶可夢外，全部都已捕捉完成！現在可以自行選擇展示角色。');if(openChoice)openPrizePicker();}
+            };
+            const spawnOakRaichu=()=>{
+                if(!V5Progress.eligible(gameState,'raichu')||V5VictoryRewards.caught(gameState,'raichu'))return false;
+                const existing=gameState.pokemons.find(p=>p.type==='raichu');
+                if(existing){prioritizeLockTarget(existing);return true;}
+                const appeared=spawnPrize('raichu');
+                if(appeared)showNotification('⚡ 大木博士的研究成功！雷丘已出現在真新鎮，去找牠吧！');
+                return !!appeared;
+            };
+            window.V5ResumeVictoryRewards=()=>{
+                processVictoryRewards({notify:false,openChoice:false});
+                syncPrizeEntities();
+                if(V5Progress.eligible(gameState,'raichu'))spawnOakRaichu();
+            };
             const floor = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ color: 0x91b971, roughness: 0.8 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
             const snowGeo = new THREE.BufferGeometry(); const posArray = new Float32Array(4500); for(let i=0; i<4500; i+=3) { posArray[i]=(Math.random()-0.5)*80; posArray[i+1]=Math.random()*40; posArray[i+2]=(Math.random()-0.5)*80; } snowGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3)); gameState.snowflakes = null;
 
             const v5Zoom=e=>{if(e.target.closest('canvas')){e.preventDefault();v5Camera.zoom(e.deltaY*.004);}};window.addEventListener('wheel',v5Zoom,{passive:false});window.__v5Camera=v5Camera;buildEnvironment();const cameraOccluders=[];scene.traverse(o=>{if(o.userData.occlusionGroup)cameraOccluders.push(o)});v5Camera.setOccluders(cameraOccluders);buildPlayerAndModels();v5Ecology=new V5Ecology.Ecology({state:gameState,player});window.__v5Ecology=v5Ecology; player.position.set(0,0,23);v5CaptureVFX=new V5CaptureVFX();window.__v5CaptureVFX=v5CaptureVFX;v5Items=new Item3DSystem({loader:gltfLoader,clone:cloneRuntimeGLBScene,scene,player,state:gameState});v5Items.preload().then(()=>{for(const b of gameState.berries){const visual=v5Items.item('berry');if(visual){b.mesh.clear();b.mesh.add(visual);}}});window.__v5Items=v5Items;const bagButton=document.createElement('button');bagButton.textContent='🎒 道具';bagButton.id='v5-open-items';bagButton.style.cssText='min-height:44px;background:#234b5d;color:white;padding:8px 13px;border-radius:12px';bagButton.onclick=()=>v5Items.openInventory();document.getElementById("main-menu-panel").append(bagButton);window.V5Battle=new V5BattleController({state:gameState,save:saveGameData,player,camera,renderer,
-                onFirstWin:()=>{gameState.worldFlags.mewtwoAwaiting=!gameState.specialPokemonCaptured.mewtwo;
-                    gameState.worldFlags.jigglypuffAwaiting=!gameState.specialPokemonCaptured.jigglypuff;
-                    spawnCardReward('mewtwo');spawnCardReward('jigglypuff');
-                    showNotification('3D 擂台首勝！超夢與胖丁已在真新鎮解鎖，請親自捕捉。');}});
-            const cardButton=document.createElement('button');cardButton.id='v5-open-cards';cardButton.textContent='⚔️ 寶可夢隊伍';cardButton.style.cssText='min-height:44px;background:#664b86;color:white;padding:8px 13px;border-radius:12px';cardButton.onclick=()=>{document.getElementById('main-menu-panel').classList.remove('active');window.V5Battle?.openTeam(false);};document.getElementById('main-menu-panel').append(cardButton);v5Npcs=new V5NpcSystem({scene,state:gameState,player,camera:()=>camera,loader:gltfLoader,clone:cloneRuntimeGLBScene,obstacles:gameState.obstacles,save:saveGameData,inventory:updateInventoryUI,showItem:id=>v5Items.showReward(id),visual:()=>v5PlayerVisual});v5Npcs.load();window.__v5Npcs=v5Npcs; gameState.camAngle=Math.PI; camera.position.set(0,6,31);
+                onVictory:()=>processVictoryRewards()});
+            const cardButton=document.createElement('button');cardButton.id='v5-open-cards';cardButton.textContent='⚔️ 寶可夢隊伍';cardButton.style.cssText='min-height:44px;background:#664b86;color:white;padding:8px 13px;border-radius:12px';cardButton.onclick=()=>{document.getElementById('main-menu-panel').classList.remove('active');window.V5Battle?.openTeam(false);};document.getElementById('main-menu-panel').append(cardButton);v5Npcs=new V5NpcSystem({scene,state:gameState,player,camera:()=>camera,loader:gltfLoader,clone:cloneRuntimeGLBScene,obstacles:gameState.obstacles,save:saveGameData,inventory:updateInventoryUI,showItem:id=>v5Items.showReward(id),visual:()=>v5PlayerVisual,spawnOakRaichu,openPrizePicker,prizeStatus,onOakUnlocked:()=>processVictoryRewards({notify:false,openChoice:false})});v5Npcs.load();window.__v5Npcs=v5Npcs; gameState.camAngle=Math.PI; camera.position.set(0,6,31);
             
             let i = 0; while(i < 5) { const angle = Math.random() * Math.PI * 2; const r = 12 + Math.random() * 15; spawnBerryItem(Math.cos(angle)*r, Math.sin(angle)*r); i++; }
 
@@ -2395,7 +2510,7 @@
                         if (resetResult === false) throw new Error('雲端拒絕重置');
                     }
                     // Keep a fresh V5 marker so the legacy V4 fallback does not revive erased progress.
-                    localStorage.setItem('pokemon3d_v5_preview', JSON.stringify({schemaVersion:5,worldFlags:{},captureCounts:{},pokedexUnlocks:{},battle3d:{version:1,party:[],leader:null,stats:{wins:0,losses:0,draws:0,forfeits:0},rewards:{specialDuoUnlocked:false}}}));
+                    localStorage.setItem('pokemon3d_v5_preview', JSON.stringify({schemaVersion:5,worldFlags:{},captureCounts:{},pokedexUnlocks:{},battle3d:{version:1,party:[],leader:null,stats:{wins:0,losses:0,draws:0,forfeits:0},rewards:{specialDuoUnlocked:false},pendingWins:0,pendingEncounters:[],rewardSerial:0,showcaseSpecies:null}}));
                     showNotification('已完成兩次確認，V5 進度已重置。');
                     location.reload();
                 } catch (error) {
@@ -2545,7 +2660,7 @@
                 if(mewCompanionGroup) mewCompanionGroup.visible = gameState.equip.mewCompanion; 
                 if(playerBackpack) playerBackpack.visible = !gameState.equip.mewCompanion; 
                 updateOutfitUI();
-                initSpawns();for(const type of ['mewtwo','jigglypuff'])if(gameState.worldFlags[type+'Awaiting'])window.V5SpawnCardReward?.(type);
+                initSpawns();window.V5ResumeVictoryRewards?.();for(const type of ['mewtwo','jigglypuff'])if(gameState.worldFlags[type+'Awaiting'])window.V5SpawnCardReward?.(type);
                 updatePokedexUI(); 
                 updateInventoryUI(); 
                 animate(); 
