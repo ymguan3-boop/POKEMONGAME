@@ -18,10 +18,10 @@
    const mat=(color,roughness=.84)=>{const m=new T.MeshStandardMaterial({color,roughness,metalness:.05});this.owned.push(m);return m;};
    const geo=(ctor,...args)=>{const g=new ctor(...args);this.owned.push(g);return g;};
    // Deep slate is deliberately darker than all bright Pokémon and skill particles.
-   const stage=new T.Mesh(geo(T.CylinderGeometry,7.8,8,.36,64),mat(0x27384b));stage.position.y=-.2;this.scene.add(stage);
+   const stage=new T.Mesh(geo(T.CylinderGeometry,7.8,8,.36,64),mat(0x1d2a40));stage.position.y=-.2;this.scene.add(stage);
    const edge=new T.Mesh(geo(T.TorusGeometry,7.1,.095,8,90),mat(0xc1af79));
    edge.rotation.x=Math.PI/2;edge.position.y=.025;this.scene.add(edge);
-   for(const [x,z,color] of [[-2.25,2,0x1c6676],[2.25,-2,0x793f52]]){
+   for(const [x,z,color] of [[-2.25,2,0x174957],[2.25,-2,0x522d48]]){
     const zone=new T.Mesh(geo(T.CircleGeometry,1.62,48),mat(color));
     zone.rotation.x=-Math.PI/2;zone.position.set(x,.017,z);this.scene.add(zone);
    }
@@ -29,9 +29,10 @@
    center.rotation.x=-Math.PI/2;center.position.y=.026;this.scene.add(center);
    const seam=new T.Mesh(geo(T.PlaneGeometry,13,.065),mat(0x8faabd));
    seam.rotation.x=-Math.PI/2;seam.position.y=.025;this.scene.add(seam);
-   const sun=new T.DirectionalLight(0xfff6e7,1.34);sun.position.set(-5,10,9);this.scene.add(sun);
-   this.scene.add(new T.HemisphereLight(0xeaf8ff,0x334359,1.05));
-   const rim=new T.DirectionalLight(0x94d9ff,.65);rim.position.set(2,7,-7);this.scene.add(rim);
+   // Three low-intensity lights preserve authentic model colors without yellow/white clipping.
+   const sun=new T.DirectionalLight(0xfff6e7,.83);sun.position.set(-5,10,9);this.scene.add(sun);
+   this.scene.add(new T.HemisphereLight(0xe0efff,0x28344f,.64));
+   const rim=new T.DirectionalLight(0x94d9ff,.32);rim.position.set(2,7,-7);this.scene.add(rim);
   }
   async setFighter(side,id){
    if(this.disposed)return;
@@ -42,14 +43,19 @@
    this.removeFighter(side);
    const visual=root.V5ViewerClone(asset.scene);
    if(!visual)throw new Error('V5 模型複製失敗：'+id);
+   // Materials must be cloned per battle participant; cached world/gym GLBs stay untouched.
+   const battleMaterials=root.V5BattleVisual.cloneForBattle(visual);
    const holder=new T.Group();holder.name='battle-'+id;
    holder.position.set(side===0?-2.25:2.25,0,side===0?2:-2);
    holder.add(visual);this.scene.add(holder);
-   visual.rotation.y=side===0?Math.PI:0;visual.updateMatrixWorld(true);
+   // NPC faces the player's location in an oblique 15° stance instead of the camera.
+   visual.rotation.y=side===0?Math.PI:root.V5BattleVisual.facePlayer(-2.25,2,2.25,-2);
+   visual.updateMatrixWorld(true);
    const bounds=new T.Box3().setFromObject(visual),height=Math.max(.1,bounds.getSize(new T.Vector3()).y);
    // Larger silhouettes and narrower camera framing keep small Pokémon visible on phones.
    const target=(id==='mewtwo'||id==='rayquaza')?3.1:Math.min(3,Math.max(1.75,height*1.65));
-   visual.scale.multiplyScalar(Math.min(4,target/height));visual.updateMatrixWorld(true);
+   visual.scale.multiplyScalar(Math.min(4,target/height)*(side===1?root.V5BattleVisual.NPC_SCALE:1));
+   visual.updateMatrixWorld(true);
    visual.position.y-=new T.Box3().setFromObject(visual).min.y;
    const clips=Array.isArray(asset.animations)?asset.animations:[];
    let controller=null;
@@ -68,7 +74,7 @@
        }
      });
    }
-   this.fighters[side]={id,holder,visual,controller,idleClip,baseX:holder.position.x,baseZ:holder.position.z,hurt:0,flying,wings};
+   this.fighters[side]={id,holder,visual,controller,idleClip,battleMaterials,baseX:holder.position.x,baseZ:holder.position.z,hurt:0,flying,wings};
    this.fitCombatants();
   }
   // Portrait view: fit the full silhouettes horizontally instead of cropping both fighters.
@@ -89,7 +95,10 @@
    const prev=this.fighters[side];if(!prev)return;
    root.PokemonGameRuntime?.restoreTransientEmissive?.(prev.visual);
    if(prev.controller)prev.controller.dispose();
-   this.scene.remove(prev.holder);this.fighters[side]=null;
+   this.scene.remove(prev.holder);
+   // Dispose only new material instances, not geometries or textures shared with the world.
+   for(const material of prev.battleMaterials||[])material.dispose();
+   this.fighters[side]=null;
    // Shared cached model geometry and material resources must never be disposed here.
   }
   async showBoth(playerId,opponentId){await this.setFighter(0,playerId);await this.setFighter(1,opponentId);}
