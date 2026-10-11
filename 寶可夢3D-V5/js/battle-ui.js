@@ -95,7 +95,7 @@
      (forced?'':'<button data-action="switch-menu">取消</button>')+'</div>':'';
    const end=session.status==='finished';
    const summary=end?'<div class="v5-battle-result"><h2>'+(session.winner===0?'🏆 對戰勝利！':session.winner===null?'平手':'對戰結束')+'</h2><p>'+esc(session.reason)+'</p>'+
-     '<button data-action="retry">再挑戰</button><button data-action="exit">返回真新鎮</button></div>':'';
+     '<p>'+(session.winner===0?'離開擂台後將出現 1 隻未捕捉、非道館寶可夢；全部收齊後可指定展示角色。':'')+'</p><button data-action="retry">再挑戰</button><button data-action="exit">返回真新鎮</button></div>':'';
    this.layer.innerHTML=
      '<header class="v5-battle-top"><strong>⚔️ 真新鎮 3D 對戰擂台</strong><span>回合 '+session.round+'</span><button data-action="exit" aria-label="離開對戰">離開</button></header>'+
      hpBox(enemy,'enemy')+'<div class="v5-battle-teamdots npc">'+states(1)+'</div>'+
