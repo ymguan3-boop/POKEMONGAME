@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
     <title>寶可夢 3D-V5 特別版・真新鎮</title>
-    <link rel="stylesheet" href="css/pokedex-cards.css?v=20261010-opaque"><link rel="stylesheet" href="css/battle3d.css?v=20261010">
+    <link rel="stylesheet" href="css/pokedex-cards.css?v=20261010-opaque"><link rel="stylesheet" href="css/battle3d.css?v=20261011-fx2">
     <script src="vendor/tailwind.js"></script>
     <script src="vendor/three.min.js"></script>
     <script src="vendor/GLTFLoader.js"></script>
@@ -19,7 +19,7 @@
 <script src="js/models-v2/sizing.js"></script>
     <script src="js/articulated-models.js"></script><script src="js/gym-presentation.js"></script><script src="js/town.js"></script>
     <script src="js/game-runtime-state.js"></script>
-    <script src="js/card-art.js"></script><script src="js/card-catalog.js?v=20261010-shadow"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-core.js"></script><script src="js/battle-data.js"></script><script src="js/battle-arena.js"></script><script src="js/battle-ui.js"></script><script src="js/battle-controller.js"></script>
+    <script src="js/card-art.js"></script><script src="js/card-catalog.js?v=20261011-type"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-core.js?v=20261011-fx2"></script><script src="js/battle-data.js?v=20261011-fx2"></script><script src="js/battle-arena.js?v=20261011-fx2"></script><script src="js/battle-ui.js?v=20261011-fx2"></script><script src="js/battle-controller.js?v=20261011-fx2"></script>
     
     <style>
         body { margin: 0; padding: 0; overflow: hidden; user-select: none; -webkit-user-select: none; background-color: #000; font-family: -apple-system, BlinkMacSystemFont, sans-serif; touch-action: none; height: 100dvh; width: 100dvw; }
@@ -2373,10 +2373,15 @@
                     const visible=gameState.pokemons.filter(p=>!p.isShowcase).map(p=>p.type);
                     const result=V5VictoryRewards.awardType(gameState,prizeRoster(),
                         id=>V5Progress.eligible(gameState,id),pending,visible);
-                    if(result.allCollected){choice=true;d.pendingWins--;continue;}
+                    if(result.allCollected){choice=true;d.pendingWins--;d.pendingPreferredRewards?.shift();continue;}
                     if(!result.id){blocked=true;break;}
-                    const entry={id:result.id,token:++d.rewardSerial};
-                    d.pendingEncounters.push(entry);d.pendingWins--;added.push(result.id);
+                    // A winning NPC may only reward a species from its own 3-Pokémon lineup.
+                    const preferred=d.pendingPreferredRewards?.[0];
+                    const target=preferred&&result.eligible.includes(preferred)&&
+                        !pending.includes(preferred)&&!V5VictoryRewards.caught(gameState,preferred)
+                        ?preferred:result.id;
+                    const entry={id:target,token:++d.rewardSerial};
+                    d.pendingEncounters.push(entry);d.pendingWins--;d.pendingPreferredRewards?.shift();added.push(target);
                 }
                 if(choice||added.length)saveGameData();
                 syncPrizeEntities();
