@@ -9,8 +9,8 @@
  class BattleArena{
   constructor(){
    this.scene=new T.Scene();this.scene.background=new T.Color(0x0e1526);
-   this.camera=new T.PerspectiveCamera(44,1,.1,150);
-   this.camera.position.set(6.8,8.4,13.7);this.camera.lookAt(0,1,0);
+   this.camera=new T.PerspectiveCamera(48,1,.1,150);
+   this.camera.position.set(0,8.5,24);this.camera.lookAt(0,-2.1,0);
    this.fighters=[null,null];this.owned=[];this.fx=[];this.hitLabels=[];this.disposed=false;
    this.generation=[0,0];this.makeStage();
   }
@@ -57,6 +57,21 @@
     controller=new root.V5AnimationController(visual,clips);controller.play('Idle');
    }
    this.fighters[side]={id,holder,visual,controller,baseX:holder.position.x,baseZ:holder.position.z,hurt:0};
+   this.fitCombatants();
+  }
+  // Portrait view: fit the full silhouettes horizontally instead of cropping both fighters.
+  fitCombatants(){
+   const active=this.fighters.filter(Boolean);
+   if(!active.length)return;
+   const bounds=new T.Box3();
+   for(const f of active){f.holder.updateMatrixWorld(true);bounds.expandByObject(f.holder);}
+   const width=Math.max(8,bounds.max.x-bounds.min.x+2.1);
+   const ratio=Math.max(.35,this.camera.aspect||window.innerWidth/Math.max(1,window.innerHeight));
+   const field=Math.tan(this.camera.fov*Math.PI/360)*ratio;
+   const distance=Math.max(20,Math.min(38,width/(2*field)+4));
+   const center=Math.max(-.8,Math.min(.8,(bounds.min.x+bounds.max.x)/2));
+   this.camera.position.set(center,Math.max(8.5,distance*.35),distance);
+   this.camera.lookAt(center,-2.1,0);
   }
   removeFighter(side){
    const prev=this.fighters[side];if(!prev)return;
@@ -95,7 +110,7 @@
    target.hurt=.6;
    root.PokemonGameRuntime?.applyTransientEmissive?.(target.visual,0xff244f,1.1);
    const text=document.createElement('div');
-   const label=event.effective?'效果絕佳！':event.sameType?'同屬性強化！':event.defended?'防禦成功':'受到攻擊！';
+   const label=event.effective?'屬性剋制！':event.resisted?'屬性抵抗！':event.defended?'防禦減傷':'受到攻擊！';
    text.textContent='−'+event.damage+'  '+label;
    text.className='v5-hit-float';
    text.style.cssText='position:fixed;z-index:10001;pointer-events:none;padding:7px 10px;border-radius:10px;font-weight:900;font-size:clamp(14px,4vw,21px);letter-spacing:.02em;white-space:nowrap;color:#fff;background:#77233add;border:2px solid #ffb47f;text-shadow:0 2px 3px #000;box-shadow:0 4px 16px #000a;transform:translate(-50%,-50%)';
@@ -168,7 +183,7 @@
   render(renderer){
    if(this.disposed)return;
    const width=Math.max(1,window.innerWidth),height=Math.max(1,window.innerHeight),ratio=width/height;
-   if(Math.abs(this.camera.aspect-ratio)>.001){this.camera.aspect=ratio;this.camera.fov=ratio<.8?48:44;this.camera.updateProjectionMatrix();}
+   if(Math.abs(this.camera.aspect-ratio)>.001){this.camera.aspect=ratio;this.camera.fov=ratio<.8?50:44;this.camera.updateProjectionMatrix();this.fitCombatants();}
    renderer.render(this.scene,this.camera);
   }
   dispose(){
