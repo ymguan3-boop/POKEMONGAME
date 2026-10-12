@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
     <title>寶可夢 3D-V5 特別版・真新鎮</title>
-    <link rel="stylesheet" href="css/pokedex-cards.css?v=20261010-opaque"><link rel="stylesheet" href="css/battle3d.css?v=20261012-outcome">
+    <link rel="stylesheet" href="css/pokedex-cards.css?v=20261010-opaque"><link rel="stylesheet" href="css/battle3d.css?v=20261012-translucent"><link rel="stylesheet" href="css/pokedex-completion.css?v=20261012">
     <script src="vendor/tailwind.js"></script>
     <script src="vendor/three.min.js"></script>
     <script src="vendor/GLTFLoader.js"></script>
@@ -19,7 +19,7 @@
 <script src="js/models-v2/sizing.js"></script>
     <script src="js/articulated-models.js"></script><script src="js/gym-presentation.js?v=20261012-layered"></script><script src="js/town.js"></script>
     <script src="js/game-runtime-state.js"></script>
-    <script src="js/card-art.js"></script><script src="js/battle-signatures.js?v=20261011-a"></script><script src="js/card-catalog.js?v=20261011-signature"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-visual-policy.js?v=20261012"></script><script src="js/battle-core.js?v=20261012-items"></script><script src="js/battle-data.js?v=20261011-fx2"></script><script src="js/battle-arena.js?v=20261012-items"></script><script src="js/battle-ui.js?v=20261012-outcome"></script><script src="js/battle-controller.js?v=20261012-items"></script>
+    <script src="js/card-art.js"></script><script src="js/battle-signatures.js?v=20261011-a"></script><script src="js/card-catalog.js?v=20261011-signature"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-visual-policy.js?v=20261012"></script><script src="js/battle-core.js?v=20261012-items"></script><script src="js/battle-data.js?v=20261011-fx2"></script><script src="js/battle-arena.js?v=20261012-items"></script><script src="js/battle-ui.js?v=20261012-outcome"></script><script src="js/battle-controller.js?v=20261012-items"></script><script src="js/pokedex-completion.js?v=20261012"></script>
     
     <style>
         body { margin: 0; padding: 0; overflow: hidden; user-select: none; -webkit-user-select: none; background-color: #000; font-family: -apple-system, BlinkMacSystemFont, sans-serif; touch-action: none; height: 100dvh; width: 100dvw; }
@@ -1386,6 +1386,18 @@
         </script>
 
     <script>
+        const dexCompletion=new V5PokedexCompletion({
+            isAcknowledged:()=>gameState.worldFlags?.pokedexCompletionAcknowledged===true,
+            isBusy:()=>gameState.isShowingCapture||gameState.captureInProgress||gameState.interactionOpen||
+                gameState.currentMode!=='world',
+            onContinue:()=>{
+                gameState.worldFlags||={};
+                gameState.worldFlags.pokedexCompletionAcknowledged=true;
+                saveGameData();
+            },
+            // Existing reset handler requires two explicit confirmations and handles cloud saves.
+            onReset:()=>document.getElementById('btn-reset')?.click()
+        });
         const updatePokedexUI = () => {
             const listDiv=document.getElementById('pokedex-list');if(!listDiv)return;
             const {caught,total}=renderV5Pokedex(gameState,listDiv),statusText=`${caught} / ${total}`;
@@ -1393,6 +1405,7 @@
             document.getElementById('hud-capture-score').innerText=statusText;
             document.getElementById('pokedex-progress-bar').style.width=`${caught/total*100}%`;
             checkLegendarySpawns(caught,total);
+            dexCompletion.check(caught,total);
         };
 
         const disposeCapturePreview = () => {
@@ -1516,6 +1529,8 @@
                 if (gameState.activeBalls[i].wobblePhase === 4) removeActiveBall(gameState.activeBalls[i]);
             }
             if (restoreLock) { gameState.autoLock = true; maintainAutoLock(); }
+            // The last capture's Pokédex card closes BEFORE the completion celebration opens.
+            dexCompletion.maybeShow();
         };
 
         const removeActiveBall = (ball) => {
