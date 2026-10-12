@@ -111,7 +111,7 @@ body.v5-battle-active #btn-nav-trainer{visibility:hidden!important;pointer-event
 @media(max-width:375px){.v5-battle-side .v5-battle-hp{width:min(63vw,220px)}}
 
 /* Outcome reveal: two large characters appear successively; decisions unlock afterward. */
-.v5-battle-result{z-index:8;top:43%;overflow:hidden}
+.v5-battle-result{z-index:8;top:43%;overflow:hidden;background:rgba(16,39,61,.58);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
 .v5-battle-result.win{border-color:#eed18a;box-shadow:0 8px 35px #000d,0 0 28px #ffc95b44}
 .v5-battle-result.lose{border-color:#e58c9e;box-shadow:0 8px 35px #000d,0 0 25px #f05d7955}
 .v5-battle-result.draw{border-color:#9fcde6}
