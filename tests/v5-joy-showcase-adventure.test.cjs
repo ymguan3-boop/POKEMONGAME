@@ -68,7 +68,7 @@ test('master ball doubling stacks multiplicatively with the adventure passive an
 });
 test('battle controller recognizes equipped adventure preset but not mere unlock or other costumes',async()=>{
  class UI{loading(){}renderBattle(){}close(){}error(m){throw Error(m)}}
- class Arena{constructor(){this.fighters=[{},{}]}async showBoth(){}dispose(){}clearOpeningIcon(){}}
+ class Arena{constructor(){this.fighters=[{},{}]}async showBoth(){}dispose(){}clearOpeningIcon(){}statusBurst(){}showOpeningIcon(){}}
  const root={V5BattleUI:UI,V5BattleArena:Arena,V5BattleCore:core,V5BattleData:{
   normalizeParty:party=>party,npcParty:()=>ids.slice(3),catalog:()=>catalog
  }};
