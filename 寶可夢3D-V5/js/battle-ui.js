@@ -121,13 +121,16 @@
      ?'💤 胖可丁套裝：首回合讓對手睡眠，NPC 本回合不能行動。'
      :session.openingSuit==='blissey'
        ?'🛡️ 幸福蛋套裝：首回合所有 NPC 攻擊無效。'
-       :'';
+       :session.adventureBoost
+         ?'✧ 夢幻隨行與後背包裝備：全隊攻擊力常駐 +20%。'
+         :'';
    const hpBox=(f,side)=>{
      const outfitLabel=firstRound&&side==='enemy'&&session.openingSuit==='wigglytuff'
         ?'💤 睡眠 · 第1回合'
         :firstRound&&side==='player'&&session.openingSuit==='blissey'?'🛡️ 首回合免疫':'';
      const currentStatus=f.status ? (statusLabel[f.status.type]||'異常狀態')+' '+f.status.turns+'回合' : '';
-     const stateText=outfitLabel||currentStatus;
+     const attackLabel=side==='player'&&session.adventureBoost?'✧ 攻擊 +20%':'';
+     const stateText=[outfitLabel||currentStatus,attackLabel].filter(Boolean).join(' · ');
      return '<div class="v5-battle-hp '+side+'"><div><strong>'+esc(f.name)+'</strong><span>HP '+f.hp+'/'+f.maxHp+'</span></div><div class="v5-battle-track"><i style="width:'+hp(f)+'%"></i></div>'+(stateText?'<small class="v5-battle-condition">'+esc(stateText)+'</small>':'')+'</div>';
    };
    const states=side=>session.teams[side].map((f,i)=>'<span title="'+esc(f.name)+'" class="'+(f.hp>0?'alive':'faint')+'">'+(i===session.active[side]?'●':'○')+'</span>').join('');
