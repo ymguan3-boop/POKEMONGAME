@@ -167,7 +167,7 @@
                 <button id="btn-close-outfits" class="bg-black/40 hover:bg-black/60 w-8 h-8 rounded-full font-bold cursor-pointer">✕</button>
             </div>
             <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button id="btn-suit-none" class="outfit-choice bg-slate-800 border-2 border-sky-400 rounded-xl p-4 text-white text-left cursor-pointer"><span class="text-3xl">🎒</span><strong class="block mt-2">道館冒險裝備</strong><span class="text-[11px] text-gray-400">顯示已獲得的皮卡丘頭套與夢幻同行</span></button>
+                <button id="btn-suit-none" class="outfit-choice bg-slate-800 border-2 border-sky-400 rounded-xl p-4 text-white text-left cursor-pointer"><span class="text-3xl">🎒</span><strong class="block mt-2">夢幻隨行與後背包裝備</strong><span class="text-[11px] text-gray-400">顯示夢幻隨行與後背包；解鎖夢幻後，3D 卡牌對戰攻擊力常駐 +20%</span></button>
                 <button id="btn-suit-trainer" class="outfit-choice bg-slate-800 border-2 border-slate-600 rounded-xl p-4 text-white text-left cursor-pointer"><span class="text-3xl">🧑‍🦰</span><strong class="block mt-2">原始訓練家</strong><span class="text-[11px] text-gray-400">保留原服裝，不顯示頭套與同行夥伴</span></button>
                 <button id="btn-suit-pikachu" class="outfit-choice bg-slate-800 border-2 border-slate-600 rounded-xl p-4 text-white text-left cursor-pointer"><span class="text-3xl">⚡</span><strong class="block mt-2">皮卡丘套裝</strong><span id="suit-lock-pikachu" class="text-[11px] text-yellow-200"></span></button>
                 <button id="btn-suit-mew" class="outfit-choice bg-slate-800 border-2 border-slate-600 rounded-xl p-4 text-white text-left cursor-pointer"><span class="text-3xl">✧</span><strong class="block mt-2">夢幻同行</strong><span id="suit-lock-mew" class="text-[11px] text-pink-200"></span></button>
@@ -1700,7 +1700,7 @@
         };
         const updateOutfitUI = () => {
             if(!isSuitUnlocked(gameState.equip.activeSuit))gameState.equip.activeSuit='trainer';
-            const effects={pikachu:'每 2 分鐘全域時停 15 秒',mew:'小夢幻環繞・浮空・移速 +20%',wigglytuff:'球上限 +30／3D對戰首回合令NPC睡眠',blissey:'球上限 +30／3D對戰首回合抵擋NPC攻擊'};
+            const effects={none:'已解鎖夢幻時，3D對戰攻擊力常駐 +20%',pikachu:'每 2 分鐘全域時停 15 秒',mew:'小夢幻環繞・浮空・移速 +20%',wigglytuff:'球上限 +30／3D對戰首回合令NPC睡眠',blissey:'球上限 +30／3D對戰首回合抵擋NPC攻擊'};
             ['none','trainer','pikachu','mew','wigglytuff','blissey'].forEach(suit=>{
                 const b=document.getElementById('btn-suit-'+suit);if(!b)return;
                 const unlocked=!!isSuitUnlocked(suit),active=gameState.equip.activeSuit===suit;
@@ -1969,7 +1969,7 @@
                 mewCompanionGroup.position.set(Math.cos(time*1.05)*1.45,1.50+Math.sin(time*2.2)*.22,Math.sin(time*1.05)*1.15);
                 mewCompanionGroup.rotation.set(0,-time*1.05,Math.sin(time*1.4)*.1);
             }
-            if (playerBackpack) playerBackpack.visible = !transformed && (!gymAccessoriesActive || !gameState.equip.mewCompanion);
+            if (playerBackpack) playerBackpack.visible = !transformed && (gymAccessoriesActive || !gameState.equip.mewCompanion);
             trainerCapMeshes.forEach((node) => { node.visible = !gymAccessoriesActive || !gameState.equip.pikachuHat; });
 
             if (gameState.snowflakes && gameState.currentMode === 'world') { const positions = gameState.snowflakes.geometry.attributes.position.array; for(let i=1; i<positions.length; i+=3) { positions[i] -= 3 * delta; positions[i-1] += Math.sin(time + i)*0.01; if(positions[i] < 0) positions[i] = 40; } gameState.snowflakes.geometry.attributes.position.needsUpdate = true; gameState.snowflakes.position.x = player.position.x; gameState.snowflakes.position.z = player.position.z; }
@@ -2383,13 +2383,17 @@
                 monster.spawnX=spot.x;monster.spawnZ=spot.z;
                 if(Number.isSafeInteger(token)){monster.rewardToken=token;monster.lockPriority=210;}
                 if(showcase){
-                    monster.isShowcase=true;monster.isCatchable=false;monster.isTargetable=false;monster.isBattleTarget=false;
-                    monster.isSpecialTarget=false;
+                    // Once players finish the prize roster, their selected species is
+                    // a real catchable encounter, not a non-interactive decoration.
+                    monster.isShowcase=true;
+                    monster.isCatchable=true;monster.isTargetable=true;monster.isBattleTarget=true;
+                    monster.lockPriority=500; // Higher than rare spawns and other world targets.
                 }
                 resolveCollision(monster.mesh.position,.35);
                 monster.spawnX=monster.mesh.position.x;monster.spawnZ=monster.mesh.position.z;
                 scene.add(monster.mesh);gameState.pokemons.push(monster);
-                if(!showcase)prioritizeLockTarget(monster);
+                // Newly selected showcase and normal victory prizes are immediately locked for capture.
+                prioritizeLockTarget(monster);
                 return monster;
             };
             const syncPrizeEntities=()=>{
@@ -2425,7 +2429,7 @@
                 overlay.style.cssText='position:fixed;inset:0;background:#09172be9;z-index:10010;display:grid;place-items:center;padding:16px;box-sizing:border-box;color:#f8fbff;font:15px/1.6 system-ui';
                 const panel=document.createElement('div');panel.style.cssText='width:min(460px,100%);background:#193750;border:2px solid #f7d38c;border-radius:18px;padding:19px;box-sizing:border-box;box-shadow:0 12px 35px #0008';
                 const heading=document.createElement('h2');heading.textContent='🎉 非道館寶可夢已全部捕捉完成！';heading.style.cssText='font-size:19px;margin:0 0 10px';panel.append(heading);
-                const caption=document.createElement('p');caption.textContent='恭喜完成收集！現在可以指定一隻寶可夢出現在真新鎮地圖供觀賞。此展示不會重複增加捕捉紀錄，也不會解除道館規則。';panel.append(caption);
+                const caption=document.createElement('p');caption.textContent='恭喜完成收集！選擇一隻寶可夢出現在真新鎮後，系統會優先自動鎖定，讓你可以再次投球捕捉。捕捉數量仍依原規則記錄，道館解鎖條件不變。';panel.append(caption);
                 const select=document.createElement('select');select.setAttribute('aria-label','選擇寶可夢');select.style.cssText='width:100%;font-size:16px;min-height:48px;padding:8px;background:#fff;color:#152f42;border-radius:10px;margin:7px 0 16px';
                 for(const id of prizeRoster()){const option=document.createElement('option');option.value=id;option.textContent=getPokedexInfo(id).name;select.append(option);}
                 if(gameState.battle3d.showcaseSpecies)select.value=gameState.battle3d.showcaseSpecies;
@@ -2439,7 +2443,7 @@
                     gameState.pokemons=gameState.pokemons.filter(p=>!p.isShowcase);
                     gameState.battle3d.showcaseSpecies=id;saveGameData();close();
                     const monster=spawnPrize(id,{showcase:true});
-                    showNotification(monster?'✨ '+getPokedexInfo(id).name+'已出現在真新鎮！':'已儲存選擇，返回地圖後將再次嘗試載入。');
+                    showNotification(monster?'🎯 已優先鎖定 '+getPokedexInfo(id).name+'！可立即投球捕捉。':'已儲存選擇，返回地圖後將再次嘗試載入並鎖定。');
                 };
                 cancel.onclick=close;
                 actions.append(submit,cancel);panel.append(select,actions);overlay.append(panel);document.body.append(overlay);
@@ -2592,7 +2596,7 @@
             const selectSuit = (suit) => {
                 if (!isSuitUnlocked(suit)) { showNotification('🔒 請先通關對應道館！'); return; }
                 gameState.equip.activeSuit=suit;updateOutfitUI();updateInventoryUI();saveGameData();
-                showNotification(suit==='mew' ? '✧ 小夢幻開始環繞你飛行！浮空・移速 +20%' : suit==='trainer' ? '已換回原始訓練家。' : suit==='none' ? '已換上道館冒險裝備。' : `已換上${POKEDEX_DATA[suit].name}套裝！`);
+                showNotification(suit==='mew' ? '✧ 小夢幻開始環繞你飛行！浮空・移速 +20%' : suit==='trainer' ? '已換回原始訓練家。' : suit==='none' ? '已換上夢幻隨行與後背包裝備！解鎖夢幻後，3D 對戰攻擊力常駐 +20%。' : `已換上${POKEDEX_DATA[suit].name}套裝！`);
             };
             ['none','trainer','pikachu','mew','wigglytuff','blissey'].forEach(suit=>bindTouch('btn-suit-'+suit,()=>selectSuit(suit)));
             bindTouch('btn-pokedex', () => { document.getElementById('pokedex-modal').classList.remove('hidden'); document.getElementById('main-menu-panel').classList.remove('active'); updatePokedexUI(); }); bindTouch('btn-close-pokedex', () => document.getElementById('pokedex-modal').classList.add('hidden'));
