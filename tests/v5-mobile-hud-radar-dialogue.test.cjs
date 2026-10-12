@@ -26,7 +26,9 @@ test('radar collapsing hides only the map and leaves both travel buttons usable'
  assert.ok(nav.indexOf('id="radar-display"')<nav.indexOf('id="btn-auto-nav"'));
  assert.ok(nav.indexOf('</canvas>')<nav.indexOf('id="btn-auto-nav"'));
  assert.match(mobile,/#radar-display\[hidden\]\{display:none!important\}/);
- assert.match(mobile,/#radar-controls:has\(#radar-display\[hidden\]\) #radar-container\{padding-top:52px\}/);
+ assert.match(mobile,/#radar-display\\[hidden\\]\\{display:none!important\\}/);
+ assert.match(mobile,/#radar-container\\{transform:none!important;margin:0!important;padding:0!important;gap:8px!important\\}/);
+ assert.match(mobile,/#btn-toggle-radar \\{ position:static!important;top:auto!important;right:auto!important/);
 });
 test('mobile radar stays below five-item HUD, with important override beating earlier position',()=>{
  const portrait=mobile.match(/@media \(max-width: 600px\) and \(orientation: portrait\) \{([\s\S]*?)\n\}/)?.[1];
@@ -34,6 +36,21 @@ test('mobile radar stays below five-item HUD, with important override beating ea
  assert.match(portrait,/#radar-controls\s*\{\s*top:calc\(env\(safe-area-inset-top\) \+ 62px\)!important/);
  assert.match(mobile,/@media \(min-width:601px\), \(orientation:landscape\)\{[\s\S]*?#radar-controls\{top:calc\(env\(safe-area-inset-top\) \+ 64px\)!important\}/);
  assert.match(html,/#unified-hud\{display:flex;flex-wrap:nowrap!important;width:max-content!important;max-width:calc\(100dvw - 12px\)/);
+});
+test('radar button stays in its own top row, with unobstructed minimap below',()=>{
+ const nav=html.split('<div id="radar-controls"')[1]?.split('<div id="notification"')[0];
+ assert.ok(nav);
+ const toggle=nav.indexOf('id="btn-toggle-radar"'), container=nav.indexOf('id="radar-container"');
+ const map=nav.indexOf('id="radar-display"'), center=nav.indexOf('id="btn-auto-nav"');
+ assert.ok(toggle>=0 && toggle<container && container<map && map<center);
+ assert.match(mobile,/#radar-controls \\{ position:fixed!important;[^}]*display:flex;flex-direction:column;align-items:flex-end;gap:8px/);
+ assert.match(mobile,/#btn-toggle-radar \\{ position:static!important;top:auto!important;right:auto!important/);
+ assert.match(mobile,/#radar-display\\{position:static!important;transform:none!important;margin:0!important/);
+ assert.doesNotMatch(mobile,/#btn-toggle-radar \\{ position:absolute/);
+ assert.doesNotMatch(mobile,/#radar-display\\{transform:scale/);
+ assert.doesNotMatch(mobile,/#radar-container:has\\(#radar-display\\[hidden\\]\\) #radar-container\\{padding-top:52px/);
+ assert.doesNotMatch(nav,/mt-\\[-10px\\]/);
+ assert.match(html,/href="mobile\\.css\\?v=20261012-radar-stack"/);
 });
 test('radar button toggles actual visibility, accessibility and persistent preference',()=>{
  const anchor="const radarButton=document.getElementById('btn-toggle-radar');";
