@@ -25,7 +25,9 @@
   #btn-toggle-menu { top:calc(env(safe-area-inset-top) + 43px);left:10px;min-width:44px;min-height:44px; }
   #main-menu-panel { top:calc(env(safe-area-inset-top) + 96px);max-height:60dvh;overflow-y:auto; }
   #v5-open-items { position:static!important;min-height:44px; }
-  #radar-controls { top:calc(env(safe-area-inset-top) + 43px);right:10px; }
+  /* Move radar beneath the complete five-item HUD, rather than over it.
+     The original global rule has !important, so this override needs it too. */
+  #radar-controls { top:calc(env(safe-area-inset-top) + 62px)!important;right:10px; }
   #btn-toggle-radar { width:44px;height:44px; }
   #radar-container { transform:scale(.65);margin-top:-12px; }
   #notification { top:calc(env(safe-area-inset-top) + 68px);width:68vw;font-size:10px;line-height:14px;padding:5px 8px;border-radius:10px; }
@@ -54,3 +56,14 @@
 #radar-controls:has(#radar-display[hidden]) #radar-container{padding-top:52px}
 #radar-controls .v5-nav-pair{width:94px;max-width:calc(100vw - 16px)}
 #radar-controls .v5-nav-pair button{flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;padding:0}
+
+/* Keep radar below the top shortcut line on desktop/landscape as well. */
+@media (min-width:601px), (orientation:landscape){
+  #radar-controls{top:calc(env(safe-area-inset-top) + 64px)!important}
+}
+/* Small-phone HUD: all five counters stay on one row with tight but readable spacing. */
+@media (max-width:380px){
+  #unified-hud{max-width:calc(100vw - 8px)!important;gap:2px!important}
+  #unified-hud .v5-status-chip{padding:4px 5px!important;gap:2px!important}
+  #unified-hud .v5-status-chip span{letter-spacing:0!important;font-size:10px}
+}
