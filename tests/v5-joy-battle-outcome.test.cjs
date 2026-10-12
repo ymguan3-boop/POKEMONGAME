@@ -26,7 +26,7 @@ function setup(winner,reducedMotion=false){
  const f=id=>({id,name:id,hp:70,maxHp:100,skills:[
   {element:'一般',name:'普通',damage:15},{element:'雷',name:'特殊',damage:40}
  ],specialWait:0,status:null});
- const session={status:'finished',winner,reason:'對戰已結束',round:4,
+ const session={status:'finished',winner,reason:'對戰已結束',round:4,history:['對戰已結束'],
   active:[0,0],teams:[[f('皮卡丘')],[f('超夢')]]};
  const controller={state,session,busy:false,active:true};
  const ui=new fakeRoot.V5BattleUI(controller);
