@@ -3,16 +3,18 @@ const base=path.join(__dirname,'../寶可夢3D-V5');
 const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
 const npc=fs.readFileSync(path.join(base,'js/npc-system.js'),'utf8');
 const mobile=fs.readFileSync(path.join(base,'mobile.css'),'utf8');
-test('HUD displays only the four requested counters, keeping normal ball data updates intact',()=>{
+test('HUD displays five requested counters including normal Poké Balls',()=>{
  const hud=html.split('<div id="unified-hud"')[1]?.split('<div id="boss-hp-container"')[0];
  assert.ok(hud);
- const publicIds=['hud-capture-score','hud-berries','hud-greatballs','hud-masterballs'];
+ const publicIds=['hud-capture-score','hud-pokeballs','hud-berries','hud-greatballs','hud-masterballs'];
  for(const id of publicIds)assert.equal((hud.match(new RegExp('id="'+id+'"','g'))||[]).length,1);
- assert.equal((hud.match(/class="v5-status-chip/g)||[]).length,4);
- assert.match(hud,/id="hud-pokeball-container" hidden aria-hidden="true"/);
+ assert.equal((hud.match(/class="v5-status-chip/g)||[]).length,5);
+ assert.match(hud,/id="hud-pokeball-container" class="v5-status-chip/);
+ assert.doesNotMatch(hud,/id="hud-pokeball-container" hidden/);
  assert.match(hud,/id="hud-pokeballs"/);
  assert.match(html,/getElementById\('hud-pokeballs'\)\.innerText/);
- assert.ok(hud.indexOf('hud-capture-score')<hud.indexOf('hud-berries'));
+ assert.ok(hud.indexOf('hud-capture-score')<hud.indexOf('hud-pokeballs'));
+ assert.ok(hud.indexOf('hud-pokeballs')<hud.indexOf('hud-berries'));
  assert.ok(hud.indexOf('hud-berries')<hud.indexOf('hud-greatballs'));
  assert.ok(hud.indexOf('hud-greatballs')<hud.indexOf('hud-masterballs'));
 });
@@ -25,6 +27,13 @@ test('radar collapsing hides only the map and leaves both travel buttons usable'
  assert.ok(nav.indexOf('</canvas>')<nav.indexOf('id="btn-auto-nav"'));
  assert.match(mobile,/#radar-display\[hidden\]\{display:none!important\}/);
  assert.match(mobile,/#radar-controls:has\(#radar-display\[hidden\]\) #radar-container\{padding-top:52px\}/);
+});
+test('mobile radar stays below five-item HUD, with important override beating earlier position',()=>{
+ const portrait=mobile.match(/@media \(max-width: 600px\) and \(orientation: portrait\) \{([\s\S]*?)\n\}/)?.[1];
+ assert.ok(portrait);
+ assert.match(portrait,/#radar-controls\s*\{\s*top:calc\(env\(safe-area-inset-top\) \+ 62px\)!important/);
+ assert.match(mobile,/@media \(min-width:601px\), \(orientation:landscape\)\{[\s\S]*?#radar-controls\{top:calc\(env\(safe-area-inset-top\) \+ 64px\)!important\}/);
+ assert.match(html,/#unified-hud\{display:flex;flex-wrap:nowrap!important;width:max-content!important;max-width:calc\(100dvw - 12px\)/);
 });
 test('radar button toggles actual visibility, accessibility and persistent preference',()=>{
  const anchor="const radarButton=document.getElementById('btn-toggle-radar');";
