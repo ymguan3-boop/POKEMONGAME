@@ -1,8 +1,8 @@
 /* V4 control positions, with a clear central play area on portrait phones. */
-#radar-controls { position:fixed;top:calc(env(safe-area-inset-top) + 4px)!important;right:calc(env(safe-area-inset-right) + 4px)!important;gap:2px; }
-#radar-container { transform:none!important;margin:0!important;gap:3px; }
+#radar-controls { position:fixed!important;top:calc(env(safe-area-inset-top) + 62px)!important;right:calc(env(safe-area-inset-right) + 10px)!important;display:flex;flex-direction:column;align-items:flex-end;gap:8px;overflow:visible; }
+#radar-container { position:static!important;display:flex!important;flex-direction:column;align-items:flex-end;transform:none!important;margin:0!important;padding:0!important;gap:8px!important; }
 #radar-canvas { width:104px;height:104px; }
-#btn-toggle-radar { position:absolute;right:0;top:0;z-index:2;width:28px!important;height:28px!important;min-height:0;padding:0;font-size:12px; }
+#btn-toggle-radar { position:static!important;top:auto!important;right:auto!important;align-self:flex-end;flex-shrink:0;z-index:2;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;padding:0!important;font-size:19px!important; }
 #btn-auto-nav { font-size:10px;padding:7px 4px;min-height:32px; }
 #unified-hud { width:max-content;max-width:calc(100vw - 12px);left:50%;transform:translateX(-50%);justify-content:center;flex-wrap:nowrap; }
 #boss-hp-container { position:fixed!important;width:116px!important;max-width:30vw;transform:translate(-50%,-100%);transition:none; }
@@ -29,7 +29,7 @@
      The original global rule has !important, so this override needs it too. */
   #radar-controls { top:calc(env(safe-area-inset-top) + 62px)!important;right:10px; }
   #btn-toggle-radar { width:44px;height:44px; }
-  #radar-container { transform:scale(.65);margin-top:-12px; }
+  #radar-container { transform:none!important;margin:0!important; }
   #notification { top:calc(env(safe-area-inset-top) + 68px);width:68vw;font-size:10px;line-height:14px;padding:5px 8px;border-radius:10px; }
   #joystick-zone { width:112px;height:112px;left:14px;bottom:calc(env(safe-area-inset-bottom) + 22px); }
   #joystick-knob { width:44px;height:44px; }
@@ -50,10 +50,11 @@
  width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
  font-size:19px!important;padding:0!important;
 }
-#radar-container{transform:none!important;margin-top:0!important;gap:8px!important}
-#radar-display{transform:scale(.83);transform-origin:top right;margin-bottom:-17px}
+#radar-container{transform:none!important;margin:0!important;padding:0!important;gap:8px!important}
+/* The minimap starts in its own row under the top-right button; no overlay or negative margin. */
+#radar-display{position:static!important;transform:none!important;margin:0!important;flex-shrink:0}
 #radar-display[hidden]{display:none!important}
-#radar-controls:has(#radar-display[hidden]) #radar-container{padding-top:52px}
+/* When collapsed, center/trainer navigation sits directly below the toggle. */
 #radar-controls .v5-nav-pair{width:94px;max-width:calc(100vw - 16px)}
 #radar-controls .v5-nav-pair button{flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;padding:0}
 
