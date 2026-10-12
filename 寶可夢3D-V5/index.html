@@ -306,7 +306,13 @@
         const GLB_TYPES = new Set([...Object.keys(PalletRoster.dex),'trainer','pokemon_center']);
         const PACKAGED_GLB_TYPES = new Set(['trainer','pokemon_center',...V5LegacySpecies]);
         const GYM_BOSS_MODEL_TYPES = Object.freeze(PalletRoster.bosses);
-        const MODEL_SCALE = Object.freeze(Object.fromEntries(Object.keys(PalletRoster.dex).map(id=>[id,1])));
+        // Only overworld legendary species get a 50% size increase.
+        // Mewtwo is a trainer reward and Mew a gym boss; neither belongs to PalletRoster.legends.
+        // Use the shared Pokemon.baseScale so respawns and catch-failure recovery remain consistent.
+        const WORLD_LEGENDARY_SCALE = 1.5;
+        const MODEL_SCALE = Object.freeze(Object.fromEntries(
+            Object.keys(PalletRoster.dex).map(id=>[id,PalletRoster.legends.includes(id)?WORLD_LEGENDARY_SCALE:1])
+        ));
         const GYM_BOSS_SCALE = Object.freeze(Object.fromEntries(Object.entries({pikachu:3.6,mew:3.4,wigglytuff:3.9,blissey:4.2}).map(([id,h])=>[id,h/PalletScale.measure(id).world])));
         
         const FLOATING_MODEL_TYPES = new Set(['mew','articuno','zapdos','moltres','kyogre','rayquaza','giratina']);
