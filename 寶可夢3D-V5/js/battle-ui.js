@@ -3,7 +3,7 @@
  'use strict';
  const esc=s=>String(s??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  class BattleUI {
-  constructor(controller){this.controller=controller;this.dialog=null;this.layer=null;this.challenge=false;this.swapping=false;this.itemMenu=false;}
+  constructor(controller){this.controller=controller;this.dialog=null;this.layer=null;this.challenge=false;this.swapping=false;this.itemMenu=false;this.outcomeSession=null;this.resultTimer=null;this.resultReady=false;}
   make(className){
    const div=document.createElement('section');div.className=className;div.setAttribute('role','dialog');
    div.setAttribute('aria-modal','true');document.body.appendChild(div);
@@ -49,6 +49,7 @@
       '<button class="primary" data-action="save">完成編隊</button>')+'</footer></div>';
   }
   loading(){
+   this.clearResultSequence();
    if(this.dialog){this.dialog.remove();this.dialog=null;}
    this.layer=this.make('v5-battle-overlay');
    this.layer.innerHTML='<div class="v5-battle-loading" role="status"><strong>正在準備 3D 對戰…</strong><p>沿用已捕捉的寶可夢 3D 模型</p><button type="button" data-action="abort">返回探索</button></div>';
@@ -83,6 +84,28 @@
      else if(window.confirm('確定離開本場 3D 對戰嗎？這場會記為放棄。'))this.controller.exit();
     }
    };
+  }
+  clearResultSequence(){
+   if(this.resultTimer!==null){clearTimeout(this.resultTimer);this.resultTimer=null;}
+   this.outcomeSession=null;this.resultReady=false;
+  }
+  showResultAfterReveal(session){
+   if(this.outcomeSession===session)return;
+   this.clearResultSequence();
+   this.outcomeSession=session;
+   const reduceMotion=typeof window.matchMedia==='function'&&
+     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+   this.resultTimer=setTimeout(()=>{
+     this.resultTimer=null;
+     if(this.controller.session!==session||!this.layer||session.status!=='finished')return;
+     this.resultReady=true;
+     const buttons=this.layer.querySelector('.v5-battle-result-actions');
+     if(buttons){
+       buttons.hidden=false;
+       const first=buttons.querySelector('[data-action="retry"]');
+       first?.focus?.({preventScroll:true});
+     }
+   },reduceMotion?0:1900);
   }
   renderBattle(message=''){
    if(!this.layer||!this.controller.session)return;
@@ -126,8 +149,16 @@
      available.map(f=>'<button data-action="switch" data-index="'+f.i+'" '+(turn?'':'disabled')+'>'+esc(session.teams[0][f.i].name)+'　HP '+f.hp+'</button>').join('')+
      (forced?'':'<button data-action="switch-menu">取消</button>')+'</div>':'';
    const end=session.status==='finished';
-   const summary=end?'<div class="v5-battle-result"><h2>'+(session.winner===0?'🏆 對戰勝利！':session.winner===null?'平手':'對戰結束')+'</h2><p>'+esc(session.reason)+'</p>'+
-     '<p>'+(session.winner===0?'離開擂台後將出現 1 隻未捕捉、非道館寶可夢；全部收齊後可指定展示角色。':'')+'</p><button data-action="retry">再挑戰</button><button data-action="exit">返回真新鎮</button></div>':'';
+   const title=session.winner===0?'獲勝':session.winner===null?'平手':'失敗';
+   const resultClass=session.winner===0?'win':session.winner===null?'draw':'lose';
+   const letters=Array.from(title).map((letter,i)=>'<span class="v5-result-letter" style="--letter-delay:'+(i*650)+'ms" aria-hidden="true">'+esc(letter)+'</span>').join('');
+   const summary=end?'<section class="v5-battle-result '+resultClass+'" aria-label="對戰結果">'+
+     '<h2 class="v5-result-title" aria-label="'+esc(title)+'">'+letters+'</h2>'+
+     '<div class="v5-result-details"><p>'+esc(session.reason||'對戰已結束')+'</p>'+
+     (session.winner===0?'<p>🏆 獲勝獎勵：離開擂台後，將有 1 隻尚未捕捉的非道館寶可夢出現在真新鎮（需符合解鎖條件）。</p>':'<p>可以重新編隊，再試一次挑戰！</p>')+'</div>'+
+     '<div class="v5-battle-result-actions" '+(this.resultReady&&this.outcomeSession===session?'':'hidden')+'>'+
+     '<button type="button" data-action="retry">🔄 再次挑戰</button>'+
+     '<button type="button" data-action="exit">🚪 離開挑戰</button></div></section>':'';
    this.layer.innerHTML=
      '<header class="v5-battle-top"><strong>⚔️ 真新鎮 3D 對戰擂台</strong><span>回合 '+session.round+'</span><button data-action="exit" aria-label="離開對戰">離開</button></header>'+
      '<div class="v5-battle-side enemy">'+hpBox(enemy,'enemy')+'<div class="v5-battle-teamdots npc" aria-label="NPC 隊伍存活指示">'+states(1)+'</div></div>'+
@@ -139,12 +170,15 @@
        '<button data-action="items-menu" '+(canAct?'':'disabled')+'>🎒 道具<small>樹果／進階球／大師球</small></button>'+
        '<button data-action="switch-menu" '+(canAct&&!forced&&available.length?'':'disabled')+'>🔄 更換夥伴<small>剩餘 '+available.length+' 隻可換</small></button>'+
        '</div>'))+'</div>'+summary;
+   if(end)this.showResultAfterReveal(session);
+   else if(this.outcomeSession)this.clearResultSequence();
   }
   error(message){
    if(this.layer){this.layer.innerHTML='<div class="v5-battle-loading"><h2>無法開始 3D 對戰</h2><p>'+esc(message)+'</p><button data-action="abort">返回探索</button></div>';return;}
    window.alert(message);
   }
   close(){
+   this.clearResultSequence();
    this.dialog?.remove();this.dialog=null;
    this.layer?.remove();this.layer=null;
    this.swapping=false;this.itemMenu=false;
