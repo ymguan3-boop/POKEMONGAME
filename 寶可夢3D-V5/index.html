@@ -39,7 +39,7 @@
         /* Two compact navigation buttons replace one full-width button. */
         .v5-nav-pair{display:flex;justify-content:flex-end;align-items:center;gap:6px;width:94px;max-width:calc(100vw - 16px)}
         .v5-nav-pair button{flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;font-size:19px;line-height:1;white-space:nowrap}
-        #unified-hud{display:flex;flex-wrap:nowrap!important;width:max-content!important;max-width:calc(100dvw - 56px);gap:4px;white-space:nowrap}
+        #unified-hud{display:flex;flex-wrap:nowrap!important;width:max-content!important;max-width:calc(100dvw - 12px);gap:4px;white-space:nowrap}
         #unified-hud .v5-status-chip{padding:5px 8px;min-height:28px;box-sizing:border-box}
         #radar-display[hidden]{display:none!important}
         #btn-toggle-radar{min-width:36px;min-height:36px}
@@ -53,10 +53,17 @@
 
     <div id="v5-loading" role="status" style="position:fixed;inset:0;z-index:200;background:#dfeeda;display:grid;place-content:center;text-align:center;color:#234b50;padding:25px"><h1 style="font-size:25px;font-weight:bold">真新鎮旅程</h1><p id="v5-loading-text">正在準備新主角與場景…</p><small>V5 特別版 3D 冒險與 2D 卡牌</small></div><div id="canvas-container"></div>
 
-    <div id="unified-hud" class="absolute top-2 md:top-4 left-1/2 -translate-x-1/2 z-20 flex items-center justify-center gap-1 pointer-events-none transition-all" aria-label="已捕捉種類與消耗道具庫存">
+    <div id="unified-hud" class="absolute top-2 md:top-4 left-1/2 -translate-x-1/2 z-20 flex items-center justify-center gap-1 pointer-events-none transition-all" aria-label="已捕捉種類、一般球、樹果、進階球及大師球庫存">
         <div class="v5-status-chip bg-blue-900/80 backdrop-blur-md rounded-full border border-blue-400/50 flex items-center gap-1 shadow-lg shrink-0" title="已捕捉的寶可夢種類／圖鑑總數">
             <span class="text-[9px] md:text-xs text-blue-200 font-bold">圖鑑</span>
             <span id="hud-capture-score" class="text-blue-100 font-black text-[10px] md:text-sm tracking-widest">0 / 61</span>
+        </div>
+        <div id="hud-pokeball-container" class="v5-status-chip bg-black/70 backdrop-blur-md rounded-full border border-red-500/50 flex items-center gap-1 shadow-lg shrink-0" title="一般寶可夢球庫存／容量">
+            <span class="relative inline-flex w-3 h-3 md:w-4 md:h-4 flex-none rounded-full border border-slate-800 overflow-hidden bg-gradient-to-b from-red-500 to-white" aria-hidden="true">
+                <span class="absolute inset-x-0 top-1/2 h-[1px] bg-slate-800"></span>
+                <span class="absolute w-1 h-1 rounded-full bg-white border border-slate-800 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"></span>
+            </span>
+            <span id="hud-pokeballs" class="text-white font-bold text-[10px] md:text-sm tabular-nums">30/30</span>
         </div>
         <div class="v5-status-chip bg-black/70 backdrop-blur-md rounded-full border border-pink-500/50 flex items-center gap-1 shadow-lg shrink-0" title="目前樹果數量">
             <span class="text-[10px] md:text-sm leading-none">🍇</span>
@@ -75,11 +82,7 @@
             </div>
             <span id="hud-masterballs" class="text-gray-300 font-bold text-[10px] md:text-sm">0</span>
         </div>
-        <!-- The normal Poké Ball count remains in game state and the throwing UI,
-             but no longer occupies the four-slot top shortcut strip. -->
-        <div id="hud-pokeball-container" hidden aria-hidden="true" style="display:none!important">
-            <span id="hud-pokeballs">30/30</span>
-        </div>
+        <!-- Keep the original normal Poké Ball live count, without changing capture inventory. -->
     </div>
 
     <div id="boss-hp-container" class="hidden absolute top-20 left-1/2 -translate-x-1/2 w-[80vw] md:w-96 z-40 pointer-events-none transition-all">
