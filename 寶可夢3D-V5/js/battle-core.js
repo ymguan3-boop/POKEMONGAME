@@ -28,14 +28,16 @@
      {name:special.name,element:special.element||card.element||'一般',damage:Math.max(1,Number(special.damage)||30),ability:special.ability||'none',chance:Number(special.chance)||0,fxVariant:special.fxVariant||'burst',fxSeed:special.fxSeed||0}],defending:false,specialWait:0,status:null,attackBoost:0};
  }
  function createBattle(config) {
-   const {playerParty,opponentParty,catalog,openingSuit,itemStock} = config || {};
+   const {playerParty,opponentParty,catalog,openingSuit,itemStock,adventureBoost} = config || {};
    if (!Array.isArray(playerParty) || playerParty.length !== 3 || new Set(playerParty).size !== 3 ||
        !Array.isArray(opponentParty) || opponentParty.length !== 3) throw new Error('3v3 隊伍資料無效');
    const battle={teams:[playerParty.map(id=>toFighter(id,catalog)),opponentParty.map(id=>toFighter(id,catalog))],
      active:[0,0],turn:0,round:1,requiresSwitch:false,status:'playing',winner:null,reason:'',
      history:['3D 對戰開始！'],actions:0,nonce:0,
      itemStock:Object.fromEntries(['berry','great','master'].map(id=>[id,Math.floor(safeCount(itemStock?.[id]))])),
-     openingSuit:['wigglytuff','blissey'].includes(openingSuit)?openingSuit:null,openingResolved:false};
+     openingSuit:['wigglytuff','blissey'].includes(openingSuit)?openingSuit:null,openingResolved:false,
+      adventureBoost:adventureBoost===true};
+    if(battle.adventureBoost)for(const fighter of battle.teams[0])fighter.permanentAttackBonus=.2;
    if(battle.openingSuit==='wigglytuff')battle.teams[1][0].status={type:'sleep',turns:1,source:'suit'};
    return battle;
  }
@@ -69,9 +71,10 @@
    const match=typeMatch(element,defender);
    const defended=Boolean(defender.defending);
    const boosted=Number(attacker.attackBoost)>0;
-   const multiplier=match.ratio*(defended?.5:1)*(boosted?2:1);
+   const adventureBonus=Number(attacker.permanentAttackBonus)===.2;
+   const multiplier=match.ratio*(defended?.5:1)*(boosted?2:1)*(adventureBonus?1.2:1);
    return {amount:Math.max(1,Math.round(skill.damage*multiplier)),element,
-     effective:match.effective,resisted:match.resisted,defended,boosted,multiplier};
+     effective:match.effective,resisted:match.resisted,defended,boosted,adventureBonus,multiplier};
  }
  function damage(attacker,defender,skill){return damageDetails(attacker,defender,skill).amount;}
  function getOutcome(battle) {
@@ -202,9 +205,9 @@
      if(me.attackBoost)me.attackBoost=0; // Consume boost on the next executed hit.
      op.hp=max(op.hp-dealt,0,op.maxHp);
      op.defending=false;
-     const messages=[detail.effective?'屬性剋制！':detail.resisted?'屬性抵抗！':'',detail.defended?'防禦減傷':'',detail.boosted?'大師球傷害加倍！':''].filter(Boolean);
+     const messages=[detail.effective?'屬性剋制！':detail.resisted?'屬性抵抗！':'',detail.defended?'防禦減傷':'',detail.boosted?'大師球傷害加倍！':'',detail.adventureBonus?'夢幻隨行裝備攻擊力 +20%':''].filter(Boolean);
      battle.history.push(suitImmune?'🛡️ 幸福蛋套裝：NPC 首回合攻擊無效，傷害 0！':me.name+' 使用 '+skill.name+'，造成 '+dealt+' 點傷害'+(messages.length?'（'+messages.join('、')+'）':'')+'。');
-     events.push({type:'attack',side,source:me.id,skill:skill.name,damage:dealt,special,target:op.id,element:detail.element,effective:detail.effective,resisted:detail.resisted,defended:detail.defended,boosted:detail.boosted,immune:suitImmune,fxVariant:skill.fxVariant,fxSeed:skill.fxSeed});
+     events.push({type:'attack',side,source:me.id,skill:skill.name,damage:dealt,special,target:op.id,element:detail.element,effective:detail.effective,resisted:detail.resisted,defended:detail.defended,boosted:detail.boosted,adventureBonus:detail.adventureBonus,immune:suitImmune,fxVariant:skill.fxVariant,fxSeed:skill.fxSeed});
      if(special){
        me.specialWait=3;
        const ability=skill.ability||'none';

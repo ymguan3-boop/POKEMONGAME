@@ -70,8 +70,10 @@
     const suit=this.state.equip?.activeSuit;
     const openingSuit=(suit==='wigglytuff'&&this.state.equip?.wigglytuffSuit)||
       (suit==='blissey'&&this.state.equip?.blisseySuit)?suit:null;
+    // Adventure outfit (none) is a special preset: require the Mew companion unlock.
+    const adventureBoost=suit==='none'&&this.state.equip?.mewCompanion===true;
     this.session=root.V5BattleCore.createBattle({playerParty:allowed.party,
-      opponentParty:npcParty,catalog:root.V5BattleData.catalog(),openingSuit,
+      opponentParty:npcParty,catalog:root.V5BattleData.catalog(),openingSuit,adventureBoost,
       itemStock:{berry:this.state.berryCount,great:this.state.greatBallCount,master:this.state.masterBallCount}});
     this.arena=new root.V5BattleArena();
     await this.arena.showBoth(root.V5BattleCore.actor(this.session,0).id,root.V5BattleCore.actor(this.session,1).id);
@@ -81,7 +83,9 @@
       ?'💤 胖可丁套裝啟動！對方寶可夢首回合睡眠，不能行動；第二回合恢復。'
       :this.session.openingSuit==='blissey'
         ?'🛡️ 幸福蛋套裝啟動！首回合 NPC 攻擊完全無效，第二回合恢復正常。'
-        :'訓練家挑戰開始，請選擇招式！';
+        :this.session.adventureBoost
+          ?'✧ 夢幻隨行與後背包裝備啟動！我方全隊攻擊力常駐 +20%。'
+          :'訓練家挑戰開始，請選擇招式！';
     this.ui.renderBattle(announcement);
     if(this.session.openingSuit==='wigglytuff'){
       this.arena.statusBurst(this.arena.fighters[1],'sleep');this.arena.showOpeningIcon(1,'sleep');
