@@ -100,9 +100,9 @@ test('selected showcased species is catchable and force-locked with priority abo
  }
  const state={currentMode:'world',obstacles:[],pokemons:[]};
  const allowed=new Set(['pikachu']),dex={pikachu:{name:'皮卡丘'}};
- const spawn=new Function('gameState','V5_AVAILABLE_TYPES','POKEDEX_DATA','MAP_BOUNDARY','player','Pokemon','resolveCollision','scene','prioritizeLockTarget',
+ const spawn=new Function('gameState','V5_AVAILABLE_TYPES','POKEDEX_DATA','MAP_BOUNDARY','player','Pokemon','resolveCollision','scene','prioritizeLockTarget','isLockTargetAvailable',
   body+'\nreturn spawnPrize;')(
-  state,allowed,dex,100,{position:{x:0,z:0}},Pkmn,()=>{}, {add:m=>added.push(m)}, m=>locked.push(m)
+  state,allowed,dex,100,{position:{x:0,z:0}},Pkmn,()=>{}, {add:m=>added.push(m)}, m=>locked.push(m),m=>m.isTargetable!==false&&Boolean(m.mesh?.parent)
  );
  const monster=spawn('pikachu',{showcase:true});
  assert.ok(monster);
