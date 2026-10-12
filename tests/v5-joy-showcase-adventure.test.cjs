@@ -96,7 +96,7 @@ test('selected showcased species is catchable and force-locked with priority abo
  const body=html.slice(start,end);
  const locked=[],added=[];
  class Pkmn{
-  constructor(type,x,z){this.type=type;this.mesh={position:{x,z},parent:{}};this.lockPriority=0;}
+  constructor(type,x,z){this.type=type;this.mesh={position:{x,z},parent:{},visible:true};this.lockPriority=0;this.isTargetable=true;}
  }
  const state={currentMode:'world',obstacles:[],pokemons:[]};
  const allowed=new Set(['pikachu']),dex={pikachu:{name:'皮卡丘'}};
