@@ -1,0 +1,43 @@
+/* Responsive, accessible full-Pokédex milestone; visually above capture and battle HUD. */
+.v5-dex-complete{
+ position:fixed;inset:0;z-index:11000;display:flex;align-items:center;justify-content:center;
+ padding:16px;box-sizing:border-box;background:rgba(2,12,23,.72);backdrop-filter:blur(6px);
+ -webkit-backdrop-filter:blur(6px);font-family:system-ui,-apple-system,sans-serif;
+ color:#fff;touch-action:pan-y
+}
+.v5-dex-complete-panel{
+ width:min(95vw,510px);box-sizing:border-box;max-height:calc(100dvh - 32px);overflow-y:auto;
+ padding:clamp(21px,5vw,34px) 17px 25px;border-radius:22px;
+ border:2px solid rgba(255,222,125,.86);background:rgba(13,37,58,.82);
+ box-shadow:0 13px 50px #000a,0 0 35px #ffd16b38;text-align:center
+}
+.v5-dex-complete-sparkle{font-size:clamp(23px,6vw,31px);color:#ffdfa0;letter-spacing:.4em;text-shadow:0 0 15px #f3bd55}
+.v5-dex-complete h2{
+ display:flex;flex-wrap:wrap;justify-content:center;gap:.03em;margin:16px 0 13px;
+ font-size:clamp(32px,8.2vw,51px);line-height:1.3;font-weight:950;color:#ffe6a4;
+ text-shadow:0 3px 1px #744c29,0 0 19px #ffd97590
+}
+.v5-dex-complete-letter{
+ display:inline-block;opacity:0;transform:translateY(18px) scale(.6);
+ animation:v5-dex-letter-in .7s ease-out both;animation-delay:var(--letter-delay)
+}
+.v5-dex-complete-panel p{
+ font-size:clamp(13px,3.6vw,16px);line-height:1.75;margin:12px 0 19px;color:#f5f7fc;
+ opacity:0;animation:v5-dex-caption-in .5s 3.1s both
+}
+.v5-dex-complete-actions[hidden]{display:none!important}
+.v5-dex-complete-actions:not([hidden]){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px;animation:v5-dex-caption-in .3s both}
+.v5-dex-complete-actions button{
+ min-height:54px;min-width:0;padding:9px 7px;border-radius:12px;cursor:pointer;
+ border:1px solid #e1d6b0;background:#62516e;color:#fff;
+ font-size:clamp(13px,3.6vw,16px);font-weight:800;touch-action:manipulation
+}
+.v5-dex-complete-actions button:last-child{background:#247a7c;border-color:#92eed5}
+.v5-dex-complete-actions button:focus-visible{outline:3px solid #ffe18d;outline-offset:3px}
+@keyframes v5-dex-letter-in{to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes v5-dex-caption-in{to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){
+ .v5-dex-complete-letter,.v5-dex-complete-panel p,.v5-dex-complete-actions:not([hidden]){
+ animation:none!important;opacity:1!important;transform:none!important
+ }
+}
