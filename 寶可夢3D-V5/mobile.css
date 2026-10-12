@@ -41,3 +41,16 @@
   #berry-buff-indicator { max-width:110px;white-space:normal; }
   #capture-card-inner { max-height:90dvh;overflow-y:auto; }
 }
+
+/* V5 radar visibility: keep a 44px compass touch target and both navigation
+   buttons usable even with the circular radar hidden. */
+#btn-toggle-radar{
+ width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;
+ font-size:19px!important;padding:0!important;
+}
+#radar-container{transform:none!important;margin-top:0!important;gap:8px!important}
+#radar-display{transform:scale(.83);transform-origin:top right;margin-bottom:-17px}
+#radar-display[hidden]{display:none!important}
+#radar-controls:has(#radar-display[hidden]) #radar-container{padding-top:52px}
+#radar-controls .v5-nav-pair{width:94px;max-width:calc(100vw - 16px)}
+#radar-controls .v5-nav-pair button{flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;padding:0}
