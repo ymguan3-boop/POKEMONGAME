@@ -18,7 +18,7 @@
 <script src="js/models-v2/measurements.js"></script>
 <script src="js/models-v2/sizing.js"></script>
     <script src="js/articulated-models.js"></script><script src="js/gym-presentation.js?v=20261012-layered"></script><script src="js/town.js"></script>
-    <script src="js/game-runtime-state.js"></script>
+    <script src="js/game-runtime-state.js"></script><script src="js/showcase-capture-policy.js?v=20261013-recapture"></script>
     <script src="js/card-art.js"></script><script src="js/battle-signatures.js?v=20261011-a"></script><script src="js/card-catalog.js?v=20261011-signature"></script><script src="js/model-viewer.js"></script><script src="js/card-battle.js"></script><script src="js/battle-visual-policy.js?v=20261012"></script><script src="js/battle-core.js?v=20261013-adventure20"></script><script src="js/battle-data.js?v=20261011-fx2"></script><script src="js/battle-arena.js?v=20261012-items"></script><script src="js/battle-ui.js?v=20261013-adventure20"></script><script src="js/battle-controller.js?v=20261013-adventure20"></script><script src="js/pokedex-completion.js?v=20261012"></script>
     
     <style>
@@ -36,6 +36,30 @@
             transform: scale(0); opacity: 0; pointer-events: none; transform-origin: top left;
         }
         #main-menu-panel.active { transform: scale(1); opacity: 1; pointer-events: auto; }
+        /* Compact mobile outfit choices: icon beside the title, not on a separate tall row. */
+        #outfit-modal .outfit-options{grid-auto-rows:max-content;align-content:start;gap:7px}
+        #outfit-modal .outfit-choice{
+            display:grid!important;grid-template-columns:32px minmax(0,1fr);
+            grid-template-rows:auto auto;column-gap:9px;row-gap:2px;
+            align-items:center;min-height:56px!important;height:auto!important;
+            padding:8px 11px!important;line-height:1.15!important;
+        }
+        #outfit-modal .outfit-choice > span:first-child{
+            grid-column:1;grid-row:1/3;align-self:center;
+            font-size:24px!important;line-height:1!important
+        }
+        #outfit-modal .outfit-choice > strong{
+            grid-column:2;grid-row:1;margin-top:0!important;
+            font-size:16px!important;line-height:1.18!important
+        }
+        #outfit-modal .outfit-choice > span:last-child:not(:first-child){
+            grid-column:2;grid-row:2;font-size:11px!important;
+            line-height:1.25!important;margin:0!important
+        }
+        @media(max-width:440px){
+            #outfit-modal .outfit-options{padding:10px;gap:6px}
+            #outfit-modal .outfit-choice{padding:7px 10px!important}
+        }
         /* Two compact navigation buttons replace one full-width button. */
         .v5-nav-pair{display:flex;justify-content:flex-end;align-items:center;gap:6px;width:94px;max-width:calc(100vw - 16px)}
         .v5-nav-pair button{flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;padding:0;font-size:19px;line-height:1;white-space:nowrap}
@@ -166,7 +190,7 @@
                 <div><h2 class="font-black text-xl tracking-wider">👗 變身套裝</h2><p class="text-[11px] text-pink-100 mt-1">選擇一種造型；夢幻以小型同行夥伴漂浮環繞。</p></div>
                 <button id="btn-close-outfits" class="bg-black/40 hover:bg-black/60 w-8 h-8 rounded-full font-bold cursor-pointer">✕</button>
             </div>
-            <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="outfit-options p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button id="btn-suit-none" class="outfit-choice bg-slate-800 border-2 border-sky-400 rounded-xl p-4 text-white text-left cursor-pointer"><span class="text-3xl">🎒</span><strong class="block mt-2">夢幻隨行與後背包裝備</strong><span class="text-[11px] text-gray-400">顯示夢幻隨行與後背包；解鎖夢幻後，3D 卡牌對戰攻擊力常駐 +20%</span></button>
                 <button id="btn-suit-trainer" class="outfit-choice bg-slate-800 border-2 border-slate-600 rounded-xl p-4 text-white text-left cursor-pointer"><span class="text-3xl">🧑‍🦰</span><strong class="block mt-2">原始訓練家</strong><span class="text-[11px] text-gray-400">保留原服裝，不顯示頭套與同行夥伴</span></button>
                 <button id="btn-suit-pikachu" class="outfit-choice bg-slate-800 border-2 border-slate-600 rounded-xl p-4 text-white text-left cursor-pointer"><span class="text-3xl">⚡</span><strong class="block mt-2">皮卡丘套裝</strong><span id="suit-lock-pikachu" class="text-[11px] text-yellow-200"></span></button>
@@ -354,6 +378,10 @@
             if(!pokemon.isGymBoss && gameState.currentMode==='world')resolveCollision(pokemon.mesh.position,pokemon.collisionRadius);
             if(asset.v5){pokemon.animation=new V5AnimationController(replacement,asset.animations);pokemon.animation.play('Idle');pokemon.v5=true;}else if (asset.animations?.length) { pokemon.mixer = new THREE.AnimationMixer(replacement); pokemon.mixer.clipAction(asset.animations[0]).play(); }
             pokemon.glbApplied = true; pokemon.modelSource = asset.scene.userData.source||'v5-glb';pokemon.mesh.visible=true;pokemon.isTargetable=true;
+            // Model loads asynchronously; the initial showcase lock can fail while invisible.
+            // Retry only after the selected model is visible and genuinely targetable.
+            if(pokemon.isShowcase && gameState.currentMode==='world' &&
+               gameState.pokemons.includes(pokemon))prioritizeLockTarget(pokemon);
             if (pokemon.isGymBoss) {
                 const bossHpContainer = document.getElementById('boss-hp-container');
                 if (bossHpContainer) bossHpContainer.dataset.bossModel = 'glb';
@@ -1561,6 +1589,11 @@
             const info = getPokedexInfo(pokemon.type);
             const previousCount = Number(gameState.captureCounts[pokemon.type]) || 0;
             const captureOutcome = resolveCaptureOutcome({ type: pokemon.type, previousCount, maxCaptureLimit: MAX_CAPTURE_LIMIT });
+            // A successfully re-captured showcase has fulfilled this selection.
+            // Clearing it prevents the 15-second reward-sync timer from respawning a duplicate.
+            if(pokemon.isShowcase && gameState.battle3d?.showcaseSpecies===pokemon.type){
+                gameState.battle3d.showcaseSpecies=null;
+            }
 
             gameState.pokedexUnlocks[pokemon.type] = true;
             gameState.captureCounts[pokemon.type] = captureOutcome.nextCount;
@@ -2233,12 +2266,15 @@
                             // 鎖定目標在球飛行期間仍可持續走動；加入約一秒移動量的命中補償，不凍結 AI。
                             const movementAllowance = pk === ball.intendedTarget ? 1.5 : 0;
                             const hitRadius = getCaptureHitRadius(pk) + 0.24 + movementAllowance;
-                            if (isSpecialPokemonType(pk.type) && hasCapturedSpecialPokemon(pk.type)) {
+                            if (V5ShowcaseCapture.shouldPurgeCaughtSpecial(pk,isSpecialPokemonType,hasCapturedSpecialPokemon)) {
                                 resetEntityTransientState(pk); scene.remove(pk.mesh); gameState.pokemons = gameState.pokemons.filter(candidate => candidate !== pk);
                                 continue;
                             }
+                            // Do not hit invisible, still-loading, or NPC models. Already-caught
+                            // special species selected for showcase ARE valid recapture targets.
+                            if(!V5ShowcaseCapture.isWildCaptureTargetReady(pk))continue;
                             const bodyCenter = getCaptureBodyCenter(pk);
-                            if (!pk.isCaptured && segmentIntersectsSphere(ball.previousPosition, ball.mesh.position, bodyCenter, hitRadius)) {
+                            if (segmentIntersectsSphere(ball.previousPosition, ball.mesh.position, bodyCenter, hitRadius)) {
                                 ball.wobblePhase = 1; ball.targetPokemon = pk; pk.isCaptured = true; gameState.captureInProgress = true;
                                 ball.captureStartedAt = performance.now(); gameState.captureStartedAt = ball.captureStartedAt;
                                 ball.life = Math.max(ball.life, 15);
@@ -2386,14 +2422,17 @@
                     // Once players finish the prize roster, their selected species is
                     // a real catchable encounter, not a non-interactive decoration.
                     monster.isShowcase=true;
-                    monster.isCatchable=true;monster.isTargetable=true;monster.isBattleTarget=true;
+                    monster.isCatchable=true;
+                    // The GLB loader controls isTargetable until the model is ready.
+                    monster.isBattleTarget=true;
                     monster.lockPriority=500; // Higher than rare spawns and other world targets.
                 }
                 resolveCollision(monster.mesh.position,.35);
                 monster.spawnX=monster.mesh.position.x;monster.spawnZ=monster.mesh.position.z;
                 scene.add(monster.mesh);gameState.pokemons.push(monster);
-                // Newly selected showcase and normal victory prizes are immediately locked for capture.
-                prioritizeLockTarget(monster);
+                // The GLB loader can still be working. If so, it will trigger the
+                // showcase lock as soon as the model becomes visible and targetable.
+                if(!showcase || isLockTargetAvailable(monster))prioritizeLockTarget(monster);
                 return monster;
             };
             const syncPrizeEntities=()=>{
@@ -2443,7 +2482,7 @@
                     gameState.pokemons=gameState.pokemons.filter(p=>!p.isShowcase);
                     gameState.battle3d.showcaseSpecies=id;saveGameData();close();
                     const monster=spawnPrize(id,{showcase:true});
-                    showNotification(monster?'🎯 已優先鎖定 '+getPokedexInfo(id).name+'！可立即投球捕捉。':'已儲存選擇，返回地圖後將再次嘗試載入並鎖定。');
+                    showNotification(monster?'🎯 '+getPokedexInfo(id).name+' 已在地圖出現！模型載入後將優先鎖定，可投球捕捉並開啟圖鑑。':'已儲存選擇，返回地圖後將再次嘗試載入並鎖定。');
                 };
                 cancel.onclick=close;
                 actions.append(submit,cancel);panel.append(select,actions);overlay.append(panel);document.body.append(overlay);
